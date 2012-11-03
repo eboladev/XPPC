@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>JobListOnReceiptDialog</class>
+ <widget class="QDialog" name="JobListOnReceiptDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>501</width>
+    <height>401</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Управление списком работ</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <property name="margin">
+    <number>2</number>
+   </property>
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <widget class="QGroupBox" name="groupBoxMainInformation">
+       <property name="title">
+        <string>Данные по работе:</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>1</number>
+          </property>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="QLabel" name="labelEmployeeList">
+                <property name="text">
+                 <string>Список сотрудников:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>comboBoxEmployeeList</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBoxEmployeeList"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QLabel" name="labelJobName">
+                <property name="text">
+                 <string>Наименование работы:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>lineEditJobName</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEditJobName"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <property name="spacing">
+               <number>1</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="labelQuantity">
+                <property name="text">
+                 <string>Количество:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>lineEditQuantity</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEditQuantity">
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <property name="spacing">
+               <number>1</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="labelPrice">
+                <property name="text">
+                 <string>Цена:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>lineEditPrice</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEditPrice"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBoxJobOperations">
+       <property name="title">
+        <string>Операции с работами:</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="pushButtonAddJob">
+          <property name="text">
+           <string>Добавить</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="pushButtonUpdateJob">
+          <property name="text">
+           <string>Обновить</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>84</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="5">
+         <widget class="QPushButton" name="pushButtonDeleteJob">
+          <property name="text">
+           <string>Удалить</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="3">
+         <widget class="QPushButton" name="pushButtonClearField">
+          <property name="text">
+           <string>Очистить поля</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QTableView" name="tableView"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="pushButtonOK">
+       <property name="text">
+        <string>Ok</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonCancel">
+       <property name="text">
+        <string>Отмена</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>comboBoxEmployeeList</tabstop>
+  <tabstop>lineEditJobName</tabstop>
+  <tabstop>lineEditQuantity</tabstop>
+  <tabstop>lineEditPrice</tabstop>
+  <tabstop>pushButtonAddJob</tabstop>
+  <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonUpdateJob</tabstop>
+  <tabstop>tableView</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+  <tabstop>pushButtonDeleteJob</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

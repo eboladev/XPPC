@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>611</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Service centre manager</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>2</number>
+    </property>
+    <property name="spacing">
+     <number>1</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Квитанции</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QGroupBox" name="groupBoxSortReceipt">
+            <property name="title">
+             <string>Сортировка квитанций</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <property name="margin">
+              <number>2</number>
+             </property>
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QRadioButton" name="radioButtonReady">
+                 <property name="text">
+                  <string>Готовые(на выдаче)</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButtonWorking">
+                 <property name="text">
+                  <string>В работе</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButtonClosed">
+                 <property name="text">
+                  <string>Закрытые</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBocSearchReceipt">
+            <property name="title">
+             <string>Поиск</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <property name="margin">
+              <number>2</number>
+             </property>
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit"/>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <widget class="QPushButton" name="pushButtonSearch">
+                   <property name="text">
+                    <string>Поиск</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>true</bool>
+                   </property>
+                   <property name="default">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButtonSearchClear">
+                   <property name="text">
+                    <string>Очистить</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QTableView" name="tableViewTicket">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>false</bool>
+          </property>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>50</number>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>10</number>
+          </attribute>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderDefaultSectionSize">
+           <number>20</number>
+          </attribute>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>10</number>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionConnect"/>
+    <addaction name="actionDisconnect"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettingsMenuClicked"/>
+    <addaction name="separator"/>
+    <addaction name="actionExitMenuClicked"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Квитанции</string>
+    </property>
+    <widget class="QMenu" name="menu_2">
+     <property name="title">
+      <string>Печать</string>
+     </property>
+     <addaction name="action_11"/>
+     <addaction name="action_12"/>
+     <addaction name="action_13"/>
+    </widget>
+    <addaction name="actionOnAddReceiptClicked"/>
+    <addaction name="actionOnJobListClicked"/>
+    <addaction name="action_9"/>
+    <addaction name="menu_2"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionConnect">
+   <property name="text">
+    <string>Подключиться</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="text">
+    <string>Отключиться</string>
+   </property>
+  </action>
+  <action name="actionSettingsMenuClicked">
+   <property name="text">
+    <string>Настройки</string>
+   </property>
+  </action>
+  <action name="actionExitMenuClicked">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+  <action name="actionOnAddReceiptClicked">
+   <property name="text">
+    <string>Добавить</string>
+   </property>
+  </action>
+  <action name="actionOnJobListClicked">
+   <property name="text">
+    <string>Список работ</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>Закрыть</string>
+   </property>
+  </action>
+  <action name="action_11">
+   <property name="text">
+    <string>Квитанция</string>
+   </property>
+  </action>
+  <action name="action_12">
+   <property name="text">
+    <string>Акт выполненных работ</string>
+   </property>
+  </action>
+  <action name="action_13">
+   <property name="text">
+    <string>Приходный кассовый ордер</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>pushButtonSearch</tabstop>
+  <tabstop>pushButtonSearchClear</tabstop>
+  <tabstop>radioButtonReady</tabstop>
+  <tabstop>radioButtonWorking</tabstop>
+  <tabstop>radioButtonClosed</tabstop>
+  <tabstop>tableViewTicket</tabstop>
+  <tabstop>tabWidget</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
