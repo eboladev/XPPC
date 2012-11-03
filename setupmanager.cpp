@@ -207,11 +207,9 @@ void SetupManager::setDbHostName(QString host)
 void SetupManager::setDbPassword(QString password)
 {
     QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
-    qDebug() << "password before encrypt " << password;
     QByteArray ba = password.toUtf8();
     encryptDecrypt(ba);
     settings.setValue("db/Password", ba);
-    qDebug() << "password after set " << ba;
 }
 
 void SetupManager::setDbName(QString name)

@@ -52,11 +52,9 @@ void ConnectDialog::saveSettings()
     settings.setValue("HostName",ui->lineEditHost->text());
     settings.setValue("Port",ui->lineEditPort->text());
     settings.setValue("UserName",ui->lineEditName->text());
-    qDebug() << "pass entered" << ui->lineEditPassword->text();
     QByteArray ba = ui->lineEditPassword->text().toUtf8();
     encryptDecrypt(ba);
     settings.setValue("Password",ba);
-    qDebug() << "password saved " << ba;
     settings.endGroup();
 }
 
@@ -71,6 +69,13 @@ void ConnectDialog::encryptDecrypt(QByteArray &ba)
 
 void ConnectDialog::on_pushButtonTestConnection_clicked()
 {
+    QDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    QHBoxLayout *lay = new QHBoxLayout(&dialog);
+    QLabel *su = new QLabel();
+    dialog.setLayout(lay);
+    lay->addWidget(su);
+
     QSqlDatabase mySQLDatabase;
     mySQLDatabase = QSqlDatabase::database(QLatin1String("XP"));
     if (!mySQLDatabase.isOpen())
@@ -83,33 +88,20 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
     mySQLDatabase.setPort(ui->lineEditPort->text().toInt());
     if  (mySQLDatabase.open())
         {
-        QDialog dialog;
-        QHBoxLayout *lay = new QHBoxLayout(&dialog);
-        dialog.setLayout(lay);
-        QLabel *su = new QLabel("Connection succesfull");
-        lay->addWidget(su);
+        su->setText("Connection succesfull");
         dialog.setWindowTitle("Connection result");
-        dialog.exec();
         }
             else
     {
-        QDialog dialog;
-        QHBoxLayout *lay = new QHBoxLayout(&dialog);
-        dialog.setLayout(lay);
-        QLabel *su = new QLabel("Connection failed");
-        lay->addWidget(su);        
+
+        su->setText("Connection failed");
         dialog.setWindowTitle("Connection result");
-        dialog.exec();
     }
     }
         else
     {
-        QDialog dialog;
-        QHBoxLayout *lay = new QHBoxLayout(&dialog);
-        dialog.setLayout(lay);
-        QLabel *su = new QLabel("Connection succesfull");
-        lay->addWidget(su);
+        su->setText("Connection succesfull and already opened");
         dialog.setWindowTitle("Connection result");
-        dialog.exec();
     }
+      dialog.exec();
 }

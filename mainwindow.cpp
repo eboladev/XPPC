@@ -171,41 +171,17 @@ bool MainWindow::connectToDb(QString dbConnectionName)
     QSettings settings;
     SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());
     SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());
-    qDebug() << "password from settings " << settings.value("db/Password").toString().trimmed();
     QByteArray ba = settings.value("db/Password").toByteArray();
     SetupManager::encryptDecrypt(ba);
     SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));
     SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
     SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());
-    SetupManager::instance()->openSQLDatabase(dbConnectionName);
-
-//    QSqlDatabase mySQLDatabase;
-//    mySQLDatabase = QSqlDatabase::database(dbConnectionName);
-//    if (!mySQLDatabase.isOpen())
-//    {
-//        mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", dbConnectionName);
-//        mySQLDatabase.setDatabaseName(settings.value("db/DatabaseName").toString().trimmed());
-//        mySQLDatabase.setPort(settings.value("db/Port").toInt());
-//        mySQLDatabase.setHostName(settings.value("db/HostName").toString().trimmed());
-//        mySQLDatabase.setUserName(settings.value("db/UserName").toString().trimmed());
-//        qDebug() << settings.value("db/Password").toString().trimmed();
-//        mySQLDatabase.setPassword(settings.value("db/Password").toString().trimmed());
-//        if  (mySQLDatabase.open())
-//        {
-//            qDebug() << "connection succesfull";
-//            return true;
-//        }
-//        else
-//        {
-//            qDebug() << "connection failed";
-//            return false;
-//        }
-//    }
-//    else
-//    {
-//        qDebug() << "connection succesfull";
-//        return true;
-//    }
+    if (SetupManager::instance()->openSQLDatabase(dbConnectionName) != SetupManager::FBCorrect)
+    {
+        qDebug() << "failed to connectToDb, fbStatus =" << SetupManager::instance()->getDbSQLStatus();
+        return false;
+    }
+    return true;
 }
 
 bool MainWindow::disconnectFromDb(QString dbConnectionName)
