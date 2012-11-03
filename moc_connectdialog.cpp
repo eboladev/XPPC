@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'connectdialog.h'
 **
-** Created: Sat Nov 3 13:39:24 2012
+** Created: Sat Nov 3 15:49:09 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ConnectDialog[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,6 +33,7 @@ static const uint qt_meta_data_ConnectDialog[] = {
  // slots: signature, parameters, type, tag, flags
       15,   14,   14,   14, 0x0a,
       30,   14,   14,   14, 0x08,
+      68,   14,   14,   14, 0x08,
 
        0        // eod
 };
@@ -40,6 +41,7 @@ static const uint qt_meta_data_ConnectDialog[] = {
 static const char qt_meta_stringdata_ConnectDialog[] = {
     "ConnectDialog\0\0saveSettings()\0"
     "on_pushButtonTestConnection_clicked()\0"
+    "on_pushButtonConnect_clicked()\0"
 };
 
 void ConnectDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -50,6 +52,7 @@ void ConnectDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         switch (_id) {
         case 0: _t->saveSettings(); break;
         case 1: _t->on_pushButtonTestConnection_clicked(); break;
+        case 2: _t->on_pushButtonConnect_clicked(); break;
         default: ;
         }
     }
@@ -88,9 +91,9 @@ int ConnectDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     }
     return _id;
 }

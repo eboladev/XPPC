@@ -24,14 +24,14 @@ public:
         FBAlreadyOpened
     };
 
-//    enum SetupPermission
-//    {
-//        SPSetup = 0x01,
-//        SPUsk = 0x02,
-//        SPWebCam = 0x04,
-//        SPGsmModem = 0x08,
-//        SPSendNet = 0x10
-//    };
+    //    enum SetupPermission
+    //    {
+    //        SPSetup = 0x01,
+    //        SPUsk = 0x02,
+    //        SPWebCam = 0x04,
+    //        SPGsmModem = 0x08,
+    //        SPSendNet = 0x10
+    //    };
 
 public:
 
@@ -46,35 +46,35 @@ public:
     void setDisplayName(QString name);
     int getDbSQLStatus() {return dbStatus;}
 
-//    static QString getSettingFile();
+    //    static QString getSettingFile();
 
-//    QSqlDatabase getSqliteDatabase();
+    //    QSqlDatabase getSqliteDatabase();
     QSqlDatabase getDatabase(const QString &connectionName = "XP");
-//    QSqlDatabase getFireBirdSQLDatabase();
+    //    QSqlDatabase getFireBirdSQLDatabase();
     QString getDBDefaultConnectionName() const {return QString("XP");}
     bool getSqlQueryForDB(QSqlQuery &q, const QString &connectionName = "XP");
 
-//    bool openSqliteDatabase();
-//    int openFireBirdSQLDatabase();
+    //    bool openSqliteDatabase();
+    //    int openFireBirdSQLDatabase();
     int openSQLDatabase(QString connectionName = "XP");
 
     //локальнкая база sqlite (к удалению)
     // TODO: remove sqlite database from project
-//    static QString getSqliteFileLocation();
+    //    static QString getSqliteFileLocation();
 
-//    static void setSqliteFileLocation(QString location);
+    //    static void setSqliteFileLocation(QString location);
 
     //удаленная база firebirdsql
-//    static QString getFBConnectionName(){return tr("fb");}
-//    static QString getFBHostName();
-//    static QString getFBPassword();
-//    static QString getFBFileLocation();
-//    static QString getFBUserName();
+    //    static QString getFBConnectionName(){return tr("fb");}
+    //    static QString getFBHostName();
+    //    static QString getFBPassword();
+    //    static QString getFBFileLocation();
+    //    static QString getFBUserName();
 
-//    static void setFBHostName(QString host);
-//    static void setFBPassword (QString password);
-//    static void setFBFileLocation(QString location);
-//    static void setFBUserName(QString name);
+    //    static void setFBHostName(QString host);
+    //    static void setFBPassword (QString password);
+    //    static void setFBFileLocation(QString location);
+    //    static void setFBUserName(QString name);
 
     //локальная база firebirdsql
     static QString getDbHostName();
@@ -100,8 +100,8 @@ private:
     QString displayName;
     int permission;
 
-//    bool sqliteStatus;
-//    int fbStatus;
+    //    bool sqliteStatus;
+    //    int fbStatus;
     int dbStatus;
 };
 

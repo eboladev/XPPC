@@ -19,6 +19,8 @@ public slots:
 private slots:
     void on_pushButtonTestConnection_clicked();
 
+    void on_pushButtonConnect_clicked();
+
 private:
     static void encryptDecrypt(QByteArray &ba);
     Ui::ConnectDialog *ui;

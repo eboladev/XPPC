@@ -23,16 +23,15 @@ ConnectDialog::~ConnectDialog()
 void ConnectDialog::loadSettings()
 {
     QSettings settings;
-    //settings.sync();
     if (settings.allKeys().count() >0)
     {
-    ui->lineEditHost->setText(settings.value("db/HostName").toString());
-    ui->lineEditName->setText(settings.value("db/UserName").toString());
-    QByteArray ba = settings.value("db/Password").toByteArray();
-    encryptDecrypt(ba);
-    ui->lineEditPassword->setText(QString::fromUtf8(ba.data(), ba.count()));
-    ui->lineEditPort->setText(settings.value("db/Port").toString());
-    ui->lineEditDBName->setText(settings.value("db/DatabaseName").toString());
+        ui->lineEditHost->setText(settings.value("db/HostName").toString());
+        ui->lineEditName->setText(settings.value("db/UserName").toString());
+        QByteArray ba = settings.value("db/Password").toByteArray();
+        encryptDecrypt(ba);
+        ui->lineEditPassword->setText(QString::fromUtf8(ba.data(), ba.count()));
+        ui->lineEditPort->setText(settings.value("db/Port").toString());
+        ui->lineEditDBName->setText(settings.value("db/DatabaseName").toString());
     }
     else
     {
@@ -80,28 +79,37 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
     mySQLDatabase = QSqlDatabase::database(QLatin1String("XP"));
     if (!mySQLDatabase.isOpen())
     {
-    mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", QLatin1String("XP"));
-    mySQLDatabase.setDatabaseName(QString(ui->lineEditDBName->text()).trimmed());
-    mySQLDatabase.setHostName(QString(ui->lineEditHost->text()).trimmed());
-    mySQLDatabase.setUserName(QString(ui->lineEditName->text()).trimmed());
-    mySQLDatabase.setPassword(QString(ui->lineEditPassword->text()).trimmed());
-    mySQLDatabase.setPort(ui->lineEditPort->text().toInt());
-    if  (mySQLDatabase.open())
+        mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", QLatin1String("XP"));
+        mySQLDatabase.setDatabaseName(QString(ui->lineEditDBName->text()).trimmed());
+        mySQLDatabase.setHostName(QString(ui->lineEditHost->text()).trimmed());
+        mySQLDatabase.setUserName(QString(ui->lineEditName->text()).trimmed());
+        mySQLDatabase.setPassword(QString(ui->lineEditPassword->text()).trimmed());
+        mySQLDatabase.setPort(ui->lineEditPort->text().toInt());
+        if  (mySQLDatabase.open())
         {
-        su->setText("Connection succesfull");
-        dialog.setWindowTitle("Connection result");
+            su->setText("Connection succesfull");
+            dialog.setWindowTitle("Connection result");
         }
-            else
-    {
-
-        su->setText("Connection failed");
-        dialog.setWindowTitle("Connection result");
-    }
-    }
         else
+        {
+
+            su->setText("Connection failed");
+            dialog.setWindowTitle("Connection result");
+        }
+    }
+    else
     {
         su->setText("Connection succesfull and already opened");
         dialog.setWindowTitle("Connection result");
     }
-      dialog.exec();
+    dialog.exec();
+}
+
+void ConnectDialog::on_pushButtonConnect_clicked()
+{
+    if (QSqlDatabase::database(QLatin1String("XP")).isOpen())
+    {
+        QSqlDatabase::database(QLatin1String("XP")).close();
+        QSqlDatabase::removeDatabase(QLatin1String("XP"));
+    }
 }

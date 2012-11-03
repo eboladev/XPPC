@@ -20,6 +20,8 @@ public:
 private slots:
     void on_pushButtonAddReceipt_clicked();
 
+    void on_pushButtonClearFields_clicked();
+
 private:
     Ui::ReceiptManager *ui;
     void clearFields();

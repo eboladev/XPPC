@@ -2,7 +2,7 @@
 
 
 SetupManager::SetupManager(QObject *parent) :
-    QObject(parent), dbStatus(FBCantOpen) //, sqliteStatus(false)
+    QObject(parent), dbStatus(FBCantOpen)
 {
 
 }
@@ -313,10 +313,8 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (mySQLDatabase.isOpen())
-    {
-        qDebug() << "dbStatus FBAlreadyOpened " << FBAlreadyOpened;
         return FBAlreadyOpened;
-    }
+
     dbStatus = FBCorrect;
     mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", connectionName.toLatin1());
     mySQLDatabase.setDatabaseName(getDbName());
@@ -327,22 +325,20 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     if  (!mySQLDatabase.open()) {
         dbStatus =  FBCantOpen;
-        qDebug() << "dbStatus FBCantOpen" << dbStatus;
         return dbStatus;
     }
 
-//    dbStatus = FBWrongVersion;
-//    QSqlQuery q(mySQLDatabase);
-//    q.exec("SELECT VERSION FROM DB_VERSION");
-//    if (!q.lastError().isValid()){
-//        if (q.next()) {
-//            if (q.value(0).toString() == QString("0.0.3"))
-//                dbStatus = FBCorrect;
-//        }
-//    }
+    //    dbStatus = FBWrongVersion;
+    //    QSqlQuery q(mySQLDatabase);
+    //    q.exec("SELECT VERSION FROM DB_VERSION");
+    //    if (!q.lastError().isValid()){
+    //        if (q.next()) {
+    //            if (q.value(0).toString() == QString("0.0.3"))
+    //                dbStatus = FBCorrect;
+    //        }
+    //    }
 
     if (dbStatus != FBCorrect) mySQLDatabase.close();
-    qDebug() << "dbStatus FBCorrect " << dbStatus;
     return dbStatus;
 }
 
@@ -364,7 +360,6 @@ QSqlDatabase SetupManager::getDatabase(const QString &connectionName)
 bool SetupManager::getSqlQueryForDB(QSqlQuery &q, const QString &connectionName)
 {
     QSqlDatabase db = QSqlDatabase::database(connectionName);
-    qDebug() << db;
     if (!db.isOpen())
         return false;
     q = QSqlQuery(db);

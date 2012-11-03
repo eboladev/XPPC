@@ -26,9 +26,9 @@ void JobListOnReceiptDialog::getEmployeeList()
     q.exec("select employee_fio,employee_id from Employee");
     while (q.next())
         ui->comboBoxEmployeeList->addItem(q.value(0).toString(),q.value(1).toInt());
-//        sl.append(q.value(0).toString());
+    //        sl.append(q.value(0).toString());
 
-//    ui->comboBoxEmployeeList->addItems(sl);
+    //    ui->comboBoxEmployeeList->addItems(sl);
 }
 
 void JobListOnReceiptDialog::on_comboBoxEmployeeList_currentIndexChanged(int index)

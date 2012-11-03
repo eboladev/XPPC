@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'receiptmanager.h'
 **
-** Created: Sat Nov 3 13:39:22 2012
+** Created: Sat Nov 3 15:49:07 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_ReceiptManager[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -32,12 +32,14 @@ static const uint qt_meta_data_ReceiptManager[] = {
 
  // slots: signature, parameters, type, tag, flags
       16,   15,   15,   15, 0x08,
+      50,   15,   15,   15, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ReceiptManager[] = {
     "ReceiptManager\0\0on_pushButtonAddReceipt_clicked()\0"
+    "on_pushButtonClearFields_clicked()\0"
 };
 
 void ReceiptManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -47,6 +49,7 @@ void ReceiptManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         ReceiptManager *_t = static_cast<ReceiptManager *>(_o);
         switch (_id) {
         case 0: _t->on_pushButtonAddReceipt_clicked(); break;
+        case 1: _t->on_pushButtonClearFields_clicked(); break;
         default: ;
         }
     }
@@ -87,9 +90,9 @@ int ReceiptManager::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }

@@ -12,6 +12,7 @@
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
 const int LIMIT = 1000;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -42,8 +43,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(updateTableViewTicket,SIGNAL(timeout()),this, SLOT(makeUpdate()));
 
     updateTableViewTicket->start(DEFAULTPERIOD);
-
-    //
 }
 
 MainWindow::~MainWindow()
@@ -123,16 +122,17 @@ void MainWindow::fillTicketViewModel(QString query)
            << ("Устройство") << ("Состояние")
            << ("S/N") << ("Неисправность");
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
-    model->setHeaderData(1, Qt::Horizontal, tr("ФИО"));          //1
-    model->setHeaderData(2, Qt::Horizontal, tr("Телефон"));      //2
-    model->setHeaderData(3, Qt::Horizontal, tr("Устройство"));   //3
-    model->setHeaderData(4, Qt::Horizontal, tr("Состояние"));    //4
-    model->setHeaderData(5, Qt::Horizontal, tr("S/N"));          //5
+    model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
+    model->setHeaderData(2, Qt::Horizontal, tr("ФИО"));      //2
+    model->setHeaderData(3, Qt::Horizontal, tr("Телефон"));   //3
+    model->setHeaderData(4, Qt::Horizontal, tr("Устройство"));    //4
+    model->setHeaderData(5, Qt::Horizontal, tr("Неисправность"));          //5
     model->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));//6
     ui->tableViewTicket->setModel(model);
-    ui->tableViewTicket->resizeColumnToContents(1);
     ui->tableViewTicket->resizeColumnToContents(2);
-    ui->tableViewTicket->resizeColumnToContents(3);
+    ui->tableViewTicket->setColumnWidth(1,70);
+    ui->tableViewTicket->setColumnWidth(3,120);
+    ui->tableViewTicket->setColumnWidth(4,200);
 }
 
 bool MainWindow::checkDbConnection()
@@ -140,17 +140,11 @@ bool MainWindow::checkDbConnection()
     if (QSqlDatabase::database(CONNECTIONNAME).isOpen() && QSqlDatabase::database(CONNECTIONNAME).isValid())
         return true;
     else
-    {
-        //model->clear();
         return false;
-    }
 }
 
 bool MainWindow::checkDbSettings()
 {
-    qDebug() << SetupManager::instance()->getCurrentUser() << SetupManager::instance()->getDbHostName() << SetupManager::instance()->getDbName()
-             << SetupManager::instance()->getDbPort() << SetupManager::instance()->getDbUserName()
-             << SetupManager::instance()->getDbSQLStatus();
     //    if (SetupManager::instance()->getCurrentUser() == "")
     //        return false;
     if (SetupManager::instance()->getDbHostName() == "")
@@ -188,7 +182,6 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
 {
     try
     {
-        //model->clear();
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
         qDebug() << "succesfully removed database " << dbConnectionName;
@@ -206,15 +199,12 @@ bool MainWindow::settingsIsNotEmpty()
 }
 
 void MainWindow::onSettingsClicked()
-{
-    disconnectFromDb(CONNECTIONNAME);
-
+{   
     ConnectDialog cd(this);
     if (cd.exec())
     {
         ui->actionConnect->setEnabled(true);
         on_actionConnect_triggered();
-        //connectToDb(CONNECTIONNAME);
     }
 }
 
@@ -225,7 +215,6 @@ void MainWindow::onAddReceiptClicked()
     {
         if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
         {
-            qDebug() << "removedb on Add";
             QSqlDatabase::removeDatabase(dbConnectionString);
             return;
         }
@@ -392,8 +381,7 @@ void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
         if (rm.exec())
         {
             db.commit();
-            // fillTicketViewModel(formTicketQuery(InWork,LIMIT));
-            // ui->radioButtonWorking->setChecked(true);
+            fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
         }
         else
             db.rollback();
@@ -417,8 +405,6 @@ void MainWindow::on_actionConnect_triggered()
         return;
     }
 
-    //QString temp =  QString("select ticket_id,ticket_fio,ticket_phone,ticket_device,ticket_qual,ticket_serial,ticket_problem from Ticket where ticket_status=0 ORDER BY `Ticket_ID` DESC LIMIT 100");
-    //fillTicketViewModel(temp);
     fillTicketViewModel(formTicketQuery(InWork,LIMIT));
 }
 
