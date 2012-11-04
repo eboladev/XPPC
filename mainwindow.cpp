@@ -5,10 +5,17 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 
+#include "ncreport/include/ncreport.h"
+#include "ncreport/include/ncreporthtmloutput.h"
+#include "ncreport/include/ncreportpreviewoutput.h"
+#include "ncreport/include/ncreportpreviewwindow.h"
+
 #include <QNetworkConfigurationManager>
 #include <QNetworkConfiguration>
 #include <QSqlQueryModel>
-
+#include <QFileDialog>
+#include <QPrinter>
+#include <QPainter>
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
 const int LIMIT = 1000;
@@ -104,10 +111,36 @@ void MainWindow::sb(QString text)
     ui->statusBar->showMessage(text,10000);
 }
 
+void MainWindow::genReport(const int &type)
+{
+    NCReport* report = new NCReport();
+//    NCReportPreviewOutput* output = new NCReportPreviewOutput();
+//    report->setReportFile("test.pdf");
+//    report->addParameter("id",12);
+//    report->setParseMode( NCReport::fromFile );
+//    report->setFileEncoding( "ISO8859-2");
+//    report->setShowPrintDialog( true );
+//    report->setPreviewAsMain( true );	// preview is the main form on preview mode
+//    report->setDeleteReportAfterPreview( true );	// delete report object after close preview
+//    report->setPreviewIsMaximized( false );
+//report->setOutput( );
+//    report->runReportToPreview();
+report->setReportFile("./itemmodel_demo.xml");
+    report->addItemModel(model,"model1");
+//     NCReportPreviewWindow* pv = new NCReportPreviewWindow;
+//         pv->setReport(report);
+//       //  pv->setOutput((NCReportPreviewOutput*)output);
+//         pv->show();
+
+//    report->runReportToQtPreview();
+    //NCReportPreviewWindow window;
+    //window.setReport( report );
+
+    //window.show();
+}
+
 void MainWindow::fillTicketViewModel(QString query)
 {
-    //model->clear();
-
     QSqlQuery q(QSqlDatabase::database(CONNECTIONNAME, false));
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
@@ -185,11 +218,13 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
         qDebug() << "succesfully removed database " << dbConnectionName;
+        return true;
     }
     catch(...)
     {
         qDebug() << "something bad happend during disconnect";
     }
+    return false;
 }
 
 bool MainWindow::settingsIsNotEmpty()
@@ -415,4 +450,9 @@ void MainWindow::on_actionDisconnect_triggered()
         ui->actionConnect->setEnabled(true);
     else
         ui->actionConnect->setEnabled(false);
+}
+
+void MainWindow::on_actionPrintTicket_triggered()
+{
+    genReport(0);
 }

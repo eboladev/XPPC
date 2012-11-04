@@ -1,0 +1,14 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\receiptmanager.o
+./debug\joblistonreceiptdialog.o
+./debug\connectdialog.o
+./debug\sqlextension.o
+./debug\setupmanager.o
+./debug\moc_mainwindow.o
+./debug\moc_receiptmanager.o
+./debug\moc_joblistonreceiptdialog.o
+./debug\moc_connectdialog.o
+./debug\moc_setupmanager.o
+);

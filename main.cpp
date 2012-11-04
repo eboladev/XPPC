@@ -8,7 +8,6 @@
 #include <QSqlDatabase>
 #include <QMessageBox>
 
-
 int main(int argc, char *argv[])
 {
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));

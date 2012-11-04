@@ -57,6 +57,8 @@ private slots:
 
     void networkFuckedUpTwo(const QNetworkConfiguration &);
 
+    void on_actionPrintTicket_triggered();
+
 private:
     void fillTicketViewModel(QString query);
     bool checkDbConnection();
@@ -65,7 +67,7 @@ private:
     bool disconnectFromDb(QString dbConnectionName);
     bool settingsIsNotEmpty();
     void sb(QString text);
-
+    void genReport(const int &type);
 private:        
     Ui::MainWindow *ui;
     QSqlQueryModel* model;
