@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'joblistonreceiptdialog.ui'
 **
-** Created: Sun 4. Nov 16:24:13 2012
+** Created: Mon 5. Nov 14:01:19 2012
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -73,7 +73,6 @@ public:
             JobListOnReceiptDialog->setObjectName(QString::fromUtf8("JobListOnReceiptDialog"));
         JobListOnReceiptDialog->resize(500, 400);
         JobListOnReceiptDialog->setMinimumSize(QSize(500, 400));
-        JobListOnReceiptDialog->setMaximumSize(QSize(501, 401));
         gridLayout_3 = new QGridLayout(JobListOnReceiptDialog);
         gridLayout_3->setSpacing(1);
         gridLayout_3->setContentsMargins(2, 2, 2, 2);
@@ -211,6 +210,16 @@ public:
 
         tableView = new QTableView(JobListOnReceiptDialog);
         tableView->setObjectName(QString::fromUtf8("tableView"));
+        tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
+        tableView->setAlternatingRowColors(true);
+        tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+        tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+        tableView->setShowGrid(true);
+        tableView->horizontalHeader()->setDefaultSectionSize(70);
+        tableView->horizontalHeader()->setMinimumSectionSize(10);
+        tableView->horizontalHeader()->setStretchLastSection(true);
+        tableView->verticalHeader()->setVisible(false);
 
         gridLayout_3->addWidget(tableView, 1, 0, 1, 1);
 

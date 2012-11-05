@@ -150,10 +150,7 @@ void MainWindow::fillTicketViewModel(QString query)
         qDebug() << "случилась какая-то неведомая херня";
     model->setQuery(q);
     model->query().exec();
-    QStringList labels;
-    labels << "№" << ("ФИО") << ("Телефон")
-           << ("Устройство") << ("Состояние")
-           << ("S/N") << ("Неисправность");
+
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
     model->setHeaderData(2, Qt::Horizontal, tr("ФИО"));      //2
@@ -288,10 +285,8 @@ void MainWindow::onJobListClicked()
 
     QString dbConnectionString = "MSJOBLIST";
     {
-        //        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBAlreadyOpened)
         if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
         {
-            qDebug() << "removedb on Add";
             QSqlDatabase::removeDatabase(dbConnectionString);
             return;
         }
@@ -299,13 +294,13 @@ void MainWindow::onJobListClicked()
         QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
         if (!db.isOpen())
         {
-            qDebug() << "Error! database not open";
+            qDebug() << "Error! database not open MSJOBLIST";
             QSqlDatabase::removeDatabase(dbConnectionString);
             return;
         }
 
         db.transaction();
-        JobListOnReceiptDialog jlord("MSJOBLIST",0,this);
+        JobListOnReceiptDialog jlord(dbConnectionString,model->record(ui->tableViewTicket->currentIndex().row()).value(0).toInt(),this);
         updateTableViewTicket->stop();
         if (jlord.exec())
         {
@@ -315,7 +310,10 @@ void MainWindow::onJobListClicked()
             qDebug() << "got db.commit";
         }
         else
+        {
             db.rollback();
+            qDebug() << "rollback";
+        }
         updateTableViewTicket->start(DEFAULTPERIOD);
         db.close();
     }
@@ -369,7 +367,7 @@ void MainWindow::on_pushButtonSearch_clicked()
 {
     updateTableViewTicket->stop();
     fillTicketViewModel(
-                "select ticket_id,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where Ticket_ID LIKE '%"+ui->lineEdit->text()+"%' or Ticket_FIO LIKE '%"+ui->lineEdit->text()+"%' ORDER BY Ticket_ID DESC"
+                "select ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where Ticket_ID LIKE '%"+ui->lineEdit->text()+"%' or Ticket_FIO LIKE '%"+ui->lineEdit->text()+"%' ORDER BY Ticket_ID DESC"
                 );
 }
 

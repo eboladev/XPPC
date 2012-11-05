@@ -29,7 +29,7 @@ FORMS    += mainwindow.ui \
     receiptmanager.ui \
     joblistonreceiptdialog.ui \
     connectdialog.ui
-include(./ncreport_library.pri)
-DEPENDPATH += "./ncreport/include"
+#include(./ncreport_library.pri)
+INCLUDEPATH += "./ncreport/include"
 DEPENDPATH += "./ncreport/lib"
 LIBS += -L"./ncreport/lib/" -lncreport2
