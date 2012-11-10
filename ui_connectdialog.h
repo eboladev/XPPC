@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'connectdialog.ui'
 **
-** Created: Mon 5. Nov 10:57:41 2012
+** Created: Sat 10. Nov 14:58:04 2012
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -200,7 +200,7 @@ public:
         lineEditHost->setToolTip(QApplication::translate("ConnectDialog", "195.46.162.200", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         lineEditHost->setText(QApplication::translate("ConnectDialog", "195.46.162.200", 0, QApplication::UnicodeUTF8));
-        labelDBName->setText(QApplication::translate("ConnectDialog", "Database name:", 0, QApplication::UnicodeUTF8));
+        labelDBName->setText(QApplication::translate("ConnectDialog", "Database file location:", 0, QApplication::UnicodeUTF8));
         lineEditDBName->setText(QApplication::translate("ConnectDialog", "Service_test", 0, QApplication::UnicodeUTF8));
         labelPort->setText(QApplication::translate("ConnectDialog", "Port:", 0, QApplication::UnicodeUTF8));
         lineEditPort->setText(QApplication::translate("ConnectDialog", "3306", 0, QApplication::UnicodeUTF8));

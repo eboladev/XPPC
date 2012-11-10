@@ -5,17 +5,15 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 
-#include "ncreport/include/ncreport.h"
-#include "ncreport/include/ncreporthtmloutput.h"
-#include "ncreport/include/ncreportpreviewoutput.h"
-#include "ncreport/include/ncreportpreviewwindow.h"
+#include "ncreport.h"
+#include "ncreportoutput.h"
+#include "ncreportpreviewoutput.h"
+#include "ncreportpreviewwindow.h"
 
 #include <QNetworkConfigurationManager>
 #include <QNetworkConfiguration>
 #include <QSqlQueryModel>
-#include <QFileDialog>
-#include <QPrinter>
-#include <QPainter>
+
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
 const int LIMIT = 1000;
@@ -47,8 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     on_actionConnect_triggered();
 
-    connect(updateTableViewTicket,SIGNAL(timeout()),this, SLOT(makeUpdate()));
-
+    connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(makeUpdate()));
     updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -63,11 +60,6 @@ MainWindow::~MainWindow()
         QSqlDatabase::database(connames.value(i)).close();
         QSqlDatabase::removeDatabase(connames.value(i));
     }
-    /*QString dbConnectionString = "XP";
-    QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-    if (db.isOpen())
-        db.close();
-    QSqlDatabase::removeDatabase(dbConnectionString);*/
     delete ui;
 }
 
@@ -82,28 +74,29 @@ void MainWindow::networkFuckedUpTwo(const QNetworkConfiguration &qnc)
 
 void MainWindow::makeUpdate()
 {
-    switch (currentStatus)
-    {
-    case 0:
-        fillTicketViewModel(formTicketQuery(InWork,100));
-        break;
-    case 1:
-        fillTicketViewModel(formTicketQuery(Ready,100));
-        break;
-    case 2:
-        fillTicketViewModel(formTicketQuery(Closed,100));
-        break;
-    default:
-        sb("shit happens");
-        break;
-    }
+//    switch (currentStatus)
+//    {
+//    case 0:
+//        fillTicketViewModel(formTicketQuery(InWork,100));
+//        break;
+//    case 1:
+//        fillTicketViewModel(formTicketQuery(Ready,100));
+//        break;
+//    case 2:
+//        fillTicketViewModel(formTicketQuery(Closed,100));
+//        break;
+//    default:
+//        sb("shit happens");
+//        break;
+//    }
+    model->fetchMore();
     updateTableViewTicket->start(DEFAULTPERIOD);
     sb("timer event!");
 }
 
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
-    return "select ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY `Ticket_ID` DESC LIMIT "+QString::number(limit);
+    return "select ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
 }
 
 void MainWindow::sb(QString text)
@@ -113,30 +106,58 @@ void MainWindow::sb(QString text)
 
 void MainWindow::genReport(const int &type)
 {
-    NCReport* report = new NCReport();
-//    NCReportPreviewOutput* output = new NCReportPreviewOutput();
-//    report->setReportFile("test.pdf");
-//    report->addParameter("id",12);
-//    report->setParseMode( NCReport::fromFile );
-//    report->setFileEncoding( "ISO8859-2");
-//    report->setShowPrintDialog( true );
-//    report->setPreviewAsMain( true );	// preview is the main form on preview mode
-//    report->setDeleteReportAfterPreview( true );	// delete report object after close preview
-//    report->setPreviewIsMaximized( false );
-//report->setOutput( );
-//    report->runReportToPreview();
-report->setReportFile("./itemmodel_demo.xml");
-    report->addItemModel(model,"model1");
-//     NCReportPreviewWindow* pv = new NCReportPreviewWindow;
-//         pv->setReport(report);
-//       //  pv->setOutput((NCReportPreviewOutput*)output);
-//         pv->show();
+    QSqlQuery q(QSqlDatabase::database(CONNECTIONNAME, false));
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("select ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_date_in,ticket_serial,ticket_qual from Ticket where ticket_id = ?");
+    q.addBindValue(type);
+    if (!q.exec())
+        return;
+    if (!q.next())
+        return;
+    QStringList list;
+    QString data;
+    data.append(q.value(0).toString());
+    data.append(";");
+    data.append(q.value(1).toString());
+    data.append(";");
+    data.append(q.value(2).toString());
+    data.append(";");
+    data.append(q.value(3).toString());
+    data.append(";");
+    data.append(q.value(4).toString());
+    data.append(";");
+    data.append(q.value(5).toString());
+    data.append(";");
+    data.append(q.value(6).toString());
+    data.append(";");
+    data.append(QString::number(type));
+    list << data;
 
-//    report->runReportToQtPreview();
-    //NCReportPreviewWindow window;
-    //window.setReport( report );
 
-    //window.show();
+    NCReport *report = new NCReport();
+
+    report->setReportSource( NCReportSource::File );
+    report->setReportFile("./report.xml");
+    //report->addItemModel(model,"model1");
+    report->addStringList(list, "model1");
+
+    report->runReportToPreview();
+
+    if (report->hasError()) {
+
+        qDebug() << "ERROR:" << report->lastErrorMsg();
+
+    } else {
+
+        NCReportPreviewWindow *pv = new NCReportPreviewWindow();
+        pv->setOutput( (NCReportPreviewOutput*)report->output() );
+        pv->setWindowModality( Qt::ApplicationModal );
+        pv->setAttribute( Qt::WA_DeleteOnClose );
+        pv->show();
+    }
+
+    delete report;
 }
 
 void MainWindow::fillTicketViewModel(QString query)
@@ -168,7 +189,10 @@ void MainWindow::fillTicketViewModel(QString query)
 bool MainWindow::checkDbConnection()
 {
     if (QSqlDatabase::database(CONNECTIONNAME).isOpen() && QSqlDatabase::database(CONNECTIONNAME).isValid())
+    {
+        qDebug() << "true" << CONNECTIONNAME;
         return true;
+    }
     else
         return false;
 }
@@ -193,13 +217,13 @@ bool MainWindow::checkDbSettings()
 bool MainWindow::connectToDb(QString dbConnectionName)
 {
     QSettings settings;
-    SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());
-    SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());
+    SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());    
+    SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());    
     QByteArray ba = settings.value("db/Password").toByteArray();
     SetupManager::encryptDecrypt(ba);
-    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));
-    SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
-    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());
+    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));    
+    //SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
+    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());    
     if (SetupManager::instance()->openSQLDatabase(dbConnectionName) != SetupManager::FBCorrect)
     {
         qDebug() << "failed to connectToDb, fbStatus =" << SetupManager::instance()->getDbSQLStatus();
@@ -213,8 +237,8 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
     try
     {
         QSqlDatabase::database(dbConnectionName).close();
-        QSqlDatabase::removeDatabase(dbConnectionName);
-        qDebug() << "succesfully removed database " << dbConnectionName;
+        QSqlDatabase::removeDatabase(dbConnectionName);        
+        model->removeColumns(0,model->columnCount());
         return true;
     }
     catch(...)
@@ -260,7 +284,7 @@ void MainWindow::onAddReceiptClicked()
         }
 
         db.transaction();
-        ReceiptManager rm("MSADDRECEIPT",0,this);
+        ReceiptManager rm("MSADDRECEIPT",this);
         updateTableViewTicket->stop();
         if (rm.exec())
         {
@@ -350,8 +374,10 @@ void MainWindow::on_radioButtonClosed_pressed()
 
 void MainWindow::on_tableViewTicket_clicked(const QModelIndex &index)
 {
-    QModelIndex firstcolumn = model->index(index.row(),0);
-    sb(model->data(firstcolumn).toString());
+//    QModelIndex firstcolumn = model->index(index.row(),0);
+//    sb(model->data(firstcolumn).toString());
+    currentTicket = model->record(index.row()).value(0).toInt();
+    sb(QString::number(currentTicket));
 }
 
 void MainWindow::on_pushButtonSearchClear_clicked()
@@ -391,6 +417,7 @@ void MainWindow::on_radioButtonClosed_toggled(bool checked)
 
 void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 {
+    currentTicket = model->record(index.row()).value(0).toInt();
     QString dbConnectionString = "MSTICKETVIEW";
     {
         if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
@@ -410,7 +437,7 @@ void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 
         db.transaction();
         updateTableViewTicket->stop();
-        ReceiptManager rm(dbConnectionString,model->record(index.row()).value(0).toInt(),this);
+        ReceiptManager rm(dbConnectionString,currentTicket,this);
         if (rm.exec())
         {
             db.commit();
@@ -452,5 +479,5 @@ void MainWindow::on_actionDisconnect_triggered()
 
 void MainWindow::on_actionPrintTicket_triggered()
 {
-    genReport(0);
+    genReport(currentTicket);
 }

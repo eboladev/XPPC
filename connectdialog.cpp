@@ -1,8 +1,11 @@
 #include "connectdialog.h"
 #include "ui_connectdialog.h"
+
 #include <QtSql/QSqlDatabase>
 #include <QDebug>
 #include <QSettings>
+
+const QString CONNECTIONNAME = "XP";
 
 ConnectDialog::ConnectDialog(QWidget *parent) :
     QDialog(parent),
@@ -75,27 +78,27 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
     dialog.setLayout(lay);
     lay->addWidget(su);
 
-    QSqlDatabase mySQLDatabase;
-    mySQLDatabase = QSqlDatabase::database(QLatin1String("XP"));
-    if (!mySQLDatabase.isOpen())
-    {
-        mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", QLatin1String("XP"));
-        mySQLDatabase.setDatabaseName(QString(ui->lineEditDBName->text()).trimmed());
-        mySQLDatabase.setHostName(QString(ui->lineEditHost->text()).trimmed());
-        mySQLDatabase.setUserName(QString(ui->lineEditName->text()).trimmed());
-        mySQLDatabase.setPassword(QString(ui->lineEditPassword->text()).trimmed());
-        mySQLDatabase.setPort(ui->lineEditPort->text().toInt());
-        if  (mySQLDatabase.open())
-        {
-            su->setText("Connection succesfull");
-            dialog.setWindowTitle("Connection result");
-        }
-        else
-        {
+    QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(CONNECTIONNAME.toLatin1(), false);
 
-            su->setText("Connection failed");
-            dialog.setWindowTitle("Connection result");
-        }
+    fireBirdSQLDatabase =  QSqlDatabase::database(CONNECTIONNAME.toLatin1(), false);
+    if (!fireBirdSQLDatabase.isOpen())
+    {
+    fireBirdSQLDatabase = QSqlDatabase::addDatabase("QFIREBIRD", CONNECTIONNAME.toLatin1());
+    fireBirdSQLDatabase.setDatabaseName(ui->lineEditDBName->text().trimmed()); //getFBFileLocation()
+    fireBirdSQLDatabase.setHostName(ui->lineEditHost->text().trimmed());
+    fireBirdSQLDatabase.setUserName(ui->lineEditName->text().trimmed());
+    fireBirdSQLDatabase.setPassword(ui->lineEditPassword->text().trimmed());
+    fireBirdSQLDatabase.setConnectOptions("CHARSET=UTF-8");
+    if  (fireBirdSQLDatabase.open())
+    {
+        su->setText("Connection succesfull");
+        dialog.setWindowTitle("Connection result");
+    }
+    else
+    {
+        su->setText("Connection failed");
+        dialog.setWindowTitle("Connection result");
+    }
     }
     else
     {
@@ -103,6 +106,36 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
         dialog.setWindowTitle("Connection result");
     }
     dialog.exec();
+    fireBirdSQLDatabase.close();
+    QSqlDatabase::removeDatabase(CONNECTIONNAME);
+    /*mysql*/
+//    QSqlDatabase mySQLDatabase;
+//    mySQLDatabase = QSqlDatabase::database(QLatin1String("XP"));
+//    if (!mySQLDatabase.isOpen())
+//    {
+//        mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", QLatin1String("XP"));
+//        mySQLDatabase.setDatabaseName(QString(ui->lineEditDBName->text()).trimmed());
+//        mySQLDatabase.setHostName(QString(ui->lineEditHost->text()).trimmed());
+//        mySQLDatabase.setUserName(QString(ui->lineEditName->text()).trimmed());
+//        mySQLDatabase.setPassword(QString(ui->lineEditPassword->text()).trimmed());
+//        mySQLDatabase.setPort(ui->lineEditPort->text().toInt());
+//        if  (mySQLDatabase.open())
+//        {
+//            su->setText("Connection succesfull");
+//            dialog.setWindowTitle("Connection result");
+//        }
+//        else
+//        {
+//            su->setText("Connection failed");
+//            dialog.setWindowTitle("Connection result");
+//        }
+//    }
+//    else
+//    {
+//        su->setText("Connection succesfull and already opened");
+//        dialog.setWindowTitle("Connection result");
+//    }
+//    dialog.exec();
 }
 
 void ConnectDialog::on_pushButtonConnect_clicked()

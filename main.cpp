@@ -18,13 +18,20 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("mysoft.com");
     QCoreApplication::setApplicationName("Service centre manager");
 
-    if (!QSqlDatabase::isDriverAvailable("QMYSQL"))
+    if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
-                                              "QMYSQL"));
+                                              "QFIREBIRD"));
         return -1;
     }
+//    if (!QSqlDatabase::isDriverAvailable("QMYSQL"))
+//    {
+//        QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
+//                              QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
+//                                              "QMYSQL"));
+//        return -1;
+//    }
 
     QSettings settings;
 

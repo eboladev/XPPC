@@ -29,7 +29,18 @@ FORMS    += mainwindow.ui \
     receiptmanager.ui \
     joblistonreceiptdialog.ui \
     connectdialog.ui
-#include(./ncreport_library.pri)
-INCLUDEPATH += "./ncreport/include"
-DEPENDPATH += "./ncreport/lib"
-LIBS += -L"./ncreport/lib/" -lncreport2
+
+win32-g++ {
+
+    INCLUDEPATH += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/include"
+
+    CONFIG( debug, debug|release ) {
+	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreportd2.a"
+    } else {
+	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreport2.a"
+    }
+
+}
+
+OTHER_FILES += \
+    report.xml

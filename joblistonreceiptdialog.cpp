@@ -13,8 +13,6 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     connect(ui->pushButtonCancel,SIGNAL(clicked()),this, SLOT(reject()));
     getEmployeeList();
 
-
-
     if (id!=0)
         getJobs(id);
 
@@ -87,7 +85,7 @@ void JobListOnReceiptDialog::on_pushButtonAddJob_clicked()
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("insert into JobOnTicket(ticket_id,employee_id,job_name,job_quantity,job_date,job_price) values(?,?,?,?,CURDATE(),?)");
+    q.prepare("insert into JobOnTicket(ticket_id,employee_id,job_name,job_quantity,job_date,job_price) values(?,?,?,?,(select currentdate from getcurrentdate),?)");
     q.addBindValue(m_id);
     q.addBindValue(ui->comboBoxEmployeeList->itemData(ui->comboBoxEmployeeList->currentIndex()));
     q.addBindValue(ui->lineEditJobName->text().toUtf8());

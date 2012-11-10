@@ -68,12 +68,12 @@ public:
     //    static QString getFBConnectionName(){return tr("fb");}
     //    static QString getFBHostName();
     //    static QString getFBPassword();
-    //    static QString getFBFileLocation();
+        static QString getFBFileLocation();
     //    static QString getFBUserName();
 
     //    static void setFBHostName(QString host);
     //    static void setFBPassword (QString password);
-    //    static void setFBFileLocation(QString location);
+        static void setFBFileLocation(QString location);
     //    static void setFBUserName(QString name);
 
     //локальная база firebirdsql
@@ -101,7 +101,7 @@ private:
     int permission;
 
     //    bool sqliteStatus;
-    //    int fbStatus;
+    int fbStatus;
     int dbStatus;
 };
 

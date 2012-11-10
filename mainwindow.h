@@ -23,8 +23,8 @@ public:
 
     enum TicketStatus
     {
-        InWork,
         Ready,
+        InWork,        
         Closed
     };
 
@@ -74,6 +74,7 @@ private:
     QTimer* updateTableViewTicket;
     QString defaultConfName;
     int currentStatus;
+    int currentTicket;
 };
 
 #endif // MAINWINDOW_H

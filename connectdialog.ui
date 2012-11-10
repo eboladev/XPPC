@@ -61,7 +61,7 @@
      <item>
       <widget class="QLabel" name="labelDBName">
        <property name="text">
-        <string>Database name:</string>
+        <string>Database file location:</string>
        </property>
        <property name="buddy">
         <cstring>lineEditDBName</cstring>

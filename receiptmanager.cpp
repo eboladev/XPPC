@@ -44,9 +44,9 @@ void ReceiptManager::on_pushButtonAddReceipt_clicked()
         return;
     if (ui->pushButtonAddReceipt->property("mode").toInt() == 0)
     {
-        q.exec("insert into Ticket(Ticket_FIO,Ticket_phone,Ticket_device,Ticket_Serial,Ticket_qual,Ticket_problem,Ticket_date_in) VALUES('"+
+        q.exec("insert into Ticket(Ticket_FIO,Ticket_phone,Ticket_device,Ticket_Serial,Ticket_qual,Ticket_problem,Ticket_date_in,ticket_status) VALUES('"+
                ui->lineEditFIO->text()+"','"+ui->lineEditPhone->text()+"','"+ui->lineEditDevice->text()+"','"+ui->lineEditSerial->text()+
-               "','"+ui->lineEditQual->text()+"','"+ui->plainTextEditMalfunction->toPlainText()+"', CURDATE())");
+               "','"+ui->lineEditQual->text()+"','"+ui->plainTextEditMalfunction->toPlainText()+"', (select currentdate from getcurrentdate),1)");
         if (!q.next())
             return;
     }

@@ -84,17 +84,17 @@ void SetupManager::setDisplayName(QString name)
 //    }
 //}
 
-//QString SetupManager::getFBFileLocation()
-//{
-//    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
-//    if (settings.contains("db/fbfilelocation")){
-//        return settings.value("db/fbfilelocation").toString();
-//    } else {
-//        QString fbfilelocation = QDir::currentPath().append("/usk.fdb");
-//        settings.setValue("db/fbfilelocation", fbfilelocation);
-//        return fbfilelocation;
-//    }
-//}
+QString SetupManager::getFBFileLocation()
+{
+    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
+    if (settings.contains("db/DatabaseName")){
+        return settings.value("db/DatabaseName").toString();
+    } else {
+        QString fbfilelocation = QDir::currentPath().append("/HP.FDB");
+        settings.setValue("db/DatabaseName", fbfilelocation);
+        return fbfilelocation;
+    }
+}
 
 //void SetupManager::setFBHostName(QString host)
 //{
@@ -110,11 +110,12 @@ void SetupManager::setDisplayName(QString name)
 //    settings.setValue("db/fbpassword", ba);
 //}
 
-//void SetupManager::setFBFileLocation(QString location)
-//{
-//    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
-//    settings.setValue("db/fbfilelocation", location);
-//}
+void SetupManager::setFBFileLocation(QString location)
+{
+    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
+   // settings.setValue("db/fbfilelocation", location);
+     settings.setValue("db/DatabaseName", location);
+}
 
 //QString SetupManager::getSqliteFileLocation()
 //{
@@ -122,7 +123,7 @@ void SetupManager::setDisplayName(QString name)
 //    if (settings.contains("db/sqlitefilelocation")){
 //        return settings.value("db/sqlitefilelocation").toString();
 //    } else {
-//        QString sqliteFileLocation = QDir::currentPath().append("/usk.db3");
+//        QString sqliteFileLocation = QDir::currentPath().append("/HP.FDB");
 //        settings.setValue("db/sqlitefilelocation", sqliteFileLocation);
 //        return sqliteFileLocation;
 //    }
@@ -134,7 +135,8 @@ QString SetupManager::getDbHostName()
     if (settings.contains("db/HostName")){
         return settings.value("db/HostName").toString();
     } else {
-        QString fbhostname = "195.46.162.200";
+        //QString fbhostname = "195.46.162.200";
+        QString fbhostname = "localhost";
         settings.setValue("db/HostName", fbhostname);
         return fbhostname;
     }
@@ -148,7 +150,8 @@ QString SetupManager::getDbPassword()
         encryptDecrypt(ba);
         return QString::fromUtf8(ba.data(), ba.count());
     } else {
-        QString fbpassword = "dctvgbpltw";
+        //QString fbpassword = "dctvgbpltw";
+        QString fbpassword = "masterkey";
         QByteArray ba = fbpassword.toUtf8();
         encryptDecrypt(ba);
         settings.setValue("db/Password", ba);
@@ -162,7 +165,8 @@ QString SetupManager::getDbName()
     if (settings.contains("db/DatabaseName")){
         return settings.value("db/DatabaseName").toString();
     } else {
-        QString fbfilelocation = "Service_new";
+        //QString fbfilelocation = "Service_new";
+        QString fbfilelocation = QDir::currentPath().append("/db/HP.FDB");
         settings.setValue("db/DatabaseName", fbfilelocation);
         return fbfilelocation;
     }
@@ -174,7 +178,8 @@ QString SetupManager::getDbUserName()
     if (settings.contains("db/UserName")){
         return settings.value("db/UserName").toString();
     } else {
-        QString fbusername = "admin";
+        //QString fbusername = "admin";
+        QString fbusername = "SYSDBA";
         settings.setValue("db/UserName", fbusername);
         return fbusername;
     }
@@ -309,9 +314,40 @@ void SetupManager::encryptDecrypt(QByteArray &ba)
 //}
 
 int SetupManager::openSQLDatabase(QString connectionName)
-{
+{   
+    QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
+    if (fireBirdSQLDatabase.isOpen())
+        return FBAlreadyOpened;
 
-    QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
+    dbStatus = FBCorrect;
+
+    fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
+    if (fireBirdSQLDatabase.isOpen()) return FBCorrect;
+    fireBirdSQLDatabase = QSqlDatabase::addDatabase("QFIREBIRD", connectionName.toLatin1());
+    fireBirdSQLDatabase.setDatabaseName(getDbName()); //getFBFileLocation()
+    fireBirdSQLDatabase.setHostName(getDbHostName());
+    fireBirdSQLDatabase.setUserName(getDbUserName());
+    fireBirdSQLDatabase.setPassword(getDbPassword());
+
+    fireBirdSQLDatabase.setConnectOptions("CHARSET=UTF-8");
+    if  (!fireBirdSQLDatabase.open()) {
+        dbStatus =  FBCantOpen;
+        return dbStatus;
+    }
+//            fbStatus = FBWrongVersion;
+//            QSqlQuery q(fireBirdSQLDatabase);
+//            q.exec("SELECT VERSION FROM DB_VERSION");
+//            if (!q.lastError().isValid()){
+//                if (q.next()) {
+//                    if (q.value(0).toString() == QString("0.0.3"))
+//                        fbStatus = FBCorrect;
+//                }
+//            }
+    if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();
+
+    return dbStatus;
+    /* MYSQL */
+    /*    QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (mySQLDatabase.isOpen())
         return FBAlreadyOpened;
 
@@ -339,7 +375,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
     //    }
 
     if (dbStatus != FBCorrect) mySQLDatabase.close();
-    return dbStatus;
+    return dbStatus;*/
 }
 
 //QSqlDatabase SetupManager::getSqliteDatabase()
