@@ -4,6 +4,8 @@
 #include "joblistonreceiptdialog.h"
 #include "connectdialog.h"
 #include "setupmanager.h"
+#include "branchwidget.h"
+#include "closeticketwidget.h"
 
 #include "ncreport.h"
 #include "ncreportoutput.h"
@@ -37,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOnJobListClicked,SIGNAL(triggered()),this,SLOT(onJobListClicked()));
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
-
+    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(on_actionBranches_triggered()));
+    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
     if (!checkDbSettings())
     {
         ui->actionConnect->setEnabled(false);
@@ -96,7 +99,11 @@ void MainWindow::makeUpdate()
 
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
-    return "select ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
+    qDebug() << currentStatus;
+    if (currentStatus==Closed)
+        return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
+
+    return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
 }
 
 void MainWindow::sb(QString text)
@@ -174,16 +181,26 @@ void MainWindow::fillTicketViewModel(QString query)
 
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
-    model->setHeaderData(2, Qt::Horizontal, tr("ФИО"));      //2
-    model->setHeaderData(3, Qt::Horizontal, tr("Телефон"));   //3
-    model->setHeaderData(4, Qt::Horizontal, tr("Устройство"));    //4
-    model->setHeaderData(5, Qt::Horizontal, tr("Неисправность"));          //5
-    model->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));//6
+    model->setHeaderData(2,Qt::Horizontal,tr("Филиал"));
+    model->setHeaderData(3, Qt::Horizontal, tr("ФИО"));      //2
+    model->setHeaderData(4, Qt::Horizontal, tr("Телефон"));   //3
+    model->setHeaderData(5, Qt::Horizontal, tr("Устройство"));    //4
+    model->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));          //5
     ui->tableViewTicket->setModel(model);
-    ui->tableViewTicket->resizeColumnToContents(2);
-    ui->tableViewTicket->setColumnWidth(1,70);
-    ui->tableViewTicket->setColumnWidth(3,120);
-    ui->tableViewTicket->setColumnWidth(4,200);
+    ui->tableViewTicket->resizeColumnToContents(3);
+    if (currentStatus==Closed)
+    {
+        model->setHeaderData(7, Qt::Horizontal, tr("Цена"));//6
+        model->setHeaderData(8, Qt::Horizontal, tr("Выдано"));
+        ui->tableViewTicket->resizeColumnsToContents();
+    }
+    else
+    {
+        ui->tableViewTicket->setColumnWidth(1,70);
+        ui->tableViewTicket->setColumnWidth(4,120);
+        ui->tableViewTicket->setColumnWidth(5,200);
+    }
+
 }
 
 bool MainWindow::checkDbConnection()
@@ -341,16 +358,16 @@ void MainWindow::onJobListClicked()
         updateTableViewTicket->start(DEFAULTPERIOD);
         db.close();
     }
-
     QSqlDatabase::removeDatabase(dbConnectionString);
+    fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
 }
 
 void MainWindow::on_radioButtonReady_pressed()
 {
     if (checkDbConnection())
     {
-        fillTicketViewModel(formTicketQuery(Ready,LIMIT));
         currentStatus = Ready;
+        fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
     }
 }
 
@@ -358,8 +375,8 @@ void MainWindow::on_radioButtonWorking_pressed()
 {
     if (checkDbConnection())
     {
-        fillTicketViewModel(formTicketQuery(InWork,LIMIT));
         currentStatus = InWork;
+        fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
     }
 }
 
@@ -367,8 +384,8 @@ void MainWindow::on_radioButtonClosed_pressed()
 {
     if (checkDbConnection())
     {
-        fillTicketViewModel(formTicketQuery(Closed,LIMIT));
         currentStatus = Closed;
+        fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
     }
 }
 
@@ -480,4 +497,76 @@ void MainWindow::on_actionDisconnect_triggered()
 void MainWindow::on_actionPrintTicket_triggered()
 {
     genReport(currentTicket);
+}
+
+void MainWindow::on_actionBranches_triggered()
+{
+    QString dbConnectionString = "MSBRANCHESVIEW";
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            qDebug() << "removedb on branches";
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            qDebug() << "Error! database not open";
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        db.transaction();
+        updateTableViewTicket->stop();
+        BranchWidget bw(dbConnectionString,this);
+        if (bw.exec())
+        {
+            db.commit();
+        }
+        else
+            db.rollback();
+        updateTableViewTicket->start(DEFAULTPERIOD);
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
+    fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
+}
+
+void MainWindow::on_actionCloseTicket_triggered()
+{
+    QString dbConnectionString = "MSCLOSETICKET";
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            qDebug() << "removedb on closeticket";
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            qDebug() << "Error! database not open";
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        db.transaction();
+        updateTableViewTicket->stop();
+        if (currentTicket <= 0 )
+            return;
+        CloseTicketWidget ctw(dbConnectionString,currentTicket,this);
+        if (ctw.exec())
+        {
+            db.commit();
+        }
+        else
+            db.rollback();
+        updateTableViewTicket->start(DEFAULTPERIOD);
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
+    fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
 }

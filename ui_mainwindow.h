@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon 5. Nov 10:57:41 2012
+** Created: Sun 11. Nov 15:04:25 2012
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -42,10 +42,11 @@ public:
     QAction *actionExitMenuClicked;
     QAction *actionOnAddReceiptClicked;
     QAction *actionOnJobListClicked;
-    QAction *action_9;
+    QAction *actionCloseTicket;
     QAction *actionPrintTicket;
     QAction *action_12;
     QAction *action_13;
+    QAction *actionBranchTriggered;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QTabWidget *tabWidget;
@@ -72,6 +73,7 @@ public:
     QMenu *menuFile;
     QMenu *menu;
     QMenu *menu_2;
+    QMenu *menu_3;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -93,14 +95,16 @@ public:
         actionOnAddReceiptClicked->setObjectName(QString::fromUtf8("actionOnAddReceiptClicked"));
         actionOnJobListClicked = new QAction(MainWindow);
         actionOnJobListClicked->setObjectName(QString::fromUtf8("actionOnJobListClicked"));
-        action_9 = new QAction(MainWindow);
-        action_9->setObjectName(QString::fromUtf8("action_9"));
+        actionCloseTicket = new QAction(MainWindow);
+        actionCloseTicket->setObjectName(QString::fromUtf8("actionCloseTicket"));
         actionPrintTicket = new QAction(MainWindow);
         actionPrintTicket->setObjectName(QString::fromUtf8("actionPrintTicket"));
         action_12 = new QAction(MainWindow);
         action_12->setObjectName(QString::fromUtf8("action_12"));
         action_13 = new QAction(MainWindow);
         action_13->setObjectName(QString::fromUtf8("action_13"));
+        actionBranchTriggered = new QAction(MainWindow);
+        actionBranchTriggered->setObjectName(QString::fromUtf8("actionBranchTriggered"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -234,6 +238,8 @@ public:
         menu->setObjectName(QString::fromUtf8("menu"));
         menu_2 = new QMenu(menu);
         menu_2->setObjectName(QString::fromUtf8("menu_2"));
+        menu_3 = new QMenu(menuBar);
+        menu_3->setObjectName(QString::fromUtf8("menu_3"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -251,6 +257,7 @@ public:
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menu->menuAction());
+        menuBar->addAction(menu_3->menuAction());
         menuFile->addAction(actionConnect);
         menuFile->addAction(actionDisconnect);
         menuFile->addSeparator();
@@ -259,11 +266,12 @@ public:
         menuFile->addAction(actionExitMenuClicked);
         menu->addAction(actionOnAddReceiptClicked);
         menu->addAction(actionOnJobListClicked);
-        menu->addAction(action_9);
+        menu->addAction(actionCloseTicket);
         menu->addAction(menu_2->menuAction());
         menu_2->addAction(actionPrintTicket);
         menu_2->addAction(action_12);
         menu_2->addAction(action_13);
+        menu_3->addAction(actionBranchTriggered);
 
         retranslateUi(MainWindow);
 
@@ -282,10 +290,11 @@ public:
         actionExitMenuClicked->setText(QApplication::translate("MainWindow", "\320\222\321\213\321\205\320\276\320\264", 0, QApplication::UnicodeUTF8));
         actionOnAddReceiptClicked->setText(QApplication::translate("MainWindow", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         actionOnJobListClicked->setText(QApplication::translate("MainWindow", "\320\241\320\277\320\270\321\201\320\276\320\272 \321\200\320\260\320\261\320\276\321\202", 0, QApplication::UnicodeUTF8));
-        action_9->setText(QApplication::translate("MainWindow", "\320\227\320\260\320\272\321\200\321\213\321\202\321\214", 0, QApplication::UnicodeUTF8));
+        actionCloseTicket->setText(QApplication::translate("MainWindow", "\320\227\320\260\320\272\321\200\321\213\321\202\321\214", 0, QApplication::UnicodeUTF8));
         actionPrintTicket->setText(QApplication::translate("MainWindow", "\320\232\320\262\320\270\321\202\320\260\320\275\321\206\320\270\321\217", 0, QApplication::UnicodeUTF8));
         action_12->setText(QApplication::translate("MainWindow", "\320\220\320\272\321\202 \320\262\321\213\320\277\320\276\320\273\320\275\320\265\320\275\320\275\321\213\321\205 \321\200\320\260\320\261\320\276\321\202", 0, QApplication::UnicodeUTF8));
         action_13->setText(QApplication::translate("MainWindow", "\320\237\321\200\320\270\321\205\320\276\320\264\320\275\321\213\320\271 \320\272\320\260\321\201\321\201\320\276\320\262\321\213\320\271 \320\276\321\200\320\264\320\265\321\200", 0, QApplication::UnicodeUTF8));
+        actionBranchTriggered->setText(QApplication::translate("MainWindow", "\320\244\320\270\320\273\320\270\320\260\320\273\321\213", 0, QApplication::UnicodeUTF8));
         groupBoxSortReceipt->setTitle(QApplication::translate("MainWindow", "\320\241\320\276\321\200\321\202\320\270\321\200\320\276\320\262\320\272\320\260 \320\272\320\262\320\270\321\202\320\260\320\275\321\206\320\270\320\271", 0, QApplication::UnicodeUTF8));
         radioButtonReady->setText(QApplication::translate("MainWindow", "\320\223\320\276\321\202\320\276\320\262\321\213\320\265(\320\275\320\260 \320\262\321\213\320\264\320\260\321\207\320\265)", 0, QApplication::UnicodeUTF8));
         radioButtonWorking->setText(QApplication::translate("MainWindow", "\320\222 \321\200\320\260\320\261\320\276\321\202\320\265", 0, QApplication::UnicodeUTF8));
@@ -298,6 +307,7 @@ public:
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menu->setTitle(QApplication::translate("MainWindow", "\320\232\320\262\320\270\321\202\320\260\320\275\321\206\320\270\320\270", 0, QApplication::UnicodeUTF8));
         menu_2->setTitle(QApplication::translate("MainWindow", "\320\237\320\265\321\207\320\260\321\202\321\214", 0, QApplication::UnicodeUTF8));
+        menu_3->setTitle(QApplication::translate("MainWindow", "\320\235\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

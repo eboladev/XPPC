@@ -11,6 +11,7 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     model = new QSqlQueryModel(this);
     connect(ui->pushButtonOK, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->pushButtonCancel,SIGNAL(clicked()),this, SLOT(reject()));
+    connect(ui->pushButtonCheckReady,SIGNAL(clicked()),this,SLOT(on_pushButtonCheckReady_clicked()));
     getEmployeeList();
 
     if (id!=0)
@@ -104,7 +105,7 @@ void JobListOnReceiptDialog::on_pushButtonDeleteJob_clicked()
     q.prepare("delete from JobOnTicket where jot_id=?");
     q.addBindValue(model->record(ui->tableView->currentIndex().row()).value(5));
     if (!q.exec())
-        qDebug() << q.lastError();
+        return;
     getJobs(m_id);
 }
 
@@ -116,10 +117,7 @@ void JobListOnReceiptDialog::on_tableView_clicked(const QModelIndex &index)
     q.prepare("select JobOnTicket.employee_id,job_name,job_quantity,job_price from JobOnTicket join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where jot_id=?");
     q.addBindValue(model->record(index.row()).value(5).toInt());
     if (!q.exec())
-    {
-        qDebug() << q.lastError();
         return;
-    }
     while (q.next())
     {
 
@@ -129,5 +127,16 @@ void JobListOnReceiptDialog::on_tableView_clicked(const QModelIndex &index)
         ui->lineEditPrice->setText(q.value(3).toString());
         ui->lineEditQuantity->setText(q.value(2).toString());
         m_jid = model->record(index.row()).value(5).toInt();
-     }
+    }
+}
+
+void JobListOnReceiptDialog::on_pushButtonCheckReady_clicked()
+{
+    QSqlQuery q;
+    if (!getSqlQuery(q))
+        return;
+    q.prepare("update ticket set ticket_status = 0 where ticket_id = ?");
+    q.addBindValue(m_id);
+    if (!q.exec())
+        return;
 }

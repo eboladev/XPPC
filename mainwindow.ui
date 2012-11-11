@@ -240,11 +240,18 @@
     </widget>
     <addaction name="actionOnAddReceiptClicked"/>
     <addaction name="actionOnJobListClicked"/>
-    <addaction name="action_9"/>
+    <addaction name="actionCloseTicket"/>
     <addaction name="menu_2"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <addaction name="actionBranchTriggered"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu"/>
+   <addaction name="menu_3"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -285,7 +292,7 @@
     <string>Список работ</string>
    </property>
   </action>
-  <action name="action_9">
+  <action name="actionCloseTicket">
    <property name="text">
     <string>Закрыть</string>
    </property>
@@ -303,6 +310,11 @@
   <action name="action_13">
    <property name="text">
     <string>Приходный кассовый ордер</string>
+   </property>
+  </action>
+  <action name="actionBranchTriggered">
+   <property name="text">
+    <string>Филиалы</string>
    </property>
   </action>
  </widget>

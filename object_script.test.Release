@@ -6,9 +6,13 @@ INPUT(
 ./release\connectdialog.o
 ./release\sqlextension.o
 ./release\setupmanager.o
+./release\branchwidget.o
+./release\closeticketwidget.o
 ./release\moc_mainwindow.o
 ./release\moc_receiptmanager.o
 ./release\moc_joblistonreceiptdialog.o
 ./release\moc_connectdialog.o
 ./release\moc_setupmanager.o
+./release\moc_branchwidget.o
+./release\moc_closeticketwidget.o
 );

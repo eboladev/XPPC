@@ -26,6 +26,7 @@ private:
     Ui::ReceiptManager *ui;
     void clearFields();
     void fillFields(int id);
+    int branch;
 };
 
 #endif // RECEIPTMANAGER_H

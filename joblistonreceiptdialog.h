@@ -28,7 +28,7 @@ private slots:
     void on_pushButtonDeleteJob_clicked();
 
     void on_tableView_clicked(const QModelIndex &index);
-
+    void on_pushButtonCheckReady_clicked();
 private:
     void clearField();
     void getEmployeeList();

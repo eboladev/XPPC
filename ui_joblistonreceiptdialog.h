@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'joblistonreceiptdialog.ui'
 **
-** Created: Mon 5. Nov 14:01:19 2012
+** Created: Sun 11. Nov 15:04:25 2012
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -64,6 +64,8 @@ public:
     QFrame *line;
     QHBoxLayout *horizontalLayout_2;
     QPushButton *pushButtonOK;
+    QSpacerItem *horizontalSpacer_4;
+    QPushButton *pushButtonCheckReady;
     QSpacerItem *horizontalSpacer_2;
     QPushButton *pushButtonCancel;
 
@@ -237,6 +239,15 @@ public:
 
         horizontalLayout_2->addWidget(pushButtonOK);
 
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer_4);
+
+        pushButtonCheckReady = new QPushButton(JobListOnReceiptDialog);
+        pushButtonCheckReady->setObjectName(QString::fromUtf8("pushButtonCheckReady"));
+
+        horizontalLayout_2->addWidget(pushButtonCheckReady);
+
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_2->addItem(horizontalSpacer_2);
@@ -285,6 +296,7 @@ public:
         pushButtonDeleteJob->setText(QApplication::translate("JobListOnReceiptDialog", "\320\243\320\264\320\260\320\273\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         pushButtonClearField->setText(QApplication::translate("JobListOnReceiptDialog", "\320\236\321\207\320\270\321\201\321\202\320\270\321\202\321\214 \320\277\320\276\320\273\321\217", 0, QApplication::UnicodeUTF8));
         pushButtonOK->setText(QApplication::translate("JobListOnReceiptDialog", "Ok", 0, QApplication::UnicodeUTF8));
+        pushButtonCheckReady->setText(QApplication::translate("JobListOnReceiptDialog", "\320\232\320\262\320\270\321\202\320\260\320\275\321\206\320\270\321\217 \320\262\321\213\320\277\320\276\320\273\320\275\320\265\320\275\320\260", 0, QApplication::UnicodeUTF8));
         pushButtonCancel->setText(QApplication::translate("JobListOnReceiptDialog", "\320\236\321\202\320\274\320\265\320\275\320\260", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

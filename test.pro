@@ -16,19 +16,25 @@ SOURCES += main.cpp\
     joblistonreceiptdialog.cpp \
     connectdialog.cpp \
     sqlextension.cpp \
-    setupmanager.cpp
+    setupmanager.cpp \
+    branchwidget.cpp \
+    closeticketwidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
     joblistonreceiptdialog.h \
     connectdialog.h \
     sqlextension.h \
-    setupmanager.h
+    setupmanager.h \
+    branchwidget.h \
+    closeticketwidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
     joblistonreceiptdialog.ui \
-    connectdialog.ui
+    connectdialog.ui \
+    branchwidget.ui \
+    closeticketwidget.ui
 
 win32-g++ {
 

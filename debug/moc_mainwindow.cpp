@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Sat 10. Nov 16:17:59 2012
+** Created: Sun 11. Nov 15:05:36 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      19,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -50,6 +50,8 @@ static const uint qt_meta_data_MainWindow[] = {
      549,   11,   11,   11, 0x08,
      562,   11,   11,   11, 0x08,
      604,   11,   11,   11, 0x08,
+     637,   11,   11,   11, 0x08,
+     667,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -72,6 +74,8 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "ticketStatus,limit\0formTicketQuery(int,int)\0"
     "makeUpdate()\0networkFuckedUpTwo(QNetworkConfiguration)\0"
     "on_actionPrintTicket_triggered()\0"
+    "on_actionBranches_triggered()\0"
+    "on_actionCloseTicket_triggered()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -100,6 +104,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 16: _t->makeUpdate(); break;
         case 17: _t->networkFuckedUpTwo((*reinterpret_cast< const QNetworkConfiguration(*)>(_a[1]))); break;
         case 18: _t->on_actionPrintTicket_triggered(); break;
+        case 19: _t->on_actionBranches_triggered(); break;
+        case 20: _t->on_actionCloseTicket_triggered(); break;
         default: ;
         }
     }
@@ -137,9 +143,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 19)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 19;
+        _id -= 21;
     }
     return _id;
 }
