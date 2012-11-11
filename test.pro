@@ -6,9 +6,11 @@
 
 QT       += core gui network sql
 
-TARGET = test
+TARGET = xppc
 TEMPLATE = app
 
+CONFIG(debug, debug|release):DEFINES += DEBUG
+CONFIG(release, debug|release):DEFINES += RELEASE
 SOURCES += main.cpp\
         mainwindow.cpp \
     receiptmanager.cpp \
@@ -43,8 +45,4 @@ win32-g++ {
     } else {
         LIBS += $$PWD/ncreport/lib/libncreport2.a
     }
-
 }
-
-OTHER_FILES += \
-    report.xml

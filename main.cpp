@@ -1,12 +1,11 @@
 #include <QtGui/QApplication>
 #include <QSettings>
 #include <QTextCodec>
+#include <QSqlDatabase>
+#include <QMessageBox>
 
 #include "mainwindow.h"
 #include "connectdialog.h"
-#include "setupmanager.h"
-#include <QSqlDatabase>
-#include <QMessageBox>
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +17,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("MySoft");
     QCoreApplication::setOrganizationDomain("mysoft.com");
     QCoreApplication::setApplicationName("Service centre manager");
-    qApp->addLibraryPath("./ncreport");
+
     if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
@@ -27,14 +26,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-            //    if (!QSqlDatabase::isDriverAvailable("QMYSQL"))
-            //    {
-            //        QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
-            //                              QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
-            //                                              "QMYSQL"));
-            //        return -1;
-            //    }
-            qDebug() << a.libraryPaths();
     QSettings settings;
 
     if (settings.allKeys().isEmpty())
@@ -47,7 +38,11 @@ int main(int argc, char *argv[])
     }
 
     MainWindow w;
-    // w.show();
+#ifdef DEBUG
+    w.show();
+#endif
+#ifdef RELEASE
     w.showMaximized();
+#endif
     return a.exec();
 }

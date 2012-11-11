@@ -191,11 +191,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
-       <attribute name="title">
-        <string>Tab 2</string>
-       </attribute>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -217,7 +212,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Файл</string>
     </property>
     <addaction name="actionConnect"/>
     <addaction name="actionDisconnect"/>
@@ -239,8 +234,10 @@
      <addaction name="action_13"/>
     </widget>
     <addaction name="actionOnAddReceiptClicked"/>
-    <addaction name="actionOnJobListClicked"/>
     <addaction name="actionCloseTicket"/>
+    <addaction name="separator"/>
+    <addaction name="actionOnJobListClicked"/>
+    <addaction name="separator"/>
     <addaction name="menu_2"/>
    </widget>
    <widget class="QMenu" name="menu_3">

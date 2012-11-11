@@ -204,10 +204,7 @@ void MainWindow::fillTicketViewModel(QString query)
 bool MainWindow::checkDbConnection()
 {
     if (QSqlDatabase::database(CONNECTIONNAME).isOpen() && QSqlDatabase::database(CONNECTIONNAME).isValid())
-    {
-        qDebug() << "true" << CONNECTIONNAME;
         return true;
-    }
     else
         return false;
 }
