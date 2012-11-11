@@ -77,21 +77,21 @@ void MainWindow::networkFuckedUpTwo(const QNetworkConfiguration &qnc)
 
 void MainWindow::makeUpdate()
 {
-//    switch (currentStatus)
-//    {
-//    case 0:
-//        fillTicketViewModel(formTicketQuery(InWork,100));
-//        break;
-//    case 1:
-//        fillTicketViewModel(formTicketQuery(Ready,100));
-//        break;
-//    case 2:
-//        fillTicketViewModel(formTicketQuery(Closed,100));
-//        break;
-//    default:
-//        sb("shit happens");
-//        break;
-//    }
+    //    switch (currentStatus)
+    //    {
+    //    case 0:
+    //        fillTicketViewModel(formTicketQuery(InWork,100));
+    //        break;
+    //    case 1:
+    //        fillTicketViewModel(formTicketQuery(Ready,100));
+    //        break;
+    //    case 2:
+    //        fillTicketViewModel(formTicketQuery(Closed,100));
+    //        break;
+    //    default:
+    //        sb("shit happens");
+    //        break;
+    //    }
     model->fetchMore();
     updateTableViewTicket->start(DEFAULTPERIOD);
     sb("timer event!");
@@ -99,7 +99,6 @@ void MainWindow::makeUpdate()
 
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
-    qDebug() << currentStatus;
     if (currentStatus==Closed)
         return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
 
@@ -145,8 +144,7 @@ void MainWindow::genReport(const int &type)
     NCReport *report = new NCReport();
 
     report->setReportSource( NCReportSource::File );
-    report->setReportFile("./report.xml");
-    //report->addItemModel(model,"model1");
+    report->setReportFile("./Reports/report.xml");
     report->addStringList(list, "model1");
 
     report->runReportToPreview();
@@ -234,13 +232,13 @@ bool MainWindow::checkDbSettings()
 bool MainWindow::connectToDb(QString dbConnectionName)
 {
     QSettings settings;
-    SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());    
-    SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());    
+    SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());
+    SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());
     QByteArray ba = settings.value("db/Password").toByteArray();
     SetupManager::encryptDecrypt(ba);
-    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));    
+    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));
     //SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
-    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());    
+    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());
     if (SetupManager::instance()->openSQLDatabase(dbConnectionName) != SetupManager::FBCorrect)
     {
         qDebug() << "failed to connectToDb, fbStatus =" << SetupManager::instance()->getDbSQLStatus();
@@ -254,7 +252,7 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
     try
     {
         QSqlDatabase::database(dbConnectionName).close();
-        QSqlDatabase::removeDatabase(dbConnectionName);        
+        QSqlDatabase::removeDatabase(dbConnectionName);
         model->removeColumns(0,model->columnCount());
         return true;
     }
@@ -391,8 +389,8 @@ void MainWindow::on_radioButtonClosed_pressed()
 
 void MainWindow::on_tableViewTicket_clicked(const QModelIndex &index)
 {
-//    QModelIndex firstcolumn = model->index(index.row(),0);
-//    sb(model->data(firstcolumn).toString());
+    //    QModelIndex firstcolumn = model->index(index.row(),0);
+    //    sb(model->data(firstcolumn).toString());
     currentTicket = model->record(index.row()).value(0).toInt();
     sb(QString::number(currentTicket));
 }

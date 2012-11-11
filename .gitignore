@@ -1,14 +1,20 @@
-# Compiled Object files
-*.slo
-*.lo
+*.Debug
+*.Release
+Makefile*
+*.user*
+temp
 *.o
-
-# Compiled Dynamic libraries
-*.so
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-
-.pro.user
+moc_*
+*.log
+*.config
+*.files
+*.includes
+*.creator
+*.autosave
+*~
+~*
+debug/
+release/
+db/
+qrc_*
+!*.qrc
