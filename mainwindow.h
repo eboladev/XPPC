@@ -32,11 +32,11 @@ private slots:
     void onAddReceiptClicked();
     void onJobListClicked();
     void onSettingsClicked();
+    void onActionBranchesClicked();
+    void onActionCloseTicketClicked();
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
     void on_actionPrintTicket_triggered();
-    void on_actionBranches_triggered();
-    void on_actionCloseTicket_triggered();
 
     void on_radioButtonReady_pressed();
     void on_radioButtonWorking_pressed();

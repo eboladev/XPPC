@@ -18,7 +18,7 @@
 
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
-const int LIMIT = 1000;
+const int LIMIT = 100;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOnJobListClicked,SIGNAL(triggered()),this,SLOT(onJobListClicked()));
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
-    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(on_actionBranches_triggered()));
-    connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(onActionBranchesClicked()));
+    connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(onActionCloseTicketClicked()));
     if (!checkDbSettings())
     {
         ui->actionConnect->setEnabled(false);
@@ -77,21 +77,6 @@ void MainWindow::networkFuckedUpTwo(const QNetworkConfiguration &qnc)
 
 void MainWindow::makeUpdate()
 {
-    //    switch (currentStatus)
-    //    {
-    //    case 0:
-    //        fillTicketViewModel(formTicketQuery(InWork,100));
-    //        break;
-    //    case 1:
-    //        fillTicketViewModel(formTicketQuery(Ready,100));
-    //        break;
-    //    case 2:
-    //        fillTicketViewModel(formTicketQuery(Closed,100));
-    //        break;
-    //    default:
-    //        sb("shit happens");
-    //        break;
-    //    }
     model->fetchMore();
     updateTableViewTicket->start(DEFAULTPERIOD);
     sb("timer event!");
@@ -100,9 +85,9 @@ void MainWindow::makeUpdate()
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
     if (currentStatus==Closed)
-        return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
+        return "select first "+QString::number(limit)+" ticket_id,ticket_date_in,branch_name,ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket left join branches on(id=ticket_branch) where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
 
-    return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
+    return "select first "+QString::number(limit)+" ticket_id,ticket_date_in,branch_name,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket left join branches on(id=ticket_branch) where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
 }
 
 void MainWindow::sb(QString text)
@@ -172,11 +157,14 @@ void MainWindow::fillTicketViewModel(QString query)
         return;
     q.prepare(query);
 
-    if (!q.exec())
-        qDebug() << "случилась какая-то неведомая херня";
+    q.exec();
+    qDebug() << QDateTime::currentDateTime().toString();
+    //model->setData()
     model->setQuery(q);
-    model->query().exec();
-
+    qDebug() << QDateTime::currentDateTime().toString();
+    model->blockSignals(true);
+    ui->tableViewTicket->blockSignals(true);
+    qDebug() << q.lastError();
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
     model->setHeaderData(2,Qt::Horizontal,tr("Филиал"));
@@ -185,7 +173,6 @@ void MainWindow::fillTicketViewModel(QString query)
     model->setHeaderData(5, Qt::Horizontal, tr("Устройство"));    //4
     model->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));          //5
     ui->tableViewTicket->setModel(model);
-    ui->tableViewTicket->resizeColumnToContents(3);
     if (currentStatus==Closed)
     {
         model->setHeaderData(7, Qt::Horizontal, tr("Цена"));//6
@@ -198,7 +185,10 @@ void MainWindow::fillTicketViewModel(QString query)
         ui->tableViewTicket->setColumnWidth(4,120);
         ui->tableViewTicket->setColumnWidth(5,200);
     }
-
+    model->blockSignals(false);
+    ui->tableViewTicket->blockSignals(false);
+    ui->tableViewTicket->resizeColumnToContents(3);
+    qDebug() << QDateTime::currentDateTime().toString();
 }
 
 bool MainWindow::checkDbConnection()
@@ -494,7 +484,7 @@ void MainWindow::on_actionPrintTicket_triggered()
     genReport(currentTicket);
 }
 
-void MainWindow::on_actionBranches_triggered()
+void MainWindow::onActionBranchesClicked()
 {
     QString dbConnectionString = "MSBRANCHESVIEW";
     {
@@ -529,7 +519,7 @@ void MainWindow::on_actionBranches_triggered()
     fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
 }
 
-void MainWindow::on_actionCloseTicket_triggered()
+void MainWindow::onActionCloseTicketClicked()
 {
     QString dbConnectionString = "MSCLOSETICKET";
     {
