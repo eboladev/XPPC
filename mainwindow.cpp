@@ -7,10 +7,10 @@
 #include "branchwidget.h"
 #include "closeticketwidget.h"
 
-#include "ncreport.h"
-#include "ncreportoutput.h"
-#include "ncreportpreviewoutput.h"
-#include "ncreportpreviewwindow.h"
+#include "ncreport/include/ncreport.h"
+#include "ncreport/include/ncreportoutput.h"
+#include "ncreport/include/ncreportpreviewoutput.h"
+#include "ncreport/include/ncreportpreviewwindow.h"
 
 #include <QNetworkConfigurationManager>
 #include <QNetworkConfiguration>
@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
     connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(on_actionBranches_triggered()));
-    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
     if (!checkDbSettings())
     {
         ui->actionConnect->setEnabled(false);

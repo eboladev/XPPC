@@ -9,7 +9,6 @@ QT       += core gui network sql
 TARGET = test
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     receiptmanager.cpp \
@@ -38,15 +37,21 @@ FORMS    += mainwindow.ui \
 
 win32-g++ {
 
-    INCLUDEPATH += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/include"
+    INCLUDEPATH += ./ncreport/include
 
     CONFIG( debug, debug|release ) {
-	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreportd2.a"
+	LIBS += "./ncreport/lib/libncreportd2.a"
     } else {
-	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreport2.a"
+	LIBS += ./ncreport/lib/libncreport2.a
     }
 
 }
-
+#DEFINES += NCREPORT_IMPORT
+#INCLUDEPATH += ./ncreport
+#LIBS += ./ncreport/ncreport2.dll
+#LIBS += ./ncreport/qsqlfirebird.dll
+#LIBS += ./ncreport/mingwm10.dll
+#LIBS += ./ncreport/libgcc_s_dw2-1.dll
+#C:\Program Files (x86)\NCReport\2.8.6.qt482.mingw.eval\bin
 OTHER_FILES += \
     report.xml
