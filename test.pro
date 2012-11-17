@@ -18,7 +18,11 @@ SOURCES += main.cpp\
     sqlextension.cpp \
     setupmanager.cpp \
     branchwidget.cpp \
-    closeticketwidget.cpp
+    closeticketwidget.cpp \
+    gsmmodemmanager.cpp \
+    serialportcomboboxdelegate.cpp \
+    sendsms.cpp \
+    modemsworkerthread.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -27,14 +31,19 @@ HEADERS  += mainwindow.h \
     sqlextension.h \
     setupmanager.h \
     branchwidget.h \
-    closeticketwidget.h
+    closeticketwidget.h \
+    gsmmodemmanager.h \
+    serialportcomboboxdelegate.h \
+    sendsms.h \
+    modemsworkerthread.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
     joblistonreceiptdialog.ui \
     connectdialog.ui \
     branchwidget.ui \
-    closeticketwidget.ui
+    closeticketwidget.ui \
+    gsmmodemmanager.ui
 
 win32-g++ {
 
@@ -50,3 +59,25 @@ win32-g++ {
 
 OTHER_FILES += \
     report.xml
+
+CONFIG(debug, debug|release):{
+DEFINES+=DEBUG
+DEPENDPATH += $$PWD/../qtserialport/src/serialport/debug
+OBJECTS_DIR = $$PWD/build/debug/obj
+} else: {
+DEPENDPATH += $$PWD/../qtserialport/src/serialport/release
+OBJECTS_DIR = $$PWD/build/release/obj
+}
+CONFIG(debug, debug|release):DEFINES += DEBUG
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT       += widgets serialport
+} else {
+    !infile($$OUT_PWD/.qmake.cache, SERIALPORT_PROJECT_ROOT) {
+	system("echo SERIALPORT_PROJECT_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
+	system("echo SERIALPORT_BUILD_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
+    }
+    include($$SERIALPORT_PROJECT_ROOT/src/serialport/qt4support/serialport.prf)
+}
+
+message($$SERIALPORT_PROJECT_ROOT)
