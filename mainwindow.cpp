@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
     connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(on_actionBranches_triggered()));
-    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
     if (!checkDbSettings())
     {
         ui->actionConnect->setEnabled(false);
