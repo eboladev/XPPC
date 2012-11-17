@@ -8,7 +8,27 @@ QT       += core gui network sql
 
 TARGET = test
 TEMPLATE = app
+CONFIG(debug, debug|release):{
+DEFINES+=DEBUG
+DEPENDPATH += $$PWD/../qtserialport/src/serialport/debug
+OBJECTS_DIR = $$PWD/build/debug/obj
+} else: {
+DEPENDPATH += $$PWD/../qtserialport/src/serialport/release
+OBJECTS_DIR = $$PWD/build/release/obj
+}
+#CONFIG(debug, debug|release):DEFINES += DEBUG
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT       += widgets serialport
+} else {
+    !infile($$OUT_PWD/.qmake.cache, SERIALPORT_PROJECT_ROOT) {
+	system("echo SERIALPORT_PROJECT_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
+	system("echo SERIALPORT_BUILD_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
+    }
+    include($$SERIALPORT_PROJECT_ROOT/src/serialport/qt4support/serialport.prf)
+}
+
+message($$SERIALPORT_PROJECT_ROOT)
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -60,24 +80,4 @@ win32-g++ {
 OTHER_FILES += \
     report.xml
 
-CONFIG(debug, debug|release):{
-DEFINES+=DEBUG
-DEPENDPATH += $$PWD/../qtserialport/src/serialport/debug
-OBJECTS_DIR = $$PWD/build/debug/obj
-} else: {
-DEPENDPATH += $$PWD/../qtserialport/src/serialport/release
-OBJECTS_DIR = $$PWD/build/release/obj
-}
-CONFIG(debug, debug|release):DEFINES += DEBUG
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT       += widgets serialport
-} else {
-    !infile($$OUT_PWD/.qmake.cache, SERIALPORT_PROJECT_ROOT) {
-	system("echo SERIALPORT_PROJECT_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
-	system("echo SERIALPORT_BUILD_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
-    }
-    include($$SERIALPORT_PROJECT_ROOT/src/serialport/qt4support/serialport.prf)
-}
-
-message($$SERIALPORT_PROJECT_ROOT)
