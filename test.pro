@@ -8,6 +8,7 @@ QT       += core gui network sql
 
 TARGET = test
 TEMPLATE = app
+CONFIG += serialport
 CONFIG(debug, debug|release):{
 DEFINES+=DEBUG
 DEPENDPATH += $$PWD/../qtserialport/src/serialport/debug
@@ -16,7 +17,7 @@ OBJECTS_DIR = $$PWD/build/debug/obj
 DEPENDPATH += $$PWD/../qtserialport/src/serialport/release
 OBJECTS_DIR = $$PWD/build/release/obj
 }
-#CONFIG(debug, debug|release):DEFINES += DEBUG
+CONFIG(debug, debug|release):DEFINES += DEBUG
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT       += widgets serialport
@@ -74,10 +75,7 @@ win32-g++ {
     } else {
 	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreport2.a"
     }
-
 }
 
 OTHER_FILES += \
     report.xml
-
-

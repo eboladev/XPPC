@@ -248,6 +248,7 @@
      <string>Настройки</string>
     </property>
     <addaction name="actionBranchTriggered"/>
+    <addaction name="action_GSM"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu"/>
@@ -315,6 +316,11 @@
   <action name="actionBranchTriggered">
    <property name="text">
     <string>Филиалы</string>
+   </property>
+  </action>
+  <action name="action_GSM">
+   <property name="text">
+    <string>Модемы GSM</string>
    </property>
   </action>
  </widget>

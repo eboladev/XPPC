@@ -6,6 +6,8 @@
 #include "setupmanager.h"
 #include "branchwidget.h"
 #include "closeticketwidget.h"
+#include "gsmmodemmanager.h"
+#include "sendsms.h"
 
 #include "ncreport.h"
 #include "ncreportoutput.h"
@@ -39,8 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOnJobListClicked,SIGNAL(triggered()),this,SLOT(onJobListClicked()));
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
-    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(on_actionBranches_triggered()));
+    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(onActionBranches_triggered()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->action_GSM,SIGNAL(triggered()),this,SLOT(onGSMModemSettings()));
+
     if (!checkDbSettings())
     {
         ui->actionConnect->setEnabled(false);
@@ -499,7 +503,7 @@ void MainWindow::on_actionPrintTicket_triggered()
     genReport(currentTicket);
 }
 
-void MainWindow::on_actionBranches_triggered()
+void MainWindow::onActionBranches_triggered()
 {
     QString dbConnectionString = "MSBRANCHESVIEW";
     {
@@ -569,4 +573,39 @@ void MainWindow::on_actionCloseTicket_triggered()
     }
     QSqlDatabase::removeDatabase(dbConnectionString);
     fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
+}
+
+void MainWindow::onGSMModemSettings()
+{
+    QString dbConnectionString = "GSMMODEM";
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            qDebug() << "removedb on closeticket";
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            qDebug() << "Error! database not open";
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        db.transaction();
+        updateTableViewTicket->stop();
+
+        GsmModemManager gmm(dbConnectionString,this);
+        if (gmm.exec())
+        {
+            db.commit();
+        }
+        else
+            db.rollback();
+        updateTableViewTicket->start(DEFAULTPERIOD);
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
 }

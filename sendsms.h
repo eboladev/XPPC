@@ -11,6 +11,8 @@ class SendSMS : public QObject
 public:
     explicit SendSMS(QObject *parent = 0);
     ~SendSMS();
+    static SendSMS* instance();
+    static QStringList getAvailablePorts();
     // добавить модем
     bool addModem(const QString &modemName, const QString &portName, const QString &telNumber = trUtf8(""));
     // удалить модем

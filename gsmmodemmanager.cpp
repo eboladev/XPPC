@@ -11,6 +11,7 @@ GsmModemManager::GsmModemManager(const QString &dbConnectionString, QWidget *par
 {
     ui->setupUi(this);
     sendSMS = new SendSMS(this);
+    sendSMS->addModem("COM3 modem", "COM36", "+78123312");
     setWindowTitle(trUtf8("Управление GSM модемами"));
     setWindowFlags(Qt::Dialog
                    | Qt::WindowTitleHint
@@ -23,10 +24,10 @@ GsmModemManager::GsmModemManager(const QString &dbConnectionString, QWidget *par
     ui->treeView->setItemDelegateForColumn(1, new SerialPortComboBoxDelegate(this));
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
-   // connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddButtonPushed()));
-   // connect(ui->pushButtonRemove, SIGNAL(clicked()), this, SLOT(onRemoveButtonPushed()));
-   // connect(ui->pushButtonAccept, SIGNAL(clicked()), this, SLOT(accept()));
-   // connect(ui->pushButtonReject, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddButtonPushed()));
+    connect(ui->pushButtonRemove, SIGNAL(clicked()), this, SLOT(onRemoveButtonPushed()));
+    connect(ui->pushButtonOk, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->pushButtonCancel, SIGNAL(clicked()), this, SLOT(reject()));
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     connect(model, SIGNAL(sameModemNameIsPresent(QString)), this, SLOT(onSameModemNameIsPresent(QString)));
@@ -364,4 +365,15 @@ void GsmModemManager::onIsRegisteringInNetwork(QString modemName, int status)
 void GsmModemManager::onOperatorName(QString modemName, QString operatorN)
 {
     qDebug() << QString("onOperatorName(%1, %2)").arg(modemName).arg(operatorN);
+}
+
+void GsmModemManager::on_pushButton_clicked()
+{
+    if (!sendSMS->sendSMS(trUtf8("тестовая СМС"), "+79115420724", 23))
+        qDebug() << "not allowed to send sms";
+}
+
+void GsmModemManager::on_pushButton_2_clicked()
+{
+    sendSMS->openModem("COM3 modem");
 }

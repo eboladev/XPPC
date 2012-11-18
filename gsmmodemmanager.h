@@ -62,6 +62,10 @@ private slots:
     void onError(QString modemName, QString lastCommand);
     void onIsRegisteringInNetwork(QString modemName, int status);
     void onOperatorName(QString modemName, QString operatorN);
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
 private:
     Ui::GsmModemManager *ui;
     ItemModelForGSMModemManagement *model;

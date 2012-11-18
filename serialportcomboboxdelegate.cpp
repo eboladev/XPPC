@@ -12,8 +12,8 @@ QWidget *SerialPortComboBoxDelegate::createEditor(QWidget *parent, const QStyleO
 {
     QComboBox *cb = new QComboBox(parent);
     cb->setEditable(true);
-    //QStringList avialablePorts = SendSMS::getAvailablePorts();
-   // cb->addItems(avialablePorts);
+    QStringList avialablePorts = SendSMS::getAvailablePorts();
+    cb->addItems(avialablePorts);
     return cb;
 }
 

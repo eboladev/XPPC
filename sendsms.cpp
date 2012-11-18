@@ -38,6 +38,21 @@ SendSMS::~SendSMS()
         m_modemsThread.terminate();
 }
 
+Q_GLOBAL_STATIC(SendSMS, singlton_instance)
+SendSMS *SendSMS::instance()
+{
+    return singlton_instance();
+}
+
+QStringList SendSMS::getAvailablePorts()
+{
+    QList<QtAddOn::SerialPort::SerialPortInfo> si = QtAddOn::SerialPort::SerialPortInfo::availablePorts();
+    QStringList portNames;
+    foreach(QtAddOn::SerialPort::SerialPortInfo s, si)
+        portNames << s.portName();
+    return portNames;
+}
+
 bool SendSMS::addModem(const QString &modemName, const QString &portName, const QString &telNumber)
 {
     bool retVal;

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat 17. Nov 16:36:31 2012
+** Created: Sun 18. Nov 13:52:43 2012
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -47,6 +47,7 @@ public:
     QAction *action_12;
     QAction *action_13;
     QAction *actionBranchTriggered;
+    QAction *action_GSM;
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QTabWidget *tabWidget;
@@ -105,6 +106,8 @@ public:
         action_13->setObjectName(QString::fromUtf8("action_13"));
         actionBranchTriggered = new QAction(MainWindow);
         actionBranchTriggered->setObjectName(QString::fromUtf8("actionBranchTriggered"));
+        action_GSM = new QAction(MainWindow);
+        action_GSM->setObjectName(QString::fromUtf8("action_GSM"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
@@ -272,6 +275,7 @@ public:
         menu_2->addAction(action_12);
         menu_2->addAction(action_13);
         menu_3->addAction(actionBranchTriggered);
+        menu_3->addAction(action_GSM);
 
         retranslateUi(MainWindow);
 
@@ -295,6 +299,7 @@ public:
         action_12->setText(QApplication::translate("MainWindow", "\320\220\320\272\321\202 \320\262\321\213\320\277\320\276\320\273\320\275\320\265\320\275\320\275\321\213\321\205 \321\200\320\260\320\261\320\276\321\202", 0, QApplication::UnicodeUTF8));
         action_13->setText(QApplication::translate("MainWindow", "\320\237\321\200\320\270\321\205\320\276\320\264\320\275\321\213\320\271 \320\272\320\260\321\201\321\201\320\276\320\262\321\213\320\271 \320\276\321\200\320\264\320\265\321\200", 0, QApplication::UnicodeUTF8));
         actionBranchTriggered->setText(QApplication::translate("MainWindow", "\320\244\320\270\320\273\320\270\320\260\320\273\321\213", 0, QApplication::UnicodeUTF8));
+        action_GSM->setText(QApplication::translate("MainWindow", "\320\234\320\276\320\264\320\265\320\274\321\213 GSM", 0, QApplication::UnicodeUTF8));
         groupBoxSortReceipt->setTitle(QApplication::translate("MainWindow", "\320\241\320\276\321\200\321\202\320\270\321\200\320\276\320\262\320\272\320\260 \320\272\320\262\320\270\321\202\320\260\320\275\321\206\320\270\320\271", 0, QApplication::UnicodeUTF8));
         radioButtonReady->setText(QApplication::translate("MainWindow", "\320\223\320\276\321\202\320\276\320\262\321\213\320\265(\320\275\320\260 \320\262\321\213\320\264\320\260\321\207\320\265)", 0, QApplication::UnicodeUTF8));
         radioButtonWorking->setText(QApplication::translate("MainWindow", "\320\222 \321\200\320\260\320\261\320\276\321\202\320\265", 0, QApplication::UnicodeUTF8));

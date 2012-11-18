@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gsmmodemmanager.h'
 **
-** Created: Sat 17. Nov 16:36:55 2012
+** Created: Sun 18. Nov 14:22:46 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -111,7 +111,7 @@ static const uint qt_meta_data_GsmModemManager[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      21,   14, // methods
+      23,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -140,6 +140,8 @@ static const uint qt_meta_data_GsmModemManager[] = {
      755,  733,   16,   16, 0x08,
      797,  780,   16,   16, 0x08,
      855,  835,   16,   16, 0x08,
+     887,   16,   16,   16, 0x08,
+     911,   16,   16,   16, 0x08,
 
        0        // eod
 };
@@ -167,6 +169,8 @@ static const char qt_meta_stringdata_GsmModemManager[] = {
     "onError(QString,QString)\0modemName,status\0"
     "onIsRegisteringInNetwork(QString,int)\0"
     "modemName,operatorN\0onOperatorName(QString,QString)\0"
+    "on_pushButton_clicked()\0"
+    "on_pushButton_2_clicked()\0"
 };
 
 void GsmModemManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -196,6 +200,8 @@ void GsmModemManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         case 18: _t->onError((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
         case 19: _t->onIsRegisteringInNetwork((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 20: _t->onOperatorName((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 21: _t->on_pushButton_clicked(); break;
+        case 22: _t->on_pushButton_2_clicked(); break;
         default: ;
         }
     }
@@ -235,9 +241,9 @@ int GsmModemManager::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 21)
+        if (_id < 23)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 21;
+        _id -= 23;
     }
     return _id;
 }
