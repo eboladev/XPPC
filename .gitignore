@@ -17,3 +17,4 @@ Makefile.*
 object_script.*
 app/
 build/
+*.log

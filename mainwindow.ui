@@ -147,7 +147,7 @@
          </layout>
         </item>
         <item row="1" column="0">
-         <widget class="QTableView" name="tableViewTicket">
+         <widget class="QTreeView" name="treeViewTicket">
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAsNeeded</enum>
           </property>
@@ -163,30 +163,6 @@
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>
           </property>
-          <property name="sortingEnabled">
-           <bool>false</bool>
-          </property>
-          <attribute name="horizontalHeaderDefaultSectionSize">
-           <number>50</number>
-          </attribute>
-          <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>10</number>
-          </attribute>
-          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderDefaultSectionSize">
-           <number>20</number>
-          </attribute>
-          <attribute name="verticalHeaderMinimumSectionSize">
-           <number>10</number>
-          </attribute>
          </widget>
         </item>
        </layout>
@@ -326,7 +302,7 @@
   <tabstop>radioButtonReady</tabstop>
   <tabstop>radioButtonWorking</tabstop>
   <tabstop>radioButtonClosed</tabstop>
-  <tabstop>tableViewTicket</tabstop>
+  <tabstop>treeViewTicket</tabstop>
   <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>

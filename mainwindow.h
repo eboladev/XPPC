@@ -37,16 +37,15 @@ private slots:
     void on_radioButtonWorking_pressed();
     void on_radioButtonClosed_pressed();
 
-    void on_tableViewTicket_clicked(const QModelIndex &index);
+    void onTreeViewTicketClicked(const QModelIndex &index);
+    void onTreeViewTicketDoubleClicked(const QModelIndex &index);
 
     void on_pushButtonSearchClear_clicked();
     void on_pushButtonSearch_clicked();
 
     void on_radioButtonClosed_toggled(bool checked);
     void on_radioButtonWorking_toggled(bool checked);
-    void on_radioButtonReady_toggled(bool checked);
-
-    void on_tableViewTicket_doubleClicked(const QModelIndex &index);
+    void on_radioButtonReady_toggled(bool checked);    
 
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();

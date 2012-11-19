@@ -25,14 +25,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    model = new QSqlQueryModel(ui->tableViewTicket);
+    model = new QSqlQueryModel(ui->treeViewTicket);
 
     QNetworkConfigurationManager* qnam= new QNetworkConfigurationManager();
 
     defaultConfName =  qnam->defaultConfiguration().name();
     connect(qnam,SIGNAL(configurationChanged(QNetworkConfiguration)),this,SLOT(networkFuckedUpTwo(QNetworkConfiguration)));
 
-    model = new QSqlQueryModel(ui->tableViewTicket);
+    model = new QSqlQueryModel(ui->treeViewTicket);
     updateTableViewTicket = new QTimer(this);
     currentStatus = InWork;
     connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()), this, SLOT(onAddReceiptClicked()));
@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
     connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(onActionBranchesTriggered()));
     connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->treeViewTicket,SIGNAL(clicked(QModelIndex)),this,SLOT(onTreeViewTicketClicked(QModelIndex)));
+    connect(ui->treeViewTicket,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(onTreeViewTicketDoubleClicked(QModelIndex)));
     if (!checkDbSettings())
     {
         ui->actionConnect->setEnabled(false);
@@ -168,6 +170,7 @@ void MainWindow::genReport(const int &type)
 
 void MainWindow::fillTicketViewModel(QString query)
 {
+    {
     QSqlQuery q(QSqlDatabase::database(CONNECTIONNAME, false));
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
@@ -180,7 +183,7 @@ void MainWindow::fillTicketViewModel(QString query)
     }
     model->setQuery(q);
     model->query().exec();
-
+}
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
     model->setHeaderData(2,Qt::Horizontal,tr("Филиал"));
@@ -188,19 +191,22 @@ void MainWindow::fillTicketViewModel(QString query)
     model->setHeaderData(4, Qt::Horizontal, tr("Телефон"));   //3
     model->setHeaderData(5, Qt::Horizontal, tr("Устройство"));    //4
     model->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));          //5
-    ui->tableViewTicket->setModel(model);
-    ui->tableViewTicket->resizeColumnToContents(3);
+    ui->treeViewTicket->setModel(model);
+    ui->treeViewTicket->resizeColumnToContents(3);
     if (currentStatus==Closed)
     {
         model->setHeaderData(7, Qt::Horizontal, tr("Цена"));//6
         model->setHeaderData(8, Qt::Horizontal, tr("Выдано"));
-        ui->tableViewTicket->resizeColumnsToContents();
+        ui->treeViewTicket->resizeColumnToContents(3);
+        ui->treeViewTicket->resizeColumnToContents(4);
+        ui->treeViewTicket->resizeColumnToContents(5);
+        //ui->treeViewTicket->resizeColumnsToContents();
     }
     else
     {
-        ui->tableViewTicket->setColumnWidth(1,70);
-        ui->tableViewTicket->setColumnWidth(4,120);
-        ui->tableViewTicket->setColumnWidth(5,200);
+        ui->treeViewTicket->setColumnWidth(1,70);
+        ui->treeViewTicket->setColumnWidth(4,120);
+        ui->treeViewTicket->setColumnWidth(5,200);
     }
 
 }
@@ -340,7 +346,7 @@ void MainWindow::onJobListClicked()
         }
 
         db.transaction();
-        JobListOnReceiptDialog jlord(dbConnectionString,model->record(ui->tableViewTicket->currentIndex().row()).value(0).toInt(),this);
+        JobListOnReceiptDialog jlord(dbConnectionString,model->record(ui->treeViewTicket->currentIndex().row()).value(0).toInt(),this);
         updateTableViewTicket->stop();
         if (jlord.exec())
         {
@@ -388,7 +394,7 @@ void MainWindow::on_radioButtonClosed_pressed()
     }
 }
 
-void MainWindow::on_tableViewTicket_clicked(const QModelIndex &index)
+void MainWindow::onTreeViewTicketClicked(const QModelIndex &index)
 {
 //    QModelIndex firstcolumn = model->index(index.row(),0);
 //    sb(model->data(firstcolumn).toString());
@@ -431,7 +437,7 @@ void MainWindow::on_radioButtonClosed_toggled(bool checked)
         currentStatus = Closed;
 }
 
-void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
+void MainWindow::onTreeViewTicketDoubleClicked(const QModelIndex &index)
 {
     currentTicket = model->record(index.row()).value(0).toInt();
     QString dbConnectionString = "MSTICKETVIEW";
