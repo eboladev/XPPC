@@ -43,8 +43,8 @@ public:
 
     int openSQLDatabase(QString connectionName = "XP");
 
-    //    static QString getFBFileLocation();
-    //    static void setFBFileLocation(QString location);
+    static QString getFBFileLocation();
+    static void setFBFileLocation(QString location);
 
     //локальная база
     static QString getDbHostName();

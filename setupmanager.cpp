@@ -45,7 +45,7 @@ void SetupManager::setDisplayName(QString name)
 {
     displayName = name;
 }
-/*
+
 QString SetupManager::getFBFileLocation()
 {
     QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
@@ -53,7 +53,7 @@ QString SetupManager::getFBFileLocation()
         return settings.value("db/DatabaseName").toString();
     } else {
         //QString fbfilelocation = QDir::currentPath().append("/HP.FDB"); //fb
-        QString fbfilelocation =
+        QString fbfilelocation = "hpnew";
         settings.setValue("db/DatabaseName", fbfilelocation);
         return fbfilelocation;
     }
@@ -64,7 +64,7 @@ void SetupManager::setFBFileLocation(QString location)
     QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
     // settings.setValue("db/fbfilelocation", location);
     settings.setValue("db/DatabaseName", location);
-}*/
+}
 
 QString SetupManager::getDbHostName()
 {
@@ -170,7 +170,7 @@ void SetupManager::encryptDecrypt(QByteArray &ba)
 
 int SetupManager::openSQLDatabase(QString connectionName)
 {   /* fb */
-    /* QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
+     QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (fireBirdSQLDatabase.isOpen())
         return FBAlreadyOpened;
 
@@ -183,7 +183,6 @@ int SetupManager::openSQLDatabase(QString connectionName)
     fireBirdSQLDatabase.setHostName(getDbHostName());
     fireBirdSQLDatabase.setUserName(getDbUserName());
     fireBirdSQLDatabase.setPassword(getDbPassword());
-
     fireBirdSQLDatabase.setConnectOptions("CHARSET=UTF-8");
     if  (!fireBirdSQLDatabase.open()) {
         dbStatus =  FBCantOpen;
@@ -192,9 +191,9 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();
 
-    return dbStatus;*/
+    return dbStatus;
     /* MYSQL */
-    QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
+    /*QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (mySQLDatabase.isOpen())
         return FBAlreadyOpened;
 
@@ -212,7 +211,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
     }
 
     if (dbStatus != FBCorrect) mySQLDatabase.close();
-    return dbStatus;
+    return dbStatus;*/
 }
 
 QSqlDatabase SetupManager::getDatabase(const QString &connectionName)

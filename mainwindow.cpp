@@ -100,9 +100,9 @@ void MainWindow::makeUpdate()
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
     if (currentStatus==Closed)
-        return "select ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC LIMIT "+QString::number(limit);//;
+        return "select first 100 ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC";//LIMIT "+QString::number(limit)
 
-    return "select ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC LIMIT "+QString::number(limit);//
+    return "select first 100 ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC";//LIMIT "+QString::number(limit)
 }
 
 void MainWindow::sb(QString text)

@@ -10,7 +10,7 @@
 *.lai
 *.la
 *.a
-
+test.pro.user
 *.pro.user
 Makefile
 Makefile.*
