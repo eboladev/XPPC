@@ -30,7 +30,7 @@ void BranchWidget::getBranches()
     if (!getSqlQuery(q))
         return;
 
-    q.prepare("select id,branch_name,branch_description from branches");
+    q.prepare("select id,branch_name,branch_description from Branches");
 
     if (!q.exec())
         return;
@@ -58,13 +58,14 @@ void BranchWidget::getBranches()
 void BranchWidget::onAddBranchClicked()
 {
     QSqlQuery q;
-    if (!getSqlQuery(q))
+    if (!getSqlQuery(q))        
         return;
-    q.prepare("insert into branches(branch_name,branch_description) values(?,?) returning id");
+    q.prepare("insert into Branches(branch_name,branch_description) values(?,?) returning id");
     q.addBindValue("Название");
     q.addBindValue("Описание");
     if (!q.exec())
-        return;
+        qDebug() << q.lastError();
+        //return;
     int row = model->rowCount();
     model->insertRow(row);
     model->blockSignals(true);
@@ -77,6 +78,7 @@ void BranchWidget::onAddBranchClicked()
     index = model->index(row,1);
     model->blockSignals(false);
     model->setData(index,"Описание");
+    qDebug() << "?";
 }
 
 void BranchWidget::onRemoveBranchClicked()
@@ -108,7 +110,7 @@ void BranchWidget::onBranchViewChanged(QStandardItem *qsi)
      if (!getSqlQuery(q))
          return;
      QModelIndex index = model->index(qsi->index().row(),0);
-     q.prepare("UPDATE branches SET branch_name = ?, branch_description = ? where ID = ?");
+     q.prepare("UPDATE Branches SET branch_name = ?, branch_description = ? where ID = ?");
      q.addBindValue(model->data(index));
      index = model->index(qsi->index().row(),1);
      q.addBindValue(model->data(index));

@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOnJobListClicked,SIGNAL(triggered()),this,SLOT(onJobListClicked()));
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
-    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(on_actionBranches_triggered()));
+    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(onActionBranchesTriggered()));
     connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
     if (!checkDbSettings())
     {
@@ -99,11 +99,10 @@ void MainWindow::makeUpdate()
 
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
-    qDebug() << currentStatus;
     if (currentStatus==Closed)
-        return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
+        return "select ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC LIMIT "+QString::number(limit);//;
 
-    return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
+    return "select ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC LIMIT "+QString::number(limit);//
 }
 
 void MainWindow::sb(QString text)
@@ -175,7 +174,10 @@ void MainWindow::fillTicketViewModel(QString query)
     q.prepare(query);
 
     if (!q.exec())
-        qDebug() << "случилась какая-то неведомая херня";
+    {
+        qDebug() << q.lastError();
+        return;
+    }
     model->setQuery(q);
     model->query().exec();
 
@@ -206,10 +208,7 @@ void MainWindow::fillTicketViewModel(QString query)
 bool MainWindow::checkDbConnection()
 {
     if (QSqlDatabase::database(CONNECTIONNAME).isOpen() && QSqlDatabase::database(CONNECTIONNAME).isValid())
-    {
-        qDebug() << "true" << CONNECTIONNAME;
-        return true;
-    }
+        return true;    
     else
         return false;
 }
@@ -239,7 +238,7 @@ bool MainWindow::connectToDb(QString dbConnectionName)
     QByteArray ba = settings.value("db/Password").toByteArray();
     SetupManager::encryptDecrypt(ba);
     SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));    
-    //SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
+    SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
     SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());    
     if (SetupManager::instance()->openSQLDatabase(dbConnectionName) != SetupManager::FBCorrect)
     {
@@ -499,7 +498,7 @@ void MainWindow::on_actionPrintTicket_triggered()
     genReport(currentTicket);
 }
 
-void MainWindow::on_actionBranches_triggered()
+void MainWindow::onActionBranchesTriggered()
 {
     QString dbConnectionString = "MSBRANCHESVIEW";
     {

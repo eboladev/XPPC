@@ -11,4 +11,9 @@
 *.la
 *.a
 
-.pro.user
+*.pro.user
+Makefile
+Makefile.*
+object_script.*
+app/
+build/

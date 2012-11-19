@@ -11,23 +11,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageHandler(QtMsgType type, const char *msg)
 {
-    //in this function, you can write the message to any stream!
+    QString txt;
     switch (type) {
     case QtDebugMsg:
-        fprintf(stderr, "Debug: %s\n", msg);
+        txt = QString("Debug: %1").arg(msg);
         break;
     case QtWarningMsg:
-        fprintf(stderr, "Warning: %s\n", msg);
+        txt = QString("Warning: %1").arg(msg);
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s\n", msg);
+        txt = QString("Critical: %1").arg(msg);
         break;
     case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s\n", msg);
+        txt = QString("Fatal: %1").arg(msg);
         abort();
     }
+    QFile outFile("log.txt");
+    outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+    QTextStream ts(&outFile);
+    ts << txt << endl;
 }
 
 int main(int argc, char *argv[])
@@ -35,28 +39,28 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-    qInstallMsgHandler(myMessageOutput);
+#ifdef RELEASE
+    qInstallMsgHandler(myMessageHandler);
+#endif
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName("MySoft");
     QCoreApplication::setOrganizationDomain("mysoft.com");
     QCoreApplication::setApplicationName("Service centre manager");
-    qApp->addLibraryPath("./ncreport");
-    if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
+    /* if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
                                               "QFIREBIRD"));
         return -1;
-    }
+    }*/
 
-            //    if (!QSqlDatabase::isDriverAvailable("QMYSQL"))
-            //    {
-            //        QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
-            //                              QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
-            //                                              "QMYSQL"));
-            //        return -1;
-            //    }
-            qDebug() << a.libraryPaths();
+    if (!QSqlDatabase::isDriverAvailable("QMYSQL"))
+    {
+        QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
+                              QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
+                                              "QMYSQL"));
+        return -1;
+    }
     QSettings settings;
 
     if (settings.allKeys().isEmpty())
@@ -69,7 +73,11 @@ int main(int argc, char *argv[])
     }
 
     MainWindow w;
-    // w.show();
+#ifdef DEBUG
+    w.show();
+#endif
+#ifdef RELEASE
     w.showMaximized();
+#endif
     return a.exec();
 }

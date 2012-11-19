@@ -6,7 +6,20 @@
 
 QT       += core gui network sql
 
-TARGET = test
+RCC_DIR = $$PWD/build/xppc/rcc
+UI_DIR = $$PWD/build/xppc/ui
+MOC_DIR = $$PWD/build/xppc/moc
+DESTDIR = $$PWD/app
+
+CONFIG(debug, debug|release):{
+DEFINES+=DEBUG
+OBJECTS_DIR = $$PWD/build/xppc/debug/obj
+} else: {
+DEFINES+=RELEASE
+OBJECTS_DIR = $$PWD/build/xppc/release/obj
+}
+
+TARGET = xppc
 TEMPLATE = app
 
 SOURCES += main.cpp\
@@ -42,7 +55,7 @@ win32-g++ {
     CONFIG( debug, debug|release ) {
 	LIBS += "./ncreport/lib/libncreportd2.a"
     } else {
-	LIBS += ./ncreport/lib/libncreport2.a
+        LIBS += "./ncreport/lib/libncreport2.a"
     }
 
 }
