@@ -28,7 +28,9 @@ void myMessageHandler(QtMsgType type, const char *msg)
         txt = QString("Fatal: %1").arg(msg);
         abort();
     }
-    QFile outFile("log.txt");
+    QString fileName = QDateTime::currentDateTime().toString();
+    fileName.append(".txt");
+    QFile outFile(fileName);
     outFile.open(QIODevice::WriteOnly | QIODevice::Append);
     QTextStream ts(&outFile);
     ts << txt << endl;
@@ -46,21 +48,21 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("MySoft");
     QCoreApplication::setOrganizationDomain("mysoft.com");
     QCoreApplication::setApplicationName("Service centre manager");
-    /* if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
+     if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
                                               "QFIREBIRD"));
         return -1;
-    }*/
-
+    }
+/*
     if (!QSqlDatabase::isDriverAvailable("QMYSQL"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
                                               "QMYSQL"));
         return -1;
-    }
+    }*/
     QSettings settings;
 
     if (settings.allKeys().isEmpty())

@@ -59,12 +59,6 @@ win32-g++ {
     }
 
 }
-#DEFINES += NCREPORT_IMPORT
-#INCLUDEPATH += ./ncreport
-#LIBS += ./ncreport/ncreport2.dll
-#LIBS += ./ncreport/qsqlfirebird.dll
-#LIBS += ./ncreport/mingwm10.dll
-#LIBS += ./ncreport/libgcc_s_dw2-1.dll
-#C:\Program Files (x86)\NCReport\2.8.6.qt482.mingw.eval\bin
+
 OTHER_FILES += \
     report.xml

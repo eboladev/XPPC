@@ -52,7 +52,6 @@ QString SetupManager::getFBFileLocation()
     if (settings.contains("db/DatabaseName")){
         return settings.value("db/DatabaseName").toString();
     } else {
-        //QString fbfilelocation = QDir::currentPath().append("/HP.FDB"); //fb
         QString fbfilelocation = "hpnew";
         settings.setValue("db/DatabaseName", fbfilelocation);
         return fbfilelocation;
@@ -61,8 +60,7 @@ QString SetupManager::getFBFileLocation()
 
 void SetupManager::setFBFileLocation(QString location)
 {
-    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
-    // settings.setValue("db/fbfilelocation", location);
+    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);    
     settings.setValue("db/DatabaseName", location);
 }
 
@@ -95,8 +93,7 @@ QString SetupManager::getDbName()
     if (settings.contains("db/DatabaseName")){
         return settings.value("db/DatabaseName").toString();
     } else {
-        QString fbfilelocation = "Service_new";
-        //QString fbfilelocation = QDir::currentPath().append("/db/HP.FDB"); //fb
+        QString fbfilelocation = "hpnew";
         settings.setValue("db/DatabaseName", fbfilelocation);
         return fbfilelocation;
     }
@@ -107,9 +104,8 @@ QString SetupManager::getDbUserName()
     QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
     if (settings.contains("db/UserName")){
         return settings.value("db/UserName").toString();
-    } else {
-        //QString fbusername = "SYSDBA"; //fb
-        QString fbusername = "";
+    } else {        
+        QString fbusername = "SYSDBA";
         settings.setValue("db/UserName", fbusername);
         return fbusername;
     }
@@ -121,7 +117,7 @@ int SetupManager::getDbPort()
     if (settings.contains("db/Port")){
         return settings.value("db/Port").toInt();
     } else {
-        QString fbusername = "3306";
+        QString fbusername = "3050";
         settings.setValue("db/Port", fbusername);
         return fbusername.toInt();
     }
@@ -183,14 +179,13 @@ int SetupManager::openSQLDatabase(QString connectionName)
     fireBirdSQLDatabase.setHostName(getDbHostName());
     fireBirdSQLDatabase.setUserName(getDbUserName());
     fireBirdSQLDatabase.setPassword(getDbPassword());
-    fireBirdSQLDatabase.setConnectOptions("CHARSET=UTF-8");
+    //fireBirdSQLDatabase.setConnectOptions("ISC_DPB_LC_CTYPE=Latin1");//"CHARSET=UTF-8"
     if  (!fireBirdSQLDatabase.open()) {
         dbStatus =  FBCantOpen;
         return dbStatus;
     }
 
-    if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();
-
+    if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
     return dbStatus;
     /* MYSQL */
     /*QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);

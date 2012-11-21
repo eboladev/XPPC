@@ -172,15 +172,18 @@ void MainWindow::fillTicketViewModel(QString query)
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
     q.prepare(query);
-
+    qDebug() << QDateTime::currentDateTime().toString();
     if (!q.exec())
     {
         qDebug() << q.lastError();
         return;
     }
+    while (q.next())
+        qDebug() << q.value(0).toInt();
+    qDebug() << QDateTime::currentDateTime().toString();/*
     model->setQuery(q);
-    model->query().exec();
-
+    //model->query().exec();
+    qDebug() << QDateTime::currentDateTime().toString();
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
     model->setHeaderData(2,Qt::Horizontal,tr("Филиал"));
@@ -201,7 +204,7 @@ void MainWindow::fillTicketViewModel(QString query)
         ui->tableViewTicket->setColumnWidth(1,70);
         ui->tableViewTicket->setColumnWidth(4,120);
         ui->tableViewTicket->setColumnWidth(5,200);
-    }
+    }*/
 
 }
 
