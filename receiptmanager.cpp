@@ -1,6 +1,7 @@
 #include "receiptmanager.h"
 #include "ui_receiptmanager.h"
-
+#include <QCompleter>
+#include <QStringListModel>
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, QWidget *parent) :
     QDialog(parent),
     SqlExtension(dbConnectionsString),
@@ -12,8 +13,7 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, 
     ui->pushButtonAddReceipt->setText("Обновить квитанцию");
     ui->pushButtonAddReceipt->setProperty("mode",id);
     setWindowTitle("Управление квитанцией №"+id);
-    connect(ui->pushButtonAddReceipt, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(ui->pushButtonClose,SIGNAL(clicked()),this, SLOT(reject()));
+    setupConnects();
 }
 
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, QWidget *parent) :
@@ -28,8 +28,7 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, QWidget *paren
     ui->pushButtonAddReceipt->setProperty("mode",0);
     setWindowTitle("Добавление квитанции");
     ui->pushButtonAddReceipt->setText("Добавить квитанцию");
-    connect(ui->pushButtonAddReceipt, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(ui->pushButtonClose,SIGNAL(clicked()),this, SLOT(reject()));
+    setupConnects();
 }
 
 ReceiptManager::~ReceiptManager()
@@ -76,6 +75,7 @@ void ReceiptManager::clearFields()
     ui->lineEditQual->clear();
     ui->lineEditSerial->clear();
     ui->plainTextEditMalfunction->clear();
+
 }
 
 void ReceiptManager::fillFields(int id)
@@ -98,4 +98,39 @@ void ReceiptManager::fillFields(int id)
 void ReceiptManager::on_pushButtonClearFields_clicked()
 {
     clearFields();
+}
+
+void ReceiptManager::onFIOTextChanged(QString FIO)
+{
+    qDebug() << "FIO.length()" << FIO.length();
+    if (FIO.length() > 4)
+    {
+        wordList.clear();
+        model->removeRows(0,model->rowCount());
+        QSqlQuery q;
+        if (!getSqlQuery(q))
+            return;
+        q.exec("select ticket_fio from ticket where ticket_fio LIKE '%"+FIO+"%'");
+        while(q.next())
+        {
+            wordList.append(q.value(0).toString());
+            //model->insertRow(model->rowCount());
+            //model->setData(model->index(model->rowCount(),0),q.value(0),Qt::DisplayRole);
+        }
+        model->setStringList(wordList);
+        ui->lineEditFIO->completer()->popup();
+        //qDebug() << wordList.count() << q.lastError();
+    }
+}
+
+void ReceiptManager::setupConnects()
+{
+    model = new QStringListModel(this);
+    QCompleter *completer = new QCompleter(model, this);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+    ui->lineEditFIO->setCompleter(completer);
+    connect(ui->pushButtonAddReceipt, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->pushButtonClose,SIGNAL(clicked()),this, SLOT(reject()));
+    connect(ui->lineEditFIO, SIGNAL(textEdited(QString)), this, SLOT(onFIOTextChanged(QString)));
 }

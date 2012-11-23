@@ -173,12 +173,12 @@ void MainWindow::fillTicketViewModel(QString query)
         return;
     q.prepare(query);
     qDebug() << QDateTime::currentDateTime().toString();
-    if (!q.exec())
+    /*if (!q.exec())
     {
         qDebug() << q.lastError();
         return;
     }
-    while (q.next())
+    /*while (q.next())
         qDebug() << q.value(0).toInt();
     qDebug() << QDateTime::currentDateTime().toString();/*
     model->setQuery(q);
