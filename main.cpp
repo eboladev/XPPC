@@ -45,10 +45,11 @@ int main(int argc, char *argv[])
     qInstallMsgHandler(myMessageHandler);
 #endif
     QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("MySoft");
-    QCoreApplication::setOrganizationDomain("mysoft.com");
+    QCoreApplication::setOrganizationName("doshSoft");
+    QCoreApplication::setOrganizationDomain("granet.org");
     QCoreApplication::setApplicationName("Service centre manager");
-     if (!QSqlDatabase::isDriverAvailable("QFIREBIRD"))
+
+     if (!QSqlDatabase::isDriverAvailable("QPSQL"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Запуск программы невозможен: не найден драйвер "

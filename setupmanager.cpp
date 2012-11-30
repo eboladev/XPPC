@@ -117,7 +117,7 @@ int SetupManager::getDbPort()
     if (settings.contains("db/Port")){
         return settings.value("db/Port").toInt();
     } else {
-        QString fbusername = "3050";
+        QString fbusername = "5432";
         settings.setValue("db/Port", fbusername);
         return fbusername.toInt();
     }
@@ -174,7 +174,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (fireBirdSQLDatabase.isOpen()) return FBCorrect;
-    fireBirdSQLDatabase = QSqlDatabase::addDatabase("QFIREBIRD", connectionName.toLatin1());
+    fireBirdSQLDatabase = QSqlDatabase::addDatabase("QPSQL", connectionName.toLatin1());
     fireBirdSQLDatabase.setDatabaseName(getDbName()); //getFBFileLocation()
     fireBirdSQLDatabase.setHostName(getDbHostName());
     fireBirdSQLDatabase.setUserName(getDbUserName());

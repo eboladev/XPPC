@@ -102,7 +102,6 @@ void ReceiptManager::on_pushButtonClearFields_clicked()
 
 void ReceiptManager::onFIOTextChanged(QString FIO)
 {
-    qDebug() << "FIO.length()" << FIO.length();
     if (FIO.length() > 4)
     {
         wordList.clear();

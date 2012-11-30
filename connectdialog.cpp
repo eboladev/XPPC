@@ -39,9 +39,9 @@ void ConnectDialog::loadSettings()
     else
     {
         ui->lineEditHost->setText("195.46.162.200");
-        ui->lineEditName->setText("sysdba");
+        ui->lineEditName->setText("");
         ui->lineEditPassword->setText("");
-        ui->lineEditPort->setText("3050");
+        ui->lineEditPort->setText("5432");
         ui->lineEditDBName->setText("hpnew");
     }
 }
@@ -82,13 +82,13 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
 
     if (!fireBirdSQLDatabase.isOpen())
     {
-        fireBirdSQLDatabase = QSqlDatabase::addDatabase("QFIREBIRD", CONNECTIONNAME.toLatin1());//QMYSQL
+        fireBirdSQLDatabase = QSqlDatabase::addDatabase("QPSQL", CONNECTIONNAME.toLatin1());//QMYSQL
         fireBirdSQLDatabase.setDatabaseName(ui->lineEditDBName->text().trimmed()); //getFBFileLocation()
         fireBirdSQLDatabase.setHostName(ui->lineEditHost->text().trimmed());
         fireBirdSQLDatabase.setUserName(ui->lineEditName->text().trimmed());
         fireBirdSQLDatabase.setPassword(ui->lineEditPassword->text().trimmed());
-        //fireBirdSQLDatabase.setPort(ui->lineEditPort->text().toInt());
-        fireBirdSQLDatabase.setConnectOptions("CHARSET=UTF-8");
+        fireBirdSQLDatabase.setPort(ui->lineEditPort->text().toInt());
+        //fireBirdSQLDatabase.setConnectOptions("CHARSET=UTF-8");
         if  (fireBirdSQLDatabase.open())
         {
             su->setText("Connection succesfull");

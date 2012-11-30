@@ -99,19 +99,10 @@ void MainWindow::makeUpdate()
 
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
-<<<<<<< HEAD
-    qDebug() << currentStatus;
-    //if (currentStatus==Closed)
-      //  return "select first 100 ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
-
-    //return "select first 100 ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
-    return "select first 100 ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
-=======
-    if (currentStatus==Closed)
-        return "select first 100 ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC";//LIMIT "+QString::number(limit)
-
-    return "select first 100 ticket_id,ticket_date_in,(select branch_name from Branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC";//LIMIT "+QString::number(limit)
->>>>>>> 334c1d643dafa1add504ef7f34bc946d92e0bbb0
+    if (currentStatus==Closed)//,(select branch_name from Branches where id=ticket_branch)
+        return "select ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC LIMIT "+QString::number(limit);
+//,(select branch_name from Branches where id=ticket_branch)
+    return "select ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC LIMIT "+QString::number(limit);
 }
 
 void MainWindow::sb(QString text)
@@ -181,35 +172,15 @@ void MainWindow::fillTicketViewModel(QString query)
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
     q.prepare(query);
-<<<<<<< HEAD
-    // q.setForwardOnly(true);
-        qDebug() << QDateTime::currentDateTime();
-qDebug() << q.size();
-        qDebug() << QDateTime::currentDateTime();
+
     if (!q.exec())
         qDebug() << "случилась какая-то неведомая херня";
-    qDebug() << q.boundValues();
-qDebug() << QDateTime::currentDateTime();
-qDebug() << q.size();
+
     model->setQuery(q);
     model->blockSignals(true);
-    //model->query().executedQuery();
-    ui->tableViewTicket->blockSignals(true);
 
-=======
-    qDebug() << QDateTime::currentDateTime().toString();
-    /*if (!q.exec())
-    {
-        qDebug() << q.lastError();
-        return;
-    }
-    /*while (q.next())
-        qDebug() << q.value(0).toInt();
-    qDebug() << QDateTime::currentDateTime().toString();/*
     model->setQuery(q);
-    //model->query().exec();
-    qDebug() << QDateTime::currentDateTime().toString();
->>>>>>> 334c1d643dafa1add504ef7f34bc946d92e0bbb0
+
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
     model->setHeaderData(2,Qt::Horizontal,tr("Филиал"));
@@ -230,14 +201,7 @@ qDebug() << q.size();
         ui->tableViewTicket->setColumnWidth(1,70);
         ui->tableViewTicket->setColumnWidth(4,120);
         ui->tableViewTicket->setColumnWidth(5,200);
-<<<<<<< HEAD
-    }model->blockSignals(false);
-    ui->tableViewTicket->blockSignals(false);
-    qDebug() << QDateTime::currentDateTime();
-=======
-    }*/
-
->>>>>>> 334c1d643dafa1add504ef7f34bc946d92e0bbb0
+    }
 }
 
 bool MainWindow::checkDbConnection()
@@ -272,15 +236,9 @@ bool MainWindow::connectToDb(QString dbConnectionName)
     SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());
     QByteArray ba = settings.value("db/Password").toByteArray();
     SetupManager::encryptDecrypt(ba);
-<<<<<<< HEAD
-    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));
-    //SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
-    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());
-=======
     SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));    
     SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
     SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());    
->>>>>>> 334c1d643dafa1add504ef7f34bc946d92e0bbb0
     if (SetupManager::instance()->openSQLDatabase(dbConnectionName) != SetupManager::FBCorrect)
     {
         qDebug() << "failed to connectToDb, fbStatus =" << SetupManager::instance()->getDbSQLStatus();
