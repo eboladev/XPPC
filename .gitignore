@@ -11,6 +11,7 @@
 *.la
 *.a
 
+
 *.pro.user
 Makefile
 Makefile.*
@@ -18,3 +19,6 @@ moc_*
 ui_*.h
 release/
 debug/
+object_script.*
+app/
+build/

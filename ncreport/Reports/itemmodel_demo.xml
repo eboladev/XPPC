@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NCReport version="2.8.6" name="Untitled" type="report">
+    <options>
+        <encoding>utf8</encoding>
+        <language>00</language>
+        <langrole>0</langrole>
+        <orientation>portrait</orientation>
+        <pagesize width="210.000" height="297.000">A4</pagesize>
+        <topmargin>15</topmargin>
+        <bottommargin>15</bottommargin>
+        <leftmargin>20</leftmargin>
+        <rightmargin>20</rightmargin>
+        <fontname>Arial</fontname>
+        <fontsize>10</fontsize>
+        <backcolor>#ffffff</backcolor>
+        <columns>0</columns>
+        <columnspace>0</columnspace>
+        <zoneSpacing>0</zoneSpacing>
+        <zoneBreak>false</zoneBreak>
+    </options>
+    <datasources>
+        <datasource id="imds" type="model" openRole="begin" source="static" modelID="model1"></datasource>
+        <datasource id="DataSource2" type="sql" openRole="begin" source="static" connection="internal" parentID="" connID="" connOpt="XP">select * from ticket where ticket=7509</datasource>
+    </datasources>
+    <variables/>
+    <pageheader id="PH" height="22.984">
+        <rectangle id="6768" zValue="0" posX="0.000" posY="4.762" width="166.688" height="7.938" lineColor="#000000" lineStyle="dashdot" lineWidth="0.100" fillStyle="solid" fillColor="#d2e2ff"/>
+        <label id="2800" zValue="1" posX="1.587" posY="4.762" width="153.987" height="7.938" fontName="Arial" fontSize="18" fontWeight="bold" fontItalic="true" forecolor="#0055ff">QStandardItemModel datasource demonstration</label>
+        <line id="1703" zValue="2" lineColor="#000000" lineStyle="solid" lineWidth="0.100" fromX="0.000" fromY="20.902" toX="166.688" toY="20.902"/>
+        <line id="14676" zValue="3" lineColor="#000000" lineStyle="solid" lineWidth="0.100" fromX="0.000" fromY="14.552" toX="166.688" toY="14.552"/>
+        <label id="1926" zValue="4" posX="1.587" posY="16.140" width="9.525" height="5.027" fontName="Arial" fontSize="10" fontItalic="true">ID.</label>
+        <label id="9010" zValue="5" posX="19.315" posY="16.140" width="18.785" height="5.027" fontName="Arial" fontSize="10" fontItalic="true">Item name</label>
+        <label id="4757" zValue="6" posX="125.148" posY="16.140" width="14.552" height="5.027" fontName="Arial" fontSize="10" fontItalic="true" alignment="34">Qty</label>
+        <label id="15786" zValue="7" posX="144.198" posY="16.140" width="22.490" height="5.027" fontName="Arial" fontSize="10" fontItalic="true" alignment="34" forecolor="#ff0000">Price</label>
+    </pageheader>
+    <pagefooter id="PF" height="13.229">
+        <label id="3931" zValue="0" posX="0.000" posY="3.175" width="33.602" height="6.350" fontName="Arial" fontSize="10">Page footer</label>
+        <line id="9576" zValue="1" lineColor="#000000" lineStyle="dot" lineWidth="0.100" fromX="0.000" fromY="3.175" toX="166.688" toY="3.175"/>
+    </pagefooter>
+    <details>
+        <detail id="Detail1" height="5.556" startsOnNewPage="true" datasource="imds">
+            <items>
+                <field id="13843" zValue="0" posX="0.000" posY="0.000" width="11.112" height="5.027" fontName="Arial" fontSize="10" type="num" ftype="ds" formatting="true" numwidth="0" format="f" precision="0" fillchar=" " localized="true" arg="">col0</field>
+                <field id="12043" zValue="1" posX="11.112" posY="0.000" width="17.462" height="5.027" fontName="Arial" fontSize="10" alignment="4" type="txt" ftype="ds" arg="">col1</field>
+                <field id="6374" zValue="2" posX="30.162" posY="0.000" width="34.925" height="5.027" fontName="Arial" fontSize="8" alignment="1" type="num" ftype="ds" arg="">col2</field>
+                <field id="7164" zValue="3" posX="66.675" posY="0.000" width="22.490" height="5.027" fontName="Arial" fontSize="8" alignment="1" type="txt" ftype="ds" arg="">col3</field>
+                <field id="5109" zValue="4" posX="90.487" posY="0.000" width="26.987" height="4.762" fontName="Arial" fontSize="8" alignment="1" type="num" ftype="ds" arg="">col4</field>
+                <field id="7882" zValue="5" posX="119.062" posY="0.000" width="47.625" height="4.762" fontName="Arial" fontSize="8" alignment="1" type="num" ftype="ds" arg="">col5</field>
+            </items>
+        </detail>
+        <detail id="Detail2" height="5.292" datasource="DataSource2">
+            <items>
+                <field id="5629" zValue="0" posX="17.462" posY="0.000" width="47.625" height="4.762" fontName="Arial" fontSize="8" type="txt" ftype="ds" arg="">col1</field>
+            </items>
+        </detail>
+    </details>
+</NCReport>

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "sqlextension.h"
-
+class QStringListModel;
 namespace Ui {
 class ReceiptManager;
 }
@@ -22,11 +22,16 @@ private slots:
 
     void on_pushButtonClearFields_clicked();
 
+    void onFIOTextChanged(QString);
+private:
+    void setupConnects();
 private:
     Ui::ReceiptManager *ui;
     void clearFields();
     void fillFields(int id);
     int branch;
+    QStringList wordList;
+    QStringListModel* model;
 };
 
 #endif // RECEIPTMANAGER_H

@@ -58,7 +58,7 @@ private slots:
     void networkFuckedUpTwo(const QNetworkConfiguration &);
 
     void on_actionPrintTicket_triggered();
-    void on_actionBranches_triggered();
+    void onActionBranchesTriggered();
     void on_actionCloseTicket_triggered();
 private:
     void fillTicketViewModel(QString query);

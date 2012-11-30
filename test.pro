@@ -6,9 +6,21 @@
 
 QT       += core gui network sql
 
-TARGET = test
-TEMPLATE = app
+RCC_DIR = $$PWD/build/xppc/rcc
+UI_DIR = $$PWD/build/xppc/ui
+MOC_DIR = $$PWD/build/xppc/moc
+DESTDIR = $$PWD/app
 
+CONFIG(debug, debug|release):{
+DEFINES+=DEBUG
+OBJECTS_DIR = $$PWD/build/xppc/debug/obj
+} else: {
+DEFINES+=RELEASE
+OBJECTS_DIR = $$PWD/build/xppc/release/obj
+}
+
+TARGET = xppc
+TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -38,12 +50,12 @@ FORMS    += mainwindow.ui \
 
 win32-g++ {
 
-    INCLUDEPATH += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/include"
+    INCLUDEPATH += ./ncreport/include
 
     CONFIG( debug, debug|release ) {
-	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreportd2.a"
+	LIBS += "./ncreport/lib/libncreportd2.a"
     } else {
-	LIBS += "C:/Program Files (x86)/NCReport/2.8.6.qt482.mingw.eval/lib/libncreport2.a"
+        LIBS += "./ncreport/lib/libncreport2.a"
     }
 
 }
