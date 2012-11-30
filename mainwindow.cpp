@@ -77,21 +77,21 @@ void MainWindow::networkFuckedUpTwo(const QNetworkConfiguration &qnc)
 
 void MainWindow::makeUpdate()
 {
-//    switch (currentStatus)
-//    {
-//    case 0:
-//        fillTicketViewModel(formTicketQuery(InWork,100));
-//        break;
-//    case 1:
-//        fillTicketViewModel(formTicketQuery(Ready,100));
-//        break;
-//    case 2:
-//        fillTicketViewModel(formTicketQuery(Closed,100));
-//        break;
-//    default:
-//        sb("shit happens");
-//        break;
-//    }
+    //    switch (currentStatus)
+    //    {
+    //    case 0:
+    //        fillTicketViewModel(formTicketQuery(InWork,100));
+    //        break;
+    //    case 1:
+    //        fillTicketViewModel(formTicketQuery(Ready,100));
+    //        break;
+    //    case 2:
+    //        fillTicketViewModel(formTicketQuery(Closed,100));
+    //        break;
+    //    default:
+    //        sb("shit happens");
+    //        break;
+    //    }
     model->fetchMore();
     updateTableViewTicket->start(DEFAULTPERIOD);
     sb("timer event!");
@@ -100,10 +100,11 @@ void MainWindow::makeUpdate()
 QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 {
     qDebug() << currentStatus;
-    if (currentStatus==Closed)
-        return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
+    //if (currentStatus==Closed)
+      //  return "select first 100 ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_price,ticket_date_out from Ticket where ticket_status="+QString::number(Closed)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit);
 
-    return "select ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
+    //return "select first 100 ticket_id,ticket_date_in,(select branch_name from branches where id=ticket_branch),ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
+    return "select first 100 ticket_id,ticket_date_in,ticket_fio,ticket_phone,ticket_device,ticket_problem from Ticket where ticket_status="+QString::number(ticketStatus)+" ORDER BY Ticket_ID DESC ";//LIMIT "+QString::number(limit)
 }
 
 void MainWindow::sb(QString text)
@@ -173,11 +174,19 @@ void MainWindow::fillTicketViewModel(QString query)
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
     q.prepare(query);
-
+    // q.setForwardOnly(true);
+        qDebug() << QDateTime::currentDateTime();
+qDebug() << q.size();
+        qDebug() << QDateTime::currentDateTime();
     if (!q.exec())
         qDebug() << "случилась какая-то неведомая херня";
+    qDebug() << q.boundValues();
+qDebug() << QDateTime::currentDateTime();
+qDebug() << q.size();
     model->setQuery(q);
-    model->query().exec();
+    model->blockSignals(true);
+    //model->query().executedQuery();
+    ui->tableViewTicket->blockSignals(true);
 
     model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
     model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
@@ -199,8 +208,9 @@ void MainWindow::fillTicketViewModel(QString query)
         ui->tableViewTicket->setColumnWidth(1,70);
         ui->tableViewTicket->setColumnWidth(4,120);
         ui->tableViewTicket->setColumnWidth(5,200);
-    }
-
+    }model->blockSignals(false);
+    ui->tableViewTicket->blockSignals(false);
+    qDebug() << QDateTime::currentDateTime();
 }
 
 bool MainWindow::checkDbConnection()
@@ -234,13 +244,13 @@ bool MainWindow::checkDbSettings()
 bool MainWindow::connectToDb(QString dbConnectionName)
 {
     QSettings settings;
-    SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());    
-    SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());    
+    SetupManager::instance()->setDbHostName(settings.value("db/HostName").toString().trimmed());
+    SetupManager::instance()->setDbName(settings.value("db/DatabaseName").toString().trimmed());
     QByteArray ba = settings.value("db/Password").toByteArray();
     SetupManager::encryptDecrypt(ba);
-    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));    
+    SetupManager::instance()->setDbPassword(QString::fromUtf8(ba.data(), ba.count()));
     //SetupManager::instance()->setDbPort(settings.value("db/Port").toString());
-    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());    
+    SetupManager::instance()->setDbUserName(settings.value("db/UserName").toString().trimmed());
     if (SetupManager::instance()->openSQLDatabase(dbConnectionName) != SetupManager::FBCorrect)
     {
         qDebug() << "failed to connectToDb, fbStatus =" << SetupManager::instance()->getDbSQLStatus();
@@ -254,7 +264,7 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
     try
     {
         QSqlDatabase::database(dbConnectionName).close();
-        QSqlDatabase::removeDatabase(dbConnectionName);        
+        QSqlDatabase::removeDatabase(dbConnectionName);
         model->removeColumns(0,model->columnCount());
         return true;
     }
@@ -391,8 +401,8 @@ void MainWindow::on_radioButtonClosed_pressed()
 
 void MainWindow::on_tableViewTicket_clicked(const QModelIndex &index)
 {
-//    QModelIndex firstcolumn = model->index(index.row(),0);
-//    sb(model->data(firstcolumn).toString());
+    //    QModelIndex firstcolumn = model->index(index.row(),0);
+    //    sb(model->data(firstcolumn).toString());
     currentTicket = model->record(index.row()).value(0).toInt();
     sb(QString::number(currentTicket));
 }
