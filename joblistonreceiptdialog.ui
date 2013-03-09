@@ -101,15 +101,15 @@
                 <property name="text">
                  <string>Количество:</string>
                 </property>
-                <property name="buddy">
-                 <cstring>lineEditQuantity</cstring>
-                </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEditQuantity">
-                <property name="text">
-                 <string>1</string>
+               <widget class="QSpinBox" name="spinBoxQuantity">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>9999</number>
                 </property>
                </widget>
               </item>
@@ -310,7 +310,6 @@
  <tabstops>
   <tabstop>comboBoxEmployeeList</tabstop>
   <tabstop>lineEditJobName</tabstop>
-  <tabstop>lineEditQuantity</tabstop>
   <tabstop>lineEditPrice</tabstop>
   <tabstop>pushButtonAddJob</tabstop>
   <tabstop>pushButtonOK</tabstop>

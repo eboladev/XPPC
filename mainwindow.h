@@ -2,12 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 
 class QSqlQueryModel;
 class QStatusBar;
-class QModelIndex;
 class QTimer;
 class QNetworkConfiguration;
+class QSortFilterProxyModel;
+class QStandardItemModel;
 
 namespace Ui {
 class MainWindow;
@@ -47,12 +49,17 @@ private slots:
     void on_radioButtonReady_toggled(bool checked);
 
     void on_tableViewTicket_doubleClicked(const QModelIndex &index);
+    void onTableViewTicketSelectionChanged(QModelIndex, QModelIndex);
+    void onCustomContextMenuRequested(const QPoint &pos);
+
+    void onMoveBackToWork();
+    void onMoveBackToReady();
 
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
 
     QString formTicketQuery(int ticketStatus,int limit);
-
+    QVariant getCurrentTicketId();
     void makeUpdate();
 
     void networkFuckedUpTwo(const QNetworkConfiguration &);
@@ -60,6 +67,7 @@ private slots:
     void on_actionPrintTicket_triggered();
     void onActionBranchesTriggered();
     void on_actionCloseTicket_triggered();
+
 private:
     void fillTicketViewModel(QString query);
     bool checkDbConnection();
@@ -69,11 +77,14 @@ private:
     bool settingsIsNotEmpty();
     void sb(QString text);
     void genReport(const int &type);
+
 private:        
     Ui::MainWindow *ui;
     QSqlQueryModel* model;
+    QStandardItemModel* jobModel;
     QTimer* updateTableViewTicket;
     QString defaultConfName;
+    QSortFilterProxyModel* proxy;
     int currentStatus;
     int currentTicket;
 };

@@ -178,8 +178,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
     fireBirdSQLDatabase.setDatabaseName(getDbName()); //getFBFileLocation()
     fireBirdSQLDatabase.setHostName(getDbHostName());
     fireBirdSQLDatabase.setUserName(getDbUserName());
-    fireBirdSQLDatabase.setPassword(getDbPassword());
-    //fireBirdSQLDatabase.setConnectOptions("ISC_DPB_LC_CTYPE=Latin1");//"CHARSET=UTF-8"
+    fireBirdSQLDatabase.setPassword(getDbPassword());    
     if  (!fireBirdSQLDatabase.open()) {
         dbStatus =  FBCantOpen;
         return dbStatus;
@@ -187,26 +186,6 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
     return dbStatus;
-    /* MYSQL */
-    /*QSqlDatabase mySQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
-    if (mySQLDatabase.isOpen())
-        return FBAlreadyOpened;
-
-    dbStatus = FBCorrect;
-    mySQLDatabase = QSqlDatabase::addDatabase("QMYSQL", connectionName.toLatin1());
-    mySQLDatabase.setDatabaseName(getDbName());
-    mySQLDatabase.setHostName(getDbHostName());
-    mySQLDatabase.setPort(getDbPort());
-    mySQLDatabase.setUserName(getDbUserName());
-    mySQLDatabase.setPassword(getDbPassword());
-
-    if  (!mySQLDatabase.open()) {
-        dbStatus =  FBCantOpen;
-        return dbStatus;
-    }
-
-    if (dbStatus != FBCorrect) mySQLDatabase.close();
-    return dbStatus;*/
 }
 
 QSqlDatabase SetupManager::getDatabase(const QString &connectionName)

@@ -4,7 +4,8 @@
 #include <QDialog>
 #include "sqlextension.h"
 
-class QSqlQueryModel;
+//class QSqlQueryModel;
+class QStandardItemModel;
 
 namespace Ui {
 class JobListOnReceiptDialog;
@@ -19,23 +20,24 @@ public:
     ~JobListOnReceiptDialog();
     
 private slots:
-    void on_comboBoxEmployeeList_currentIndexChanged(int index);
-
     void on_pushButtonClearField_clicked();
 
     void on_pushButtonAddJob_clicked();
 
     void on_pushButtonDeleteJob_clicked();
 
-    void on_tableView_clicked(const QModelIndex &index);
+    void onUpdateClicked();
+    void onCurrentSelectionChanged(QModelIndex, QModelIndex);
+
     void on_pushButtonCheckReady_clicked();
+
 private:
     void clearField();
     void getEmployeeList();
     void getJobs(const int &id);
 private:
     Ui::JobListOnReceiptDialog *ui;    
-    QSqlQueryModel* model;
+    QStandardItemModel* model;
     int m_id;
     int m_jid;
 };

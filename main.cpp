@@ -1,15 +1,14 @@
 #include <QtGui/QApplication>
 #include <QSettings>
 #include <QTextCodec>
+#include <QMessageBox>
 
 #include "mainwindow.h"
 #include "connectdialog.h"
 #include "setupmanager.h"
-#include <QSqlDatabase>
-#include <QMessageBox>
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 
 void myMessageHandler(QtMsgType type, const char *msg)
 {
@@ -28,9 +27,14 @@ void myMessageHandler(QtMsgType type, const char *msg)
         txt = QString("Fatal: %1").arg(msg);
         abort();
     }
-    QString fileName = QDateTime::currentDateTime().toString();
-    fileName.append(".txt");
-    QFile outFile(fileName);
+    QDir logs = QDir::homePath();
+    if (!QDir("./logs").exists())
+        logs.mkdir("./logs");
+    QString filename = logs.absolutePath();
+    filename.append("./logs/");
+    filename.append(QDateTime::currentDateTime().toString("ddMMyyyy"));
+    filename.append(".txt");
+    QFile outFile(QDir::toNativeSeparators(filename));
     outFile.open(QIODevice::WriteOnly | QIODevice::Append);
     QTextStream ts(&outFile);
     ts << txt << endl;
@@ -53,7 +57,7 @@ int main(int argc, char *argv[])
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
-                                              "QFIREBIRD"));
+                                              "QPSQL"));
         return -1;
     }
 /*

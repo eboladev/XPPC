@@ -29,8 +29,7 @@ SOURCES += main.cpp\
     connectdialog.cpp \
     sqlextension.cpp \
     setupmanager.cpp \
-    branchwidget.cpp \
-    closeticketwidget.cpp
+    branchwidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -38,27 +37,22 @@ HEADERS  += mainwindow.h \
     connectdialog.h \
     sqlextension.h \
     setupmanager.h \
-    branchwidget.h \
-    closeticketwidget.h
+    branchwidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
     joblistonreceiptdialog.ui \
     connectdialog.ui \
-    branchwidget.ui \
-    closeticketwidget.ui
+    branchwidget.ui
 
-win32-g++ {
-
-    INCLUDEPATH += ./ncreport/include
-
-    CONFIG( debug, debug|release ) {
-	LIBS += "./ncreport/lib/libncreportd2.a"
-    } else {
-        LIBS += "./ncreport/lib/libncreport2.a"
-    }
-
-}
+#win32-g++ {
+#    INCLUDEPATH += ./ncreport/include
+#    CONFIG( debug, debug|release ) {
+#	LIBS += "./ncreport/lib/libncreportd2.a"
+#    } else {
+#        LIBS += "./ncreport/lib/libncreport2.a"
+#    }
+#}
 
 OTHER_FILES += \
     report.xml

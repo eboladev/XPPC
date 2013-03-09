@@ -15,7 +15,7 @@ class BranchWidget : public QDialog, SqlExtension
     Q_OBJECT
     
 public:
-    explicit BranchWidget(const QString &dbConnectionString,QWidget *parent = 0);
+    explicit BranchWidget(const QString &dbConnectionString, QWidget *parent = 0);
     ~BranchWidget();
 private:
     void getBranches();

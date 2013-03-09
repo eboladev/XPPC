@@ -12,7 +12,7 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, 
     fillFields(id);
     ui->pushButtonAddReceipt->setText("Обновить квитанцию");
     ui->pushButtonAddReceipt->setProperty("mode",id);
-    setWindowTitle("Управление квитанцией №"+id);
+    setWindowTitle(trUtf8("Управление квитанцией №").append(QString::number(id)));
     setupConnects();
 }
 
@@ -42,28 +42,25 @@ void ReceiptManager::on_pushButtonAddReceipt_clicked()
 {
     QSqlQuery q;
     if (!getSqlQuery(q))
-        return;
+        return;    
     if (ui->pushButtonAddReceipt->property("mode").toInt() == 0)
     {
-        q.exec("insert into Ticket(Ticket_FIO,Ticket_phone,Ticket_device,Ticket_Serial,Ticket_qual,Ticket_problem,Ticket_date_in,ticket_status,ticket_branch) VALUES('"+
-               ui->lineEditFIO->text()+"','"+ui->lineEditPhone->text()+"','"+ui->lineEditDevice->text()+"','"+ui->lineEditSerial->text()+
-               "','"+ui->lineEditQual->text()+"','"+ui->plainTextEditMalfunction->toPlainText()+"', (select currentdate from getcurrentdate),1,"+QString::number(branch)+")");
-        if (!q.next())
-            return;
+        q.exec("insert into ticket(Ticket_FIO,Ticket_phone,Ticket_device,Ticket_Serial,Ticket_qual,Ticket_problem,Ticket_date_in,ticket_status,ticket_branch) VALUES('"+
+               ui->lineEditFIO->text().trimmed()+"','"+ui->lineEditPhone->text().trimmed()+"','"+ui->lineEditDevice->text().trimmed()+"','"+ui->lineEditSerial->text().trimmed()+
+               "','"+ui->lineEditQual->text().trimmed()+"','"+ui->plainTextEditMalfunction->toPlainText().trimmed()+"', (SELECT CURRENT_DATE),1,"+QString::number(branch)+")");
     }
     else
     {
         q.prepare("update Ticket set ticket_fio = ? , ticket_phone = ?, ticket_device=?,ticket_serial=?,ticket_qual=?,ticket_problem=?,ticket_branch=? where ticket_id=?");
-        q.addBindValue(ui->lineEditFIO->text().toUtf8());
-        q.addBindValue(ui->lineEditPhone->text().toUtf8());
-        q.addBindValue(ui->lineEditDevice->text().toUtf8());
-        q.addBindValue(ui->lineEditSerial->text().toUtf8());
-        q.addBindValue(ui->lineEditQual->text().toUtf8());
-        q.addBindValue(ui->plainTextEditMalfunction->toPlainText().toUtf8());
+        q.addBindValue(ui->lineEditFIO->text().trimmed());
+        q.addBindValue(ui->lineEditPhone->text().trimmed());
+        q.addBindValue(ui->lineEditDevice->text().trimmed());
+        q.addBindValue(ui->lineEditSerial->text().trimmed());
+        q.addBindValue(ui->lineEditQual->text().trimmed());
+        q.addBindValue(ui->plainTextEditMalfunction->toPlainText().trimmed());
         q.addBindValue(branch);
         q.addBindValue(ui->pushButtonAddReceipt->property("mode").toInt());
-        if (!q.exec())
-            return;
+        q.exec();
     }
 }
 
@@ -110,15 +107,10 @@ void ReceiptManager::onFIOTextChanged(QString FIO)
         if (!getSqlQuery(q))
             return;
         q.exec("select ticket_fio from ticket where ticket_fio LIKE '%"+FIO+"%'");
-        while(q.next())
-        {
-            wordList.append(q.value(0).toString());
-            //model->insertRow(model->rowCount());
-            //model->setData(model->index(model->rowCount(),0),q.value(0),Qt::DisplayRole);
-        }
+        while(q.next())        
+            wordList.append(q.value(0).toString());        
         model->setStringList(wordList);
-        ui->lineEditFIO->completer()->popup();
-        //qDebug() << wordList.count() << q.lastError();
+        ui->lineEditFIO->completer()->popup();        
     }
 }
 
