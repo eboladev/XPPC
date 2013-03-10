@@ -8,6 +8,7 @@
 #include "changeuserdialog.h"
 #include "usermanagementdialog.h"
 #include "userstatisticwidget.h"
+#include "productcategorymanager.h"
 
 #include "ncreport/include/ncreport.h"
 #include "ncreport/include/ncreportoutput.h"
@@ -19,6 +20,7 @@
 #include <QStandardItemModel>
 #include <QMessageBox>
 #include <QWidgetAction>
+#include <QStandardItem>
 
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
@@ -34,28 +36,31 @@ MainWindow::MainWindow(QWidget *parent) :
     model = new QSqlQueryModel(ui->tableViewTicket);
     ui->groupBoxFastTicketInfo->setVisible(false);
 
-    model = new QSqlQueryModel(ui->tableViewTicket);
+    model = new QSqlQueryModel(this);
     proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(model);
     ui->tableViewTicket->setModel(proxy);
     ui->tableViewTicket->setContextMenuPolicy(Qt::CustomContextMenu);
     updateTableViewTicket = new QTimer(this);
     currentStatus = InWork;
-    connect(ui->tableViewTicket, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
-    connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()), this, SLOT(onAddReceiptClicked()));
-    connect(ui->actionOnJobListClicked,SIGNAL(triggered()),this,SLOT(onJobListClicked()));
-    connect(ui->actionExitMenuClicked,SIGNAL(triggered()),this,SLOT(close()));
-    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
-    connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(onActionBranchesTriggered()));
-    connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
-    connect(ui->actionChangeUser, SIGNAL(triggered()), this, SLOT(onActionChangeUserClicked()));
-    connect(ui->actionUserControl, SIGNAL(triggered()), this, SLOT(onActionUserManagementClicked()));
+    connect(ui->tableViewTicket, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCustomContextMenuRequested(QPoint)));
+    connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()), SLOT(onAddReceiptClicked()));
+    connect(ui->actionOnJobListClicked,SIGNAL(triggered()), SLOT(onJobListClicked()));
+    connect(ui->actionExitMenuClicked,SIGNAL(triggered()), SLOT(close()));
+    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()), SLOT(onSettingsClicked()));
+    connect(ui->actionBranchTriggered,SIGNAL(triggered()), SLOT(onActionBranchesTriggered()));
+    connect(ui->actionCloseTicket,SIGNAL(triggered()), SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->actionChangeUser, SIGNAL(triggered()), SLOT(onActionChangeUserClicked()));
+    connect(ui->actionUserControl, SIGNAL(triggered()), SLOT(onActionUserManagementClicked()));
+    connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
     ui->actionCloseTicket->setEnabled(false);
     ui->actionConnect->setEnabled(checkDbSettings());
     changePermissions();
     on_actionConnect_triggered();
+
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
 
     cud = new ChangeUserDialog(this);
     QWidgetAction* wa = new QWidgetAction(this);
@@ -67,6 +72,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(makeUpdate()));
     cud->accept();
+
+    productModel = new QSqlQueryModel(this);
+    proCatModel = new QStandardItemModel(this);
+    proxyProduct = new QSortFilterProxyModel(this);
+    ui->treeViewCategory->setModel(proCatModel);
+    proxyProduct->setSourceModel(productModel);
+    ui->tableViewProducts->setModel(proxyProduct);
+    connect(ui->treeViewCategory->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(onCurrentCategoryChanged(QModelIndex,QModelIndex)));
+    connect(this, SIGNAL(refreshProductModelByCategory(int)), SLOT(onRefreshProductByType(int)));
+    connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxyProduct, SLOT(setFilterFixedString(QString)));
+    onRefreshCategoryModel();
    // updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -194,6 +210,110 @@ void MainWindow::changePermissions()
     ui->menuTicket->setEnabled(SetupManager::instance()->getPermissions());
 }
 
+void MainWindow::onTabChanged(int tab)
+{
+    switch(tab)
+    {
+    case 0:
+    {
+        ui->menuTicket->setEnabled(true);
+        ui->menuShowcase->setEnabled(false);
+        break;
+    };
+    case 1:
+    {
+        ui->menuTicket->setEnabled(false);
+        ui->menuShowcase->setEnabled(true);
+        break;
+    };
+    }
+}
+
+void MainWindow::onRefreshCategoryModel()
+{
+    proCatModel->clear();
+    proCatModel->setHorizontalHeaderLabels(QStringList() << trUtf8("Название"));
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.exec("select type_name, type_id from product_type");
+    QStandardItem* all = new QStandardItem(trUtf8("Все"));
+    all->setData(-1);
+    proCatModel->appendRow(all);
+    while(q.next())
+    {
+        QStandardItem* item = new QStandardItem(q.value(0).toString());
+        item->setData(q.value(1));
+        proCatModel->appendRow(item);
+    }
+}
+
+void MainWindow::onRefreshProductByType(int type)
+{
+    productModel->clear();
+    /*productModel->setHorizontalHeaderLabels(QStringList() << trUtf8("Название") <<
+                                            trUtf8("Описание") << trUtf8("Цена") <<
+                                            trUtf8("Количество") << trUtf8("Гарантия"));*/
+
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    if (type == -1)
+        q.exec("select product_name, product_desc, product_price, product_quant, product_guar from product");
+    else
+    {
+        q.prepare("select product_name, product_desc, product_price, product_quant, product_guar from product where type_id = ?");
+        q.addBindValue(type);
+        q.exec();
+    }
+
+    productModel->setQuery(q);
+    productModel->setHeaderData(0, Qt::Horizontal, trUtf8("Название"));
+    productModel->setHeaderData(1, Qt::Horizontal, trUtf8("Описание"));
+    productModel->setHeaderData(2, Qt::Horizontal, trUtf8("Цена"));
+    productModel->setHeaderData(3, Qt::Horizontal, trUtf8("Количество"));
+    productModel->setHeaderData(4, Qt::Horizontal, trUtf8("Гарантия"));
+    ui->tableViewProducts->resizeColumnsToContents();
+    sb(QString(trUtf8("Количество товаров %0").arg(productModel->rowCount())));
+}
+
+void MainWindow::onCurrentCategoryChanged(QModelIndex current, QModelIndex)
+{
+    if (current.isValid())
+        emit refreshProductModelByCategory(proCatModel->itemFromIndex(current)->data().toInt());
+}
+
+void MainWindow::onActionCategoryProductsClicked()
+{
+    QString dbConnectionString = "PRODUCTCATEGORYMANAGER";
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        db.transaction();
+        ProductCategoryManager pcm(dbConnectionString,this);
+        if (pcm.exec())
+        {
+            db.commit();
+            onRefreshCategoryModel();
+        }
+        else
+            db.rollback();
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
+}
+
 void MainWindow::changeUser(const QString &login, const QString &password)
 {
     QString passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
@@ -226,7 +346,9 @@ void MainWindow::changeUser(const QString &login, const QString &password)
 }
 
 void MainWindow::fillTicketViewModel(QString query)
-{
+{    
+    if (ui->tabWidget->currentIndex() != 0)
+        return;
     model->clear();
 
     QSqlQuery q(QSqlDatabase::database(CONNECTIONNAME, false));

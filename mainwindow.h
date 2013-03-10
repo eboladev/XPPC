@@ -12,6 +12,7 @@ class QSortFilterProxyModel;
 class QStandardItemModel;
 class QAction;
 class ChangeUserDialog;
+class QStandardItem;
 
 namespace Ui {
 class MainWindow;
@@ -60,8 +61,6 @@ private slots:
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
 
-    QString formTicketQuery(int ticketStatus,int limit);
-    QVariant getCurrentTicketId();
     void makeUpdate();
 
     void on_actionPrintTicket_triggered();
@@ -73,6 +72,12 @@ private slots:
     void onRejectUserInPopupMenu();
     void changePermissions();
 
+    void onTabChanged(int);
+    void onRefreshCategoryModel();
+    void onRefreshProductByType(int type);
+    void onCurrentCategoryChanged(QModelIndex, QModelIndex);
+    void onActionCategoryProductsClicked();
+
 private:
     void fillTicketViewModel(QString query);
     bool checkDbConnection();
@@ -83,11 +88,19 @@ private:
     void sb(QString text);
     void genReport(const int &type);        
     void changeUser(const QString& login, const QString& password);
+    QString formTicketQuery(int ticketStatus,int limit);
+    QVariant getCurrentTicketId();
 
-private:        
+signals:
+    void refreshProductModelByCategory(int);
+
+private:
     Ui::MainWindow *ui;
     QSqlQueryModel* model;
     QStandardItemModel* jobModel;
+    QStandardItemModel* proCatModel; //product category model
+    QSqlQueryModel* productModel;
+    QSortFilterProxyModel* proxyProduct;
     ChangeUserDialog* cud;
     QTimer* updateTableViewTicket;
     QString defaultConfName;

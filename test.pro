@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     filterlineedit.cpp \
     fancylineedit.cpp \
     userloginpassmanager.cpp \
-    userstatisticwidget.cpp
+    userstatisticwidget.cpp \
+    productcategorymanager.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -49,7 +50,8 @@ HEADERS  += mainwindow.h \
     filterlineedit.h \
     fancylineedit.h \
     userloginpassmanager.h \
-    userstatisticwidget.h
+    userstatisticwidget.h \
+    productcategorymanager.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
@@ -59,7 +61,8 @@ FORMS    += mainwindow.ui \
     changeuserdialog.ui \
     usermanagementdialog.ui \
     userloginpassmanager.ui \
-    userstatisticwidget.ui
+    userstatisticwidget.ui \
+    productcategorymanager.ui
 
 #win32-g++ {
 #    INCLUDEPATH += ./ncreport/include
