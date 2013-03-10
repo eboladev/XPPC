@@ -10,6 +10,8 @@ class QTimer;
 class QNetworkConfiguration;
 class QSortFilterProxyModel;
 class QStandardItemModel;
+class QAction;
+class ChangeUserDialog;
 
 namespace Ui {
 class MainWindow;
@@ -62,11 +64,14 @@ private slots:
     QVariant getCurrentTicketId();
     void makeUpdate();
 
-    void networkFuckedUpTwo(const QNetworkConfiguration &);
-
     void on_actionPrintTicket_triggered();
     void onActionBranchesTriggered();
     void on_actionCloseTicket_triggered();
+    void onActionChangeUserClicked();
+    void onActionUserManagementClicked();    
+    void onChangeUserInPopupMenu();
+    void onRejectUserInPopupMenu();
+    void changePermissions();
 
 private:
     void fillTicketViewModel(QString query);
@@ -76,12 +81,14 @@ private:
     bool disconnectFromDb(QString dbConnectionName);
     bool settingsIsNotEmpty();
     void sb(QString text);
-    void genReport(const int &type);
+    void genReport(const int &type);        
+    void changeUser(const QString& login, const QString& password);
 
 private:        
     Ui::MainWindow *ui;
     QSqlQueryModel* model;
     QStandardItemModel* jobModel;
+    ChangeUserDialog* cud;
     QTimer* updateTableViewTicket;
     QString defaultConfName;
     QSortFilterProxyModel* proxy;

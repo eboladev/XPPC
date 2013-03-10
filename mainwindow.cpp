@@ -5,17 +5,20 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 #include "branchwidget.h"
+#include "changeuserdialog.h"
+#include "usermanagementdialog.h"
+#include "userstatisticwidget.h"
 
 #include "ncreport/include/ncreport.h"
 #include "ncreport/include/ncreportoutput.h"
 #include "ncreport/include/ncreportpreviewoutput.h"
 #include "ncreport/include/ncreportpreviewwindow.h"
 
-#include <QNetworkConfigurationManager>
-#include <QNetworkConfiguration>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QMessageBox>
+#include <QWidgetAction>
 
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
@@ -30,10 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewJobsOnTicket->setModel(jobModel);
     model = new QSqlQueryModel(ui->tableViewTicket);
     ui->groupBoxFastTicketInfo->setVisible(false);
-    QNetworkConfigurationManager* qnam= new QNetworkConfigurationManager();
-
-    defaultConfName =  qnam->defaultConfiguration().name();
-    connect(qnam,SIGNAL(configurationChanged(QNetworkConfiguration)),this,SLOT(networkFuckedUpTwo(QNetworkConfiguration)));
 
     model = new QSqlQueryModel(ui->tableViewTicket);
     proxy = new QSortFilterProxyModel(this);
@@ -49,14 +48,25 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),this,SLOT(onSettingsClicked()));
     connect(ui->actionBranchTriggered,SIGNAL(triggered()),this,SLOT(onActionBranchesTriggered()));
     connect(ui->actionCloseTicket,SIGNAL(triggered()),this,SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->actionChangeUser, SIGNAL(triggered()), this, SLOT(onActionChangeUserClicked()));
+    connect(ui->actionUserControl, SIGNAL(triggered()), this, SLOT(onActionUserManagementClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
     ui->actionCloseTicket->setEnabled(false);
     ui->actionConnect->setEnabled(checkDbSettings());
-
+    changePermissions();
     on_actionConnect_triggered();
 
+    cud = new ChangeUserDialog(this);
+    QWidgetAction* wa = new QWidgetAction(this);
+    wa->setDefaultWidget(cud);
+    connect(cud, SIGNAL(accepted()), SLOT(onChangeUserInPopupMenu()));
+    connect(cud, SIGNAL(rejected()), SLOT(onRejectUserInPopupMenu()));
+    connect(cud, SIGNAL(changePermissions()), SLOT(changePermissions()));
+    ui->menuCurrentUser->addAction(wa);
+
     connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(makeUpdate()));
+    cud->accept();
    // updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -72,15 +82,6 @@ MainWindow::~MainWindow()
         QSqlDatabase::removeDatabase(connames.value(i));
     }
     delete ui;
-}
-
-void MainWindow::networkFuckedUpTwo(const QNetworkConfiguration &qnc)
-{
-    if ((qnc.state() != QNetworkConfiguration::Active) && (qnc.name() == defaultConfName))
-    {
-        qDebug() << qnc.name() << " some problems detected";
-        QSqlDatabase::removeDatabase("XP");
-    }
 }
 
 void MainWindow::makeUpdate()
@@ -179,6 +180,49 @@ void MainWindow::genReport(const int &type)
     }
 
     delete report;*/
+}
+
+void MainWindow::changePermissions()
+{
+    if (SetupManager::instance()->getCurrentUser().isEmpty())
+        ui->menuCurrentUser->setTitle(trUtf8("Вход не выполнен"));
+    else
+        cud->onSuccesfullLogin();
+
+    ui->treeViewJobsOnTicket->setVisible(SetupManager::instance()->getPermissions());
+    ui->tabTickets->setEnabled(SetupManager::instance()->getPermissions());
+    ui->menuTicket->setEnabled(SetupManager::instance()->getPermissions());
+}
+
+void MainWindow::changeUser(const QString &login, const QString &password)
+{
+    QString passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("select password, employee_fio, employee_id, permissions from employee where login = ?");
+    q.addBindValue(login);
+    q.exec();
+    if (!q.next())
+    {
+        QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Ошибка входа!"));
+        qDebug() << q.lastQuery() << login;
+        return;
+    }
+
+    int permissions = q.value(3).toInt();
+    QString fio = q.value(1).toString();
+    QString passwordB = q.value(0).toString().remove(0,2); //remove the \x escape character(thanks for postgress for adding it >_>)
+    if (passwordHash != passwordB)
+    {
+        QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Пароль не православный!"));
+        return;
+    }
+
+    SetupManager::instance()->setCurrentUser(login);
+    SetupManager::instance()->setPermissons(permissions);
+    changePermissions();
+    ui->menuCurrentUser->setTitle(fio);
 }
 
 void MainWindow::fillTicketViewModel(QString query)
@@ -598,4 +642,54 @@ void MainWindow::on_actionCloseTicket_triggered()
     q.addBindValue(getCurrentTicketId());
     q.exec();
     fillTicketViewModel(formTicketQuery(currentStatus,LIMIT));
+}
+
+void MainWindow::onActionChangeUserClicked()
+{
+    ChangeUserDialog cud;
+    if (cud.exec())    
+        changeUser(cud.getUser(), cud.getPassword());
+}
+
+void MainWindow::onActionUserManagementClicked()
+{
+    QString dbConnectionString = "USERMANAMEGENT";
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        db.transaction();
+        UserManagementDialog umd(dbConnectionString, this);
+        if (umd.exec())
+            db.commit();
+        else
+            db.rollback();
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
+}
+
+void MainWindow::onChangeUserInPopupMenu()
+{
+    ChangeUserDialog * cud = qobject_cast<ChangeUserDialog*>(sender());
+    if (!cud)
+        return;
+    changeUser(cud->getUser(),cud->getPassword());
+    cud->setVisible(true);
+}
+
+void MainWindow::onRejectUserInPopupMenu()
+{
+    ui->menuCurrentUser->hide();
+    cud->setVisible(true);
 }

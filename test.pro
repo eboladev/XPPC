@@ -29,7 +29,13 @@ SOURCES += main.cpp\
     connectdialog.cpp \
     sqlextension.cpp \
     setupmanager.cpp \
-    branchwidget.cpp
+    branchwidget.cpp \
+    changeuserdialog.cpp \
+    usermanagementdialog.cpp \
+    filterlineedit.cpp \
+    fancylineedit.cpp \
+    userloginpassmanager.cpp \
+    userstatisticwidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -37,13 +43,23 @@ HEADERS  += mainwindow.h \
     connectdialog.h \
     sqlextension.h \
     setupmanager.h \
-    branchwidget.h
+    branchwidget.h \
+    changeuserdialog.h \
+    usermanagementdialog.h \
+    filterlineedit.h \
+    fancylineedit.h \
+    userloginpassmanager.h \
+    userstatisticwidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
     joblistonreceiptdialog.ui \
     connectdialog.ui \
-    branchwidget.ui
+    branchwidget.ui \
+    changeuserdialog.ui \
+    usermanagementdialog.ui \
+    userloginpassmanager.ui \
+    userstatisticwidget.ui
 
 #win32-g++ {
 #    INCLUDEPATH += ./ncreport/include
