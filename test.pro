@@ -75,3 +75,6 @@ FORMS    += mainwindow.ui \
 
 OTHER_FILES += \
     report.xml
+
+RESOURCES += \
+    Resources.qrc

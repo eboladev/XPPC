@@ -2,6 +2,7 @@
 #include "ui_productcategorymanager.h"
 
 #include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
 ProductCategoryManager::ProductCategoryManager(const QString &dbConnectionString, QWidget *parent) :
     QDialog(parent),
@@ -10,12 +11,17 @@ ProductCategoryManager::ProductCategoryManager(const QString &dbConnectionString
 {
     ui->setupUi(this);
     model = new QStandardItemModel(this);
+    proxy = new QSortFilterProxyModel(this);
+    proxy->setSourceModel(model);
+    proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
     connect(ui->pushButtonAdd, SIGNAL(clicked()), SLOT(onAddCategoryClicked()));
     connect(ui->pushButtonRemove, SIGNAL(clicked()), SLOT(onRemoveCategoryClicked()));
     connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(accept()));
     connect(ui->pushButtonCancel, SIGNAL(clicked()), SLOT(reject()));
+    connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));
     connect(model, SIGNAL(itemChanged(QStandardItem*)), SLOT(onCurrentItemChanged(QStandardItem*)));
-    ui->treeView->setModel(model);
+    ui->treeView->setModel(proxy);
+    ui->treeView->setHeaderHidden(true);
     refreshModel();
 }
 
@@ -70,8 +76,7 @@ void ProductCategoryManager::onCurrentItemChanged(QStandardItem *item)
 void ProductCategoryManager::refreshModel()
 {
     model->clear();
-    model->setHorizontalHeaderLabels(QStringList() << trUtf8("Название"));
-
+    model->setHorizontalHeaderLabels(QStringList() << trUtf8("Название"));    
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;

@@ -7,6 +7,7 @@
 
 class QStandardItemModel;
 class QStandardItem;
+class QSortFilterProxyModel;
 
 namespace Ui {
 class ProductCategoryManager;
@@ -31,6 +32,7 @@ private:
 private:
     Ui::ProductCategoryManager *ui;
     QStandardItemModel* model;
+    QSortFilterProxyModel* proxy;
 };
 
 #endif // PRODUCTCATEGORYMANAGER_H

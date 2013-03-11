@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/create-ticket-icon.png</file>
+        <file>icons/inventory-maintenance-icon.png</file>
+        <file>icons/Package-Add-icon.png</file>
+        <file>icons/Package-Download-icon.png</file>
+        <file>icons/product-sales-report-icon.png</file>
+        <file>icons/remove-ticket-icon.png</file>
+        <file>icons/ticket-icon.png</file>
+        <file>icons/tickets-icon.png</file>
+        <file>icons/App-database-icon.png</file>
+        <file>icons/wheel-icon.png</file>
+        <file>icons/Database-Upload-icon.png</file>
+        <file>icons/remove-from-database-icon.png</file>
+        <file>icons/ticket1-24.png</file>
+        <file>icons/packing24.png</file>
+        <file>icons/reports24.png</file>
+        <file>icons/Accept-Male-User24.png</file>
+        <file>icons/business-info24.png</file>
+        <file>icons/Edit-Male-User24.png</file>
+        <file>icons/Remove-Male-User24.png</file>
+        <file>icons/Star-Empty24.png</file>
+        <file>icons/Star-Full24.png</file>
+        <file>icons/Star-Half-Full24.png</file>
+    </qresource>
+</RCC>

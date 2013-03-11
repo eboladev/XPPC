@@ -87,7 +87,7 @@ private:
     bool settingsIsNotEmpty();
     void sb(QString text);
     void genReport(const int &type);        
-    void changeUser(const QString& login, const QString& password);
+    bool changeUser(const QString& login, const QString& password);
     QString formTicketQuery(int ticketStatus,int limit);
     QVariant getCurrentTicketId();
 

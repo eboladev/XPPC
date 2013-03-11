@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeViewCategory->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(onCurrentCategoryChanged(QModelIndex,QModelIndex)));
     connect(this, SIGNAL(refreshProductModelByCategory(int)), SLOT(onRefreshProductByType(int)));
     connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxyProduct, SLOT(setFilterFixedString(QString)));
-    onRefreshCategoryModel();
+    onRefreshCategoryModel();    
    // updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -201,13 +201,20 @@ void MainWindow::genReport(const int &type)
 void MainWindow::changePermissions()
 {
     if (SetupManager::instance()->getCurrentUser().isEmpty())
+    {
+        ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
         ui->menuCurrentUser->setTitle(trUtf8("Вход не выполнен"));
+    }
     else
+    {
+        ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png"));
         cud->onSuccesfullLogin();
-
-    ui->treeViewJobsOnTicket->setVisible(SetupManager::instance()->getPermissions());
-    ui->tabTickets->setEnabled(SetupManager::instance()->getPermissions());
-    ui->menuTicket->setEnabled(SetupManager::instance()->getPermissions());
+    }
+    bool permissions = SetupManager::instance()->getPermissions();
+    ui->treeViewJobsOnTicket->setVisible(false);
+    ui->tabTickets->setEnabled(permissions);
+    ui->tabShowcase->setEnabled(permissions);
+    ui->menuTicket->setEnabled(permissions);
 }
 
 void MainWindow::onTabChanged(int tab)
@@ -217,13 +224,21 @@ void MainWindow::onTabChanged(int tab)
     case 0:
     {
         ui->menuTicket->setEnabled(true);
+        foreach (QAction* act,ui->menuTicket->actions())
+            act->setEnabled(true);
         ui->menuShowcase->setEnabled(false);
+        foreach (QAction* act,ui->menuShowcase->actions())
+            act->setEnabled(false);
         break;
     };
     case 1:
     {
         ui->menuTicket->setEnabled(false);
+        foreach (QAction* act,ui->menuTicket->actions())
+            act->setEnabled(false);
         ui->menuShowcase->setEnabled(true);
+        foreach (QAction* act,ui->menuShowcase->actions())
+            act->setEnabled((true));
         break;
     };
     }
@@ -258,6 +273,7 @@ void MainWindow::onRefreshProductByType(int type)
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
+
     if (type == -1)
         q.exec("select product_name, product_desc, product_price, product_quant, product_guar from product");
     else
@@ -314,12 +330,12 @@ void MainWindow::onActionCategoryProductsClicked()
     QSqlDatabase::removeDatabase(dbConnectionString);
 }
 
-void MainWindow::changeUser(const QString &login, const QString &password)
+bool MainWindow::changeUser(const QString &login, const QString &password)
 {
     QString passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return;
+        return false;
     q.prepare("select password, employee_fio, employee_id, permissions from employee where login = ?");
     q.addBindValue(login);
     q.exec();
@@ -327,7 +343,7 @@ void MainWindow::changeUser(const QString &login, const QString &password)
     {
         QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Ошибка входа!"));
         qDebug() << q.lastQuery() << login;
-        return;
+        return false;
     }
 
     int permissions = q.value(3).toInt();
@@ -336,13 +352,14 @@ void MainWindow::changeUser(const QString &login, const QString &password)
     if (passwordHash != passwordB)
     {
         QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Пароль не православный!"));
-        return;
+        return false;
     }
 
     SetupManager::instance()->setCurrentUser(login);
     SetupManager::instance()->setPermissons(permissions);
     changePermissions();
     ui->menuCurrentUser->setTitle(fio);
+    return true;
 }
 
 void MainWindow::fillTicketViewModel(QString query)
@@ -770,7 +787,7 @@ void MainWindow::onActionChangeUserClicked()
 {
     ChangeUserDialog cud;
     if (cud.exec())    
-        changeUser(cud.getUser(), cud.getPassword());
+        changeUser(cud.getUser(),cud.getPassword()) ? ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png")) : ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
 }
 
 void MainWindow::onActionUserManagementClicked()
@@ -812,6 +829,6 @@ void MainWindow::onChangeUserInPopupMenu()
 
 void MainWindow::onRejectUserInPopupMenu()
 {
-    ui->menuCurrentUser->hide();
+    ui->menuCurrentUser->hide();    
     cud->setVisible(true);
 }
