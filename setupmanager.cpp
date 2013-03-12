@@ -170,12 +170,12 @@ int SetupManager::openSQLDatabase(QString connectionName)
     if (fireBirdSQLDatabase.isOpen())
         return FBAlreadyOpened;
 
-    dbStatus = FBCorrect;
+    //dbStatus = FBCorrect;
 
     fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (fireBirdSQLDatabase.isOpen()) return FBCorrect;
     fireBirdSQLDatabase = QSqlDatabase::addDatabase("QPSQL", connectionName.toLatin1());
-    fireBirdSQLDatabase.setDatabaseName(getDbName()); //getFBFileLocation()
+    fireBirdSQLDatabase.setDatabaseName(getDbName());
     fireBirdSQLDatabase.setHostName(getDbHostName());
     fireBirdSQLDatabase.setUserName(getDbUserName());
     fireBirdSQLDatabase.setPassword(getDbPassword());    
@@ -183,7 +183,10 @@ int SetupManager::openSQLDatabase(QString connectionName)
         dbStatus =  FBCantOpen;
         return dbStatus;
     }
+    else
+        dbStatus = FBCorrect;
 
+    qDebug() << fireBirdSQLDatabase.driver()->hasFeature(QSqlDriver::EventNotifications);
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
     return dbStatus;
 }

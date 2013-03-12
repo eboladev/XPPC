@@ -1,5 +1,6 @@
 #include "joblistonreceiptdialog.h"
 #include "ui_joblistonreceiptdialog.h"
+#include "setupmanager.h"
 
 #include <QStandardItemModel>
 
@@ -10,6 +11,7 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     ui(new Ui::JobListOnReceiptDialog)
 {
     ui->setupUi(this);
+
     model = new QStandardItemModel(this);
     ui->tableView->setModel(model);
     setWindowTitle(trUtf8("Управление списком работ по квитанции №").append(QString::number(id)));
@@ -33,11 +35,18 @@ void JobListOnReceiptDialog::getEmployeeList()
     if (!getSqlQuery(q))
         return;   
 
-    if (!q.exec("select employee_fio,employee_id from Employee"))
+    if (!q.exec("select employee_fio,employee_id,login from Employee"))
         return;
-
+    int row = 0;
+    int index = 0;
     while (q.next())
+    {
+        if (SetupManager::instance()->getCurrentUser().compare(q.value(2).toString()) == 0)
+            index = row;
         ui->comboBoxEmployeeList->addItem(q.value(0).toString(),q.value(1).toInt());
+        ++row;
+    }
+    ui->comboBoxEmployeeList->setCurrentIndex(index);
 }
 
 void JobListOnReceiptDialog::getJobs(const int &id)

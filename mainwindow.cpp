@@ -33,12 +33,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     jobModel = new QStandardItemModel(this);
     ui->treeViewJobsOnTicket->setModel(jobModel);
-    model = new QSqlQueryModel(ui->tableViewTicket);
+   // ticketModel = new QSqlQueryModel(ui->tableViewTicket);
     ui->groupBoxFastTicketInfo->setVisible(false);
 
-    model = new QSqlQueryModel(this);
+    ticketModel = new QSqlQueryModel(this);
     proxy = new QSortFilterProxyModel(this);
-    proxy->setSourceModel(model);
+    proxy->setSourceModel(ticketModel);
+    proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
     ui->tableViewTicket->setModel(proxy);
     ui->tableViewTicket->setContextMenuPolicy(Qt::CustomContextMenu);
     updateTableViewTicket = new QTimer(this);
@@ -76,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
     productModel = new QSqlQueryModel(this);
     proCatModel = new QStandardItemModel(this);
     proxyProduct = new QSortFilterProxyModel(this);
+    proxyProduct->setFilterCaseSensitivity(Qt::CaseInsensitive);
     ui->treeViewCategory->setModel(proCatModel);
     proxyProduct->setSourceModel(productModel);
     ui->tableViewProducts->setModel(proxyProduct);
@@ -89,8 +91,8 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete updateTableViewTicket;
-    model->clear();
-    delete model;
+    ticketModel->clear();
+    delete ticketModel;
     QStringList connames = QSqlDatabase::connectionNames();
     for (int i = 0 ; i < connames.count(); ++i)
     {
@@ -133,7 +135,7 @@ QString MainWindow::formTicketQuery(int ticketStatus, int limit)
 
 QVariant MainWindow::getCurrentTicketId()
 {
-    return model->record(proxy->mapToSource(ui->tableViewTicket->currentIndex()).row()).value(0);
+    return ticketModel->record(proxy->mapToSource(ui->tableViewTicket->currentIndex()).row()).value(0);
 }
 
 void MainWindow::sb(QString text)
@@ -211,7 +213,7 @@ void MainWindow::changePermissions()
         cud->onSuccesfullLogin();
     }
     bool permissions = SetupManager::instance()->getPermissions();
-    ui->treeViewJobsOnTicket->setVisible(false);
+//    ui->treeViewJobsOnTicket->setVisible(false);
     ui->tabTickets->setEnabled(permissions);
     ui->tabShowcase->setEnabled(permissions);
     ui->menuTicket->setEnabled(permissions);
@@ -239,6 +241,7 @@ void MainWindow::onTabChanged(int tab)
         ui->menuShowcase->setEnabled(true);
         foreach (QAction* act,ui->menuShowcase->actions())
             act->setEnabled((true));
+        ui->groupBoxSale->setVisible(false);
         break;
     };
     }
@@ -275,17 +278,17 @@ void MainWindow::onRefreshProductByType(int type)
         return;
 
     if (type == -1)
-        q.exec("select product_name, product_desc, product_price, product_quant, product_guar from product");
+        q.exec("select product_name, serial_number,  product_price, product_quant, product_guar from product left join serialforproduct on (serialforproduct.product_id = product.product_id)");
     else
     {
-        q.prepare("select product_name, product_desc, product_price, product_quant, product_guar from product where type_id = ?");
+        q.prepare("select product_name, serial_number,  product_price, product_quant, product_guar from product left join serialforproduct on (serialforproduct.product_id = product.product_id) where type_id = ?");
         q.addBindValue(type);
         q.exec();
     }
 
     productModel->setQuery(q);
     productModel->setHeaderData(0, Qt::Horizontal, trUtf8("Название"));
-    productModel->setHeaderData(1, Qt::Horizontal, trUtf8("Описание"));
+    productModel->setHeaderData(1, Qt::Horizontal, trUtf8("Серийный №"));
     productModel->setHeaderData(2, Qt::Horizontal, trUtf8("Цена"));
     productModel->setHeaderData(3, Qt::Horizontal, trUtf8("Количество"));
     productModel->setHeaderData(4, Qt::Horizontal, trUtf8("Гарантия"));
@@ -366,7 +369,7 @@ void MainWindow::fillTicketViewModel(QString query)
 {    
     if (ui->tabWidget->currentIndex() != 0)
         return;
-    model->clear();
+    ticketModel->clear();
 
     QSqlQuery q(QSqlDatabase::database(CONNECTIONNAME, false));
     if (!SetupManager::instance()->getSqlQueryForDB(q))
@@ -380,20 +383,20 @@ void MainWindow::fillTicketViewModel(QString query)
         return;
     }
 
-    model->setQuery(q);
-    model->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
-    model->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
-    model->setHeaderData(2, Qt::Horizontal,tr("Филиал"));
-    model->setHeaderData(3, Qt::Horizontal, tr("ФИО"));      //2
-    model->setHeaderData(4, Qt::Horizontal, tr("Телефон"));   //3
-    model->setHeaderData(5, Qt::Horizontal, tr("Устройство"));    //4
-    model->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));
+    ticketModel->setQuery(q);
+    ticketModel->setHeaderData(0, Qt::Horizontal, tr("№"));            //0
+    ticketModel->setHeaderData(1, Qt::Horizontal, tr("Дата"));          //1
+    ticketModel->setHeaderData(2, Qt::Horizontal,tr("Филиал"));
+    ticketModel->setHeaderData(3, Qt::Horizontal, tr("ФИО"));      //2
+    ticketModel->setHeaderData(4, Qt::Horizontal, tr("Телефон"));   //3
+    ticketModel->setHeaderData(5, Qt::Horizontal, tr("Устройство"));    //4
+    ticketModel->setHeaderData(6, Qt::Horizontal, tr("Неисправность"));
     ui->tableViewTicket->resizeColumnToContents(3);
 
     if (currentStatus==Closed)
     {
-        model->setHeaderData(7, Qt::Horizontal, tr("Цена"));//6
-        model->setHeaderData(8, Qt::Horizontal, tr("Выдано"));
+        ticketModel->setHeaderData(7, Qt::Horizontal, tr("Цена"));//6
+        ticketModel->setHeaderData(8, Qt::Horizontal, tr("Выдано"));
         ui->tableViewTicket->resizeColumnsToContents();
     }
     else
@@ -438,7 +441,7 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
     {
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
-        model->removeColumns(0,model->columnCount());
+        ticketModel->removeColumns(0,ticketModel->columnCount());
         return true;
     }
     catch(...)
@@ -562,7 +565,7 @@ void MainWindow::on_radioButtonClosed_pressed()
 
 void MainWindow::on_tableViewTicket_clicked(const QModelIndex &index)
 {
-    currentTicket = model->data(index).toInt();
+    currentTicket = ticketModel->data(index).toInt();
 }
 
 void MainWindow::on_pushButtonSearchClear_clicked()
@@ -605,7 +608,7 @@ void MainWindow::on_radioButtonClosed_toggled(bool checked)
 
 void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 {
-    currentTicket = model->record(index.row()).value(0).toInt();
+    currentTicket = ticketModel->record(index.row()).value(0).toInt();
     QString dbConnectionString = "MSTICKETVIEW";
     {
         if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
@@ -652,7 +655,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
     if (SetupManager::instance()->getSqlQueryForDB(q))
     {
         q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where Ticket_ID=?");
-        q.addBindValue(model->record(proxy->mapToSource(current).row()).value(0));
+        q.addBindValue(ticketModel->record(proxy->mapToSource(current).row()).value(0));
         q.exec();
         while (q.next())
         {

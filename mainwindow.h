@@ -96,7 +96,7 @@ signals:
 
 private:
     Ui::MainWindow *ui;
-    QSqlQueryModel* model;
+    QSqlQueryModel* ticketModel;
     QStandardItemModel* jobModel;
     QStandardItemModel* proCatModel; //product category model
     QSqlQueryModel* productModel;
