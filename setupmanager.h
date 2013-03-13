@@ -35,6 +35,10 @@ public:
     void setPermissons(int permisson);
     void setCurrentUser(QString user);
     void setDisplayName(QString name);
+
+    void setCurrentBranch(const int& id);
+    int getCurrentBranch() const;
+
     int getDbSQLStatus() {return dbStatus;}
 
     QSqlDatabase getDatabase(const QString &connectionName = "XP");
@@ -68,6 +72,7 @@ public slots:
 private:
     QString currentUser;
     QString displayName;
+    int currentBranch;
     int permission;
     int fbStatus;
     int dbStatus;

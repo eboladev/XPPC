@@ -36,7 +36,9 @@ SOURCES += main.cpp\
     fancylineedit.cpp \
     userloginpassmanager.cpp \
     userstatisticwidget.cpp \
-    productcategorymanager.cpp
+    productcategorymanager.cpp \
+    customerwidget.cpp \
+    devicewidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -51,7 +53,9 @@ HEADERS  += mainwindow.h \
     fancylineedit.h \
     userloginpassmanager.h \
     userstatisticwidget.h \
-    productcategorymanager.h
+    productcategorymanager.h \
+    customerwidget.h \
+    devicewidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
@@ -62,19 +66,9 @@ FORMS    += mainwindow.ui \
     usermanagementdialog.ui \
     userloginpassmanager.ui \
     userstatisticwidget.ui \
-    productcategorymanager.ui
-
-#win32-g++ {
-#    INCLUDEPATH += ./ncreport/include
-#    CONFIG( debug, debug|release ) {
-#	LIBS += "./ncreport/lib/libncreportd2.a"
-#    } else {
-#        LIBS += "./ncreport/lib/libncreport2.a"
-#    }
-#}
-
-OTHER_FILES += \
-    report.xml
+    productcategorymanager.ui \
+    customerwidget.ui \
+    devicewidget.ui
 
 RESOURCES += \
     Resources.qrc

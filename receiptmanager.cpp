@@ -1,7 +1,12 @@
 #include "receiptmanager.h"
 #include "ui_receiptmanager.h"
+#include "customerwidget.h"
+#include "devicewidget.h"
+#include "setupmanager.h"
+
 #include <QCompleter>
 #include <QStringListModel>
+#include <QVBoxLayout>
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, QWidget *parent) :
     QDialog(parent),
     SqlExtension(dbConnectionsString),
@@ -13,7 +18,8 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, 
     ui->pushButtonAddReceipt->setText("Обновить квитанцию");
     ui->pushButtonAddReceipt->setProperty("mode",id);
     setWindowTitle(trUtf8("Управление квитанцией №").append(QString::number(id)));
-    setupConnects();
+    setupConnections();
+    initWidgets();
 }
 
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, QWidget *parent) :
@@ -28,7 +34,8 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, QWidget *paren
     ui->pushButtonAddReceipt->setProperty("mode",0);
     setWindowTitle("Добавление квитанции");
     ui->pushButtonAddReceipt->setText("Добавить квитанцию");
-    setupConnects();
+    setupConnections();
+    initWidgets();
 }
 
 ReceiptManager::~ReceiptManager()
@@ -36,11 +43,9 @@ ReceiptManager::~ReceiptManager()
     delete ui;
 }
 
-
-
 void ReceiptManager::on_pushButtonAddReceipt_clicked()
 {
-    QSqlQuery q;
+   /* QSqlQuery q;
     if (!getSqlQuery(q))
         return;    
     if (ui->pushButtonAddReceipt->property("mode").toInt() == 0)
@@ -61,35 +66,41 @@ void ReceiptManager::on_pushButtonAddReceipt_clicked()
         q.addBindValue(branch);
         q.addBindValue(ui->pushButtonAddReceipt->property("mode").toInt());
         q.exec();
-    }
+    }*/
 }
 
 void ReceiptManager::clearFields()
 {
-    ui->lineEditDevice->clear();
+  /*  ui->lineEditDevice->clear();
     ui->lineEditFIO->clear();
     ui->lineEditPhone->clear();
     ui->lineEditQual->clear();
     ui->lineEditSerial->clear();
-    ui->plainTextEditMalfunction->clear();
+    ui->plainTextEditMalfunction->clear();*/
 
 }
 
 void ReceiptManager::fillFields(int id)
-{
+{    
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.exec("select ticket_FIO,ticket_phone,ticket_device,ticket_serial,ticket_qual,ticket_problem,ticket_branch from Ticket where ticket_id="+QString::number(id));
+    q.prepare("select "
+              "client.name, client.phone, device.name, device.serial, device.problem, ticket.id "
+              "from tdc_relation "
+              "join ticket on(tdc_relation.ticket_id = ticket.id) "
+              "join client on(tdc_relation.client_id = client.id) "
+              "join device on(tdc_relation.device_id = device.id) "
+              "where tdc_relation.id = ?");
+    q.addBindValue(id);
+    q.exec();
     if (!q.next())
         return;
-    ui->lineEditDevice->setText(q.value(2).toString());
-    ui->lineEditFIO->setText(q.value(0).toString());
-    ui->lineEditPhone->setText(q.value(1).toString());
-    ui->lineEditQual->setText(q.value(4).toString());
-    ui->lineEditSerial->setText(q.value(3).toString());
-    ui->plainTextEditMalfunction->setPlainText(q.value(5).toString());
-    branch = q.value(6).toInt();
+    cw->setName(q.value(0).toString());
+    cw->setPhone(q.value(1).toString());
+    dw->setDeviceName(q.value(2).toString());
+    dw->setDeviceSerialNumber(q.value(3).toString());
+    dw->setDeviceProblem(q.value(4).toString());
 }
 
 void ReceiptManager::on_pushButtonClearFields_clicked()
@@ -110,18 +121,43 @@ void ReceiptManager::onFIOTextChanged(QString FIO)
         while(q.next())        
             wordList.append(q.value(0).toString());        
         model->setStringList(wordList);
-        ui->lineEditFIO->completer()->popup();        
+      //  ui->lineEditFIO->completer()->popup();
     }
 }
 
-void ReceiptManager::setupConnects()
+void ReceiptManager::setupConnections()
 {
     model = new QStringListModel(this);
     QCompleter *completer = new QCompleter(model, this);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-    ui->lineEditFIO->setCompleter(completer);
+  // ui->lineEditFIO->setCompleter(completer);
     connect(ui->pushButtonAddReceipt, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->pushButtonClose,SIGNAL(clicked()),this, SLOT(reject()));
-    connect(ui->lineEditFIO, SIGNAL(textEdited(QString)), this, SLOT(onFIOTextChanged(QString)));
+    //connect(ui->lineEditFIO, SIGNAL(textEdited(QString)), this, SLOT(onFIOTextChanged(QString)));
+}
+
+void ReceiptManager::initWidgets()
+{
+    cw = new CustomerWidget(this);
+    QVBoxLayout *vbl = new QVBoxLayout(ui->groupBoxClient);
+    vbl->addWidget(cw);
+    dw = new DeviceWidget(this);
+    QVBoxLayout *vbl2 = new QVBoxLayout(ui->groupBoxDevice);
+    vbl2->addWidget(dw);
+    ui->groupBoxDeviceList->setVisible(false);
+    ui->groupBoxDeviceList_2->setVisible(false);
+    adjustSize();
+    fillBranchComboBox();
+}
+
+void ReceiptManager::fillBranchComboBox()
+{
+    QSqlQuery q;
+    if (!getSqlQuery(q))
+        return;
+    q.exec("select id, branch_name from branch");
+    while(q.next())
+        ui->comboBoxBranch->addItem(q.value(1).toString(),q.value(0));
+    ui->comboBoxBranch->findData(SetupManager::instance()->getCurrentBranch());    
 }

@@ -46,6 +46,21 @@ void SetupManager::setDisplayName(QString name)
     displayName = name;
 }
 
+void SetupManager::setCurrentBranch(const int &id)
+{
+    QSettings settings;
+    settings.setValue("db/CurrentBranch",id);
+}
+
+int SetupManager::getCurrentBranch() const
+{
+    QSettings settings;
+    if (settings.contains("db/CurrentBranch"))
+        return settings.value("db/CurrentBranch").toInt();
+    else
+        return 0;
+}
+
 QString SetupManager::getFBFileLocation()
 {
     QSettings settings; //(getSettingFile(),  QSettings::IniFormat);

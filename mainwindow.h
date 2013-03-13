@@ -26,30 +26,56 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    enum Tabs
+    {
+        Tickets = 0,
+        Merchandise
+    };
+
     enum TicketStatus
     {
-        Ready,
-        InWork,        
+        InWork,
+        Ready,                
         Closed
     };
 
+    /*base begin*/
 private slots:
-    void onAddReceiptClicked();
+    void onActionChangeUserClicked();
+    void onActionBranchesTriggered();
+    void onActionUserManagementClicked();
+    void onChangeUserInPopupMenu();
+    void onRejectUserInPopupMenu();
+    void changePermissions();
+    void on_actionDisconnect_triggered();
+    void on_actionConnect_triggered();
+    void onTabChanged(int);
+private:
+    bool checkDbConnection();
+    bool checkDbSettings();
+    bool connectToDb(QString dbConnectionName);
+    bool disconnectFromDb(QString dbConnectionName);
+    bool settingsIsNotEmpty();
+    void sb(QString text);
+    void genReport(const int &type);
+    bool changeUser(const QString& login, const QString& password);
+    /*base end*/
+
+    /*ticket manager start*/
+private slots:
+    void onAddTicketClicked();
     void onJobListClicked();
+
     void onSettingsClicked();
 
     void on_radioButtonReady_pressed();
     void on_radioButtonWorking_pressed();
     void on_radioButtonClosed_pressed();
 
-    void on_tableViewTicket_clicked(const QModelIndex &index);
+    void refreshTicketModel(const QString&);
 
     void on_pushButtonSearchClear_clicked();
     void on_pushButtonSearch_clicked();
-
-    void on_radioButtonClosed_toggled(bool checked);
-    void on_radioButtonWorking_toggled(bool checked);
-    void on_radioButtonReady_toggled(bool checked);
 
     void on_tableViewTicket_doubleClicked(const QModelIndex &index);
     void onTableViewTicketSelectionChanged(QModelIndex, QModelIndex);
@@ -58,55 +84,39 @@ private slots:
     void onMoveBackToWork();
     void onMoveBackToReady();
 
-    void on_actionDisconnect_triggered();
-    void on_actionConnect_triggered();
-
-    void makeUpdate();
-
-    void on_actionPrintTicket_triggered();
-    void onActionBranchesTriggered();
     void on_actionCloseTicket_triggered();
-    void onActionChangeUserClicked();
-    void onActionUserManagementClicked();    
-    void onChangeUserInPopupMenu();
-    void onRejectUserInPopupMenu();
-    void changePermissions();
 
-    void onTabChanged(int);
+private:
+    QString generateTicketQuery();
+    //ticket device client relation id
+    QVariant getCurrentTDCRId();
+    /*ticket manager stop*/
+
+    /* Merchandise manager begin */
+private slots:
     void onRefreshCategoryModel();
     void onRefreshProductByType(int type);
     void onCurrentCategoryChanged(QModelIndex, QModelIndex);
-    void onActionCategoryProductsClicked();
-
-private:
-    void fillTicketViewModel(QString query);
-    bool checkDbConnection();
-    bool checkDbSettings();
-    bool connectToDb(QString dbConnectionName);
-    bool disconnectFromDb(QString dbConnectionName);
-    bool settingsIsNotEmpty();
-    void sb(QString text);
-    void genReport(const int &type);        
-    bool changeUser(const QString& login, const QString& password);
-    QString formTicketQuery(int ticketStatus,int limit);
-    QVariant getCurrentTicketId();
+    void onActionCategoryProductsClicked();  
 
 signals:
     void refreshProductModelByCategory(int);
+    /* Merchandise manager end */
 
 private:
     Ui::MainWindow *ui;
-    QSqlQueryModel* ticketModel;
+    QStandardItemModel* ticketModel;
+    QSortFilterProxyModel* ticketProxy;
     QStandardItemModel* jobModel;
+    QTimer* updateTableViewTicket;
+    int currentStatus;
+
     QStandardItemModel* proCatModel; //product category model
     QSqlQueryModel* productModel;
     QSortFilterProxyModel* proxyProduct;
-    ChangeUserDialog* cud;
-    QTimer* updateTableViewTicket;
-    QString defaultConfName;
-    QSortFilterProxyModel* proxy;
-    int currentStatus;
-    int currentTicket;
+
+    ChangeUserDialog* cud;    
+    QString defaultConfName;            
 };
 
 #endif // MAINWINDOW_H

@@ -6,199 +6,158 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>503</width>
-    <height>266</height>
+    <width>886</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>500</width>
-    <height>260</height>
+    <width>0</width>
+    <height>529</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Добавление квитанции</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <property name="margin">
-    <number>2</number>
-   </property>
-   <property name="spacing">
-    <number>2</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="maximumSize">
-        <size>
-         <width>230</width>
-         <height>16777215</height>
-        </size>
-       </property>
+      <widget class="QGroupBox" name="groupBoxDeviceList_2">
        <property name="title">
-        <string/>
+        <string>Список устройств</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <property name="margin">
-         <number>2</number>
-        </property>
-        <property name="spacing">
-         <number>1</number>
-        </property>
+       <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="QLabel" name="labelFIO">
-          <property name="text">
-           <string>Фамилия, Имя, Отчество:</string>
-          </property>
-          <property name="buddy">
-           <cstring>lineEditFIO</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLineEdit" name="lineEditFIO">
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="labelPhone">
-          <property name="text">
-           <string>Телефон:</string>
-          </property>
-          <property name="buddy">
-           <cstring>lineEditPhone</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLineEdit" name="lineEditPhone"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="labelDevice">
-          <property name="text">
-           <string>Устройство:</string>
-          </property>
-          <property name="buddy">
-           <cstring>lineEditDevice</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLineEdit" name="lineEditDevice"/>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="labelSN">
-          <property name="text">
-           <string>Серийный номер:</string>
-          </property>
-          <property name="buddy">
-           <cstring>lineEditSerial</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLineEdit" name="lineEditSerial"/>
-        </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="labelCondition">
-          <property name="text">
-           <string>Состояние:</string>
-          </property>
-          <property name="buddy">
-           <cstring>lineEditQual</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLineEdit" name="lineEditQual"/>
+         <widget class="QListView" name="listView_2"/>
         </item>
        </layout>
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBoxMalfunction">
-       <property name="title">
-        <string/>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <property name="margin">
-         <number>2</number>
-        </property>
-        <property name="spacing">
-         <number>1</number>
-        </property>
-        <item row="0" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QLabel" name="labelMalfunction">
-            <property name="text">
-             <string>Заявленная неисправность</string>
-            </property>
-            <property name="buddy">
-             <cstring>plainTextEditMalfunction</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="plainTextEditMalfunction"/>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QGroupBox" name="groupBoxClient">
+           <property name="title">
+            <string>Клиент:</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxDevice">
+           <property name="title">
+            <string>Устройство:</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxBranches">
+         <property name="title">
+          <string>Филиал</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QComboBox" name="comboBoxBranch"/>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="pushButtonAddReceipt">
+           <property name="text">
+            <string>Добавить</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonUpdate">
+           <property name="text">
+            <string>Обновить</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonClearFields">
+           <property name="text">
+            <string>Очистить поля</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonClose">
+           <property name="text">
+            <string>Выйти</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBoxDeviceList">
+       <property name="title">
+        <string>Список устройств</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <widget class="QListView" name="listView"/>
         </item>
        </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="pushButtonAddReceipt">
-       <property name="text">
-        <string>Добавить квитанцию</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonClearFields">
-       <property name="text">
-        <string>Очистить поля</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonClose">
-       <property name="text">
-        <string>Выйти</string>
-       </property>
       </widget>
      </item>
     </layout>
