@@ -2,12 +2,23 @@
 #define CUSTOMERWIDGET_H
 
 #include <QWidget>
+#include <QCompleter>
 
 class QLabel;
 class QLineEdit;
-class QCompleter;
 class QStandardItemModel;
 class QSortFilterProxyModel;
+
+class CompleterWithUserData : public QCompleter
+{
+    Q_OBJECT
+public:
+    explicit CompleterWithUserData( QAbstractItemModel * model, QObject * parent = 0 );
+
+    static const int CompleteRole;
+
+    QString pathFromIndex(const QModelIndex &index) const;
+};
 
 class CustomerWidget : public QWidget
 {
@@ -19,7 +30,8 @@ public:
     void setName(const QString& name);
     void setPhone(const QString& phone);
     QString getName() const;
-    QString getPhone() const;        
+    QString getPhone() const;
+    QVariant getCustomerId() const;
 
 private:
     QLabel* nameLabel;

@@ -22,3 +22,8 @@ debug/
 object_script.*
 app/
 build/
+*.Debug
+*.Release
+*.pro.user
+*.pro.user.*
+*.autosave

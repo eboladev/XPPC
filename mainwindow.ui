@@ -65,9 +65,6 @@
         </property>
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="spacing">
-           <number>1</number>
-          </property>
           <item>
            <widget class="QGroupBox" name="groupBoxSortReceipt">
             <property name="title">
@@ -89,17 +86,6 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QRadioButton" name="radioButtonReady">
-                 <property name="text">
-                  <string>Готовые</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="Resources.qrc">
-                   <normaloff>:/icons/icons/Star-Half-Full24.png</normaloff>:/icons/icons/Star-Half-Full24.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QRadioButton" name="radioButtonWorking">
                  <property name="text">
                   <string>В работе</string>
@@ -110,6 +96,17 @@
                  </property>
                  <property name="checked">
                   <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButtonReady">
+                 <property name="text">
+                  <string>Готовые</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="Resources.qrc">
+                   <normaloff>:/icons/icons/Star-Half-Full24.png</normaloff>:/icons/icons/Star-Half-Full24.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -130,6 +127,24 @@
            </widget>
           </item>
           <item>
+           <widget class="QGroupBox" name="groupBoxQueryLimit">
+            <property name="title">
+             <string>Лимит квитанций:</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_10">
+             <property name="margin">
+              <number>1</number>
+             </property>
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QueryLimitComboBoxWidget" name="queryLimitComboBoxWidget" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QGroupBox" name="groupBocSearchReceipt">
             <property name="title">
              <string>Поиск:</string>
@@ -144,7 +159,7 @@
              <property name="spacing">
               <number>1</number>
              </property>
-             <item row="0" column="0">
+             <item row="0" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout">
@@ -905,12 +920,19 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QueryLimitComboBoxWidget</class>
+   <extends>QWidget</extends>
+   <header>querylimitcomboboxwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>lineEdit</tabstop>
   <tabstop>pushButtonSearch</tabstop>
   <tabstop>pushButtonSearchClear</tabstop>
   <tabstop>radioButtonReady</tabstop>
-  <tabstop>radioButtonWorking</tabstop>
   <tabstop>radioButtonClosed</tabstop>
   <tabstop>tableViewTicket</tabstop>
  </tabstops>

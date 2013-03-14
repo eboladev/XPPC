@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     productcategorymanager.cpp \
     customerwidget.cpp \
     devicewidget.cpp \
-    branchselectionwidget.cpp
+    branchselectionwidget.cpp \
+    querylimitcomboboxwidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -59,7 +60,8 @@ HEADERS  += mainwindow.h \
     productcategorymanager.h \
     customerwidget.h \
     devicewidget.h \
-    branchselectionwidget.h
+    branchselectionwidget.h \
+    querylimitcomboboxwidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
@@ -72,7 +74,8 @@ FORMS    += mainwindow.ui \
     userstatisticwidget.ui \
     productcategorymanager.ui \
     devicewidget.ui \
-    branchselectionwidget.ui
+    branchselectionwidget.ui \
+    querylimitcomboboxwidget.ui
 
 RESOURCES += \
     Resources.qrc

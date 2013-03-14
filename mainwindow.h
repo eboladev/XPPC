@@ -56,8 +56,7 @@ private:
     bool connectToDb(QString dbConnectionName);
     bool disconnectFromDb(QString dbConnectionName);
     bool settingsIsNotEmpty();
-    void sb(QString text);
-    void genReport(const int &type);
+    void sb(QString text);    
     bool changeUser(const QString& login, const QString& password);
     /*base end*/
 
@@ -83,6 +82,8 @@ private slots:
 
     void onMoveBackToWork();
     void onMoveBackToReady();
+
+    void onQueryLimitComboBoxIndexChanged(int);
 
     void on_actionCloseTicket_triggered();
 

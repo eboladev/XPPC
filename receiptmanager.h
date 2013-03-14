@@ -19,17 +19,17 @@ public:
     ~ReceiptManager();
     
 private slots:
-    void onAddReceiptClicked();
+    void onAddTicketClicked();
+    void onUpdateTicketClicked();
+    void clearFields();
 
 private:
     void setupConnections();
-    void initWidgets();    
+    void initWidgets();
+    void fillFields(int id);
 
 private:
-    Ui::ReceiptManager *ui;
-    void clearFields();
-    void fillFields(int id);
-    int branch;     
+    Ui::ReceiptManager *ui;        
 };
 
 #endif // RECEIPTMANAGER_H

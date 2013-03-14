@@ -39,7 +39,7 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
         proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
         connect(nameEdit, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));
 
-        QCompleter *completer = new QCompleter(proxy, this);
+        CompleterWithUserData *completer = new CompleterWithUserData(proxy, this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
         completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
         nameEdit->setCompleter(completer);
@@ -80,4 +80,25 @@ QString CustomerWidget::getName() const
 QString CustomerWidget::getPhone() const
 {
     return phoneEdit->text();
+}
+
+QVariant CustomerWidget::getCustomerId() const
+{
+    qDebug() << nameEdit->completer()->pathFromIndex(nameEdit->completer()->currentIndex());// << nameEdit->completer()->;
+    //return model->itemFromIndex(proxy->mapToSource(nameEdit->completer()->currentIndex()))->data();
+}
+
+
+QString CompleterWithUserData::pathFromIndex(const QModelIndex &index) const
+{
+    QMap<int, QVariant> data = model()->itemData(index);
+    QString code = data.value(CompleteRole).toString();
+    return code;
+}
+
+const int CompleterWithUserData::CompleteRole = Qt::UserRole + 1;
+
+CompleterWithUserData::CompleterWithUserData(QAbstractItemModel *model, QObject *parent) :
+    QCompleter(model,parent)
+{
 }

@@ -10,11 +10,6 @@
 #include "userstatisticwidget.h"
 #include "productcategorymanager.h"
 
-#include "ncreport/include/ncreport.h"
-#include "ncreport/include/ncreportoutput.h"
-#include "ncreport/include/ncreportpreviewoutput.h"
-#include "ncreport/include/ncreportpreviewwindow.h"
-
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
@@ -25,7 +20,6 @@
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
 const int STATUSBARTIMEOUT = 10000;
-const int LIMIT = 1000;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -88,7 +82,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeViewCategory->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(onCurrentCategoryChanged(QModelIndex,QModelIndex)));
     connect(this, SIGNAL(refreshProductModelByCategory(int)), SLOT(onRefreshProductByType(int)));
     connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxyProduct, SLOT(setFilterFixedString(QString)));
-    onRefreshCategoryModel();    
+    onRefreshCategoryModel();
+
+    connect(ui->queryLimitComboBoxWidget, SIGNAL(limitChanged(int)), SLOT(onQueryLimitComboBoxIndexChanged(int)));
    // updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -114,63 +110,6 @@ QVariant MainWindow::getCurrentTDCRId()
 void MainWindow::sb(QString text)
 {
     ui->statusBar->showMessage(text, STATUSBARTIMEOUT);
-}
-
-void MainWindow::genReport(const int &type)
-{
-    Q_UNUSED(type);
-  /*  QSqlQuery q(QSqlDatabase::database(CONNECTIONNAME, false));
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return;
-    q.prepare("select ticket_fio,ticket_phone,ticket_device,ticket_problem,ticket_date_in,ticket_serial,ticket_qual from Ticket where ticket_id = ?");
-    q.addBindValue(type);
-    if (!q.exec())
-        return;
-    if (!q.next())
-        return;
-    QStringList list;
-    QString data;
-    data.append(q.value(0).toString());
-    data.append(";");
-    data.append(q.value(1).toString());
-    data.append(";");
-    data.append(q.value(2).toString());
-    data.append(";");
-    data.append(q.value(3).toString());
-    data.append(";");
-    data.append(q.value(4).toString());
-    data.append(";");
-    data.append(q.value(5).toString());
-    data.append(";");
-    data.append(q.value(6).toString());
-    data.append(";");
-    data.append(QString::number(type));
-    list << data;
-
-
-    NCReport *report = new NCReport();
-
-    report->setReportSource( NCReportSource::File );
-    report->setReportFile("./report.xml");
-    //report->addItemModel(model,"model1");
-    report->addStringList(list, "model1");
-
-    report->runReportToPreview();
-
-    if (report->hasError()) {
-
-        qDebug() << "ERROR:" << report->lastErrorMsg();
-
-    } else {
-
-        NCReportPreviewWindow *pv = new NCReportPreviewWindow();
-        pv->setOutput( (NCReportPreviewOutput*)report->output() );
-        pv->setWindowModality( Qt::ApplicationModal );
-        pv->setAttribute( Qt::WA_DeleteOnClose );
-        pv->show();
-    }
-
-    delete report;*/
 }
 
 void MainWindow::changePermissions()
@@ -315,10 +254,10 @@ QString MainWindow::generateTicketQuery()
                    "join device on(tdc_relation.device_id = device.id) "
                    "join branch on(ticket.branch = branch.id) "
                    "where ticket.status = %1 "
-                   "ORDER BY ticket_id DESC LIMIT %2")
+                   "ORDER BY ticket_id DESC %2")
             .arg(currentStatus == Closed ? ", ticket.price, ticket.date_givenout" : "")
             .arg(QString::number(currentStatus))
-            .arg(QString::number(LIMIT));
+            .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
 
 bool MainWindow::changeUser(const QString &login, const QString &password)
@@ -691,6 +630,11 @@ void MainWindow::onMoveBackToReady()
     q.prepare("update ticket set ticket_status = 0 where ticket_id = ?");
     q.addBindValue(getCurrentTDCRId());
     q.exec();
+    refreshTicketModel(generateTicketQuery());
+}
+
+void MainWindow::onQueryLimitComboBoxIndexChanged(int)
+{
     refreshTicketModel(generateTicketQuery());
 }
 

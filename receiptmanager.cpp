@@ -39,6 +39,7 @@ void ReceiptManager::clearFields()
     ui->deviceWidget->setDeviceProblem("");
     ui->deviceWidget->setDeviceCondition("");
     ui->pushButtonUpdate->setEnabled(false);
+    setWindowTitle("Добавление квитанции");
 }
 
 void ReceiptManager::fillFields(int id)
@@ -68,18 +69,25 @@ void ReceiptManager::fillFields(int id)
     ui->branchSelectionWIdget->setBranch(q.value(6).toString());
 }
 
-void ReceiptManager::onAddReceiptClicked()
+void ReceiptManager::onAddTicketClicked()
 {
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
+    qDebug() << ui->customerWidget->getName() << ui->customerWidget->getCustomerId();
+}
 
+void ReceiptManager::onUpdateTicketClicked()
+{
 }
 
 void ReceiptManager::setupConnections()
 {      
-    connect(ui->pushButtonAddReceipt, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(ui->pushButtonClose,SIGNAL(clicked()),this, SLOT(reject()));
+    connect(ui->pushButtonAddReceipt, SIGNAL(clicked()), SLOT(onAddTicketClicked()));
+    connect(ui->pushButtonUpdate, SIGNAL(clicked()), SLOT(onUpdateTicketClicked()));
+    connect(ui->pushButtonClearFields, SIGNAL(clicked()), SLOT(clearFields()));
+    connect(ui->pushButtonCancel,SIGNAL(clicked()), SLOT(reject()));
+    connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(accept()));
 }
 
 void ReceiptManager::initWidgets()
