@@ -96,11 +96,11 @@ void ReceiptManager::fillFields(int id)
     q.exec();
     if (!q.next())
         return;
-    cw->setName("q.value(0).toString()");
-    cw->setPhone(q.value(1).toString());
+    cw->setName(q.value(0).toString());
+    /*cw->setPhone(q.value(1).toString());
     dw->setDeviceName(q.value(2).toString());
     dw->setDeviceSerialNumber(q.value(3).toString());
-    dw->setDeviceProblem(q.value(4).toString());
+    dw->setDeviceProblem(q.value(4).toString());*/
 }
 
 void ReceiptManager::on_pushButtonClearFields_clicked()
@@ -140,8 +140,10 @@ void ReceiptManager::setupConnections()
 void ReceiptManager::initWidgets()
 {
     cw = new CustomerWidget(this);
-    QVBoxLayout *vbl = new QVBoxLayout(ui->groupBoxClient);
+    ui->groupBoxClient->setLayout(cw->layout());
+ /*   QVBoxLayout *vbl = new QVBoxLayout();
     vbl->addWidget(cw);
+    ui->groupBoxClient->setLayout(vbl);*/
     dw = new DeviceWidget(this);
     QVBoxLayout *vbl2 = new QVBoxLayout(ui->groupBoxDevice);
     vbl2->addWidget(dw);

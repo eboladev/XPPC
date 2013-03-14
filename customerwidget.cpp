@@ -14,7 +14,7 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
     phoneEdit = new QLineEdit(this);
     nameEdit->setPlaceholderText(trUtf8("ФИО:"));
     phoneEdit->setPlaceholderText(trUtf8("Телефон:"));
-    QVBoxLayout* vl = new QVBoxLayout(parent);
+    QVBoxLayout* vl = new QVBoxLayout();
     QHBoxLayout* horNameLayout = new QHBoxLayout();
     horNameLayout->addWidget(nameLabel);
     horNameLayout->addWidget(nameEdit);

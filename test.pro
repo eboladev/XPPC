@@ -67,7 +67,6 @@ FORMS    += mainwindow.ui \
     userloginpassmanager.ui \
     userstatisticwidget.ui \
     productcategorymanager.ui \
-    customerwidget.ui \
     devicewidget.ui
 
 RESOURCES += \
