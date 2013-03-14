@@ -36,8 +36,11 @@ public:
     void setCurrentUser(QString user);
     void setDisplayName(QString name);
 
-    void setCurrentBranch(const int& id);
+    void setCurrentBranch(const QVariant &id);
     int getCurrentBranch() const;
+
+    void setClientNameCompleterEnabled(const bool &enabled);
+    bool getClientNameCompleterEnabled();
 
     int getDbSQLStatus() {return dbStatus;}
 

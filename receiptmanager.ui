@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
+    <width>1053</width>
     <height>529</height>
    </rect>
   </property>
@@ -47,8 +47,14 @@
             <bool>true</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
+            <property name="margin">
+             <number>1</number>
+            </property>
+            <property name="spacing">
+             <number>1</number>
+            </property>
             <item row="0" column="0">
-             <widget class="CustomerWidget" name="widget" native="true"/>
+             <widget class="CustomerWidget" name="customerWidget" native="true"/>
             </item>
            </layout>
           </widget>
@@ -61,6 +67,17 @@
            <property name="flat">
             <bool>true</bool>
            </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <property name="margin">
+             <number>1</number>
+            </property>
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="DeviceWidget" name="deviceWidget" native="true"/>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -74,8 +91,14 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <property name="margin">
+           <number>1</number>
+          </property>
+          <property name="spacing">
+           <number>1</number>
+          </property>
           <item row="0" column="0">
-           <widget class="QComboBox" name="comboBoxBranch"/>
+           <widget class="BranchSelectionWidget" name="branchSelectionWIdget" native="true"/>
           </item>
          </layout>
         </widget>
@@ -104,6 +127,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonUpdate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Обновить</string>
            </property>
@@ -174,6 +200,18 @@
    <class>CustomerWidget</class>
    <extends>QWidget</extends>
    <header>customerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DeviceWidget</class>
+   <extends>QWidget</extends>
+   <header>devicewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BranchSelectionWidget</class>
+   <extends>QWidget</extends>
+   <header>branchselectionwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

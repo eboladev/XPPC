@@ -496,7 +496,7 @@ void MainWindow::onAddTicketClicked()
         }
 
         db.transaction();
-        ReceiptManager rm("MSADDRECEIPT",this);        
+        ReceiptManager rm(dbConnectionString,-1,this);
         if (rm.exec())
         {
             db.commit();

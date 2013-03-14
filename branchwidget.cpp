@@ -1,5 +1,7 @@
 #include "branchwidget.h"
 #include "ui_branchwidget.h"
+#include "setupmanager.h"
+
 #include <QStandardItemModel>
 BranchWidget::BranchWidget(const QString &dbConnectionString, QWidget *parent) :
     QDialog(parent),
@@ -14,10 +16,8 @@ BranchWidget::BranchWidget(const QString &dbConnectionString, QWidget *parent) :
     connect(ui->pushButtonAddBranch,SIGNAL(clicked()),this,SLOT(onAddBranchClicked()));
     connect(ui->pushButtonRemoveBranch,SIGNAL(clicked()),this,SLOT(onRemoveBranchClicked()));
     connect(model,SIGNAL(itemChanged(QStandardItem*)),this,SLOT(onBranchViewChanged(QStandardItem*)));
-    connect(ui->pushButtonOk,SIGNAL(clicked()),this,SLOT(onCurrentBrancheChanged()));
-    QSettings settings;
-    getBranches();
-    ui->comboBoxCurrentBranch->setCurrentIndex(settings.value("db/CurrentBranch").toInt());
+    connect(ui->pushButtonOk,SIGNAL(clicked()),this,SLOT(onCurrentBrancheChanged()));    
+    getBranches();   
 }
 
 BranchWidget::~BranchWidget()
@@ -50,8 +50,7 @@ void BranchWidget::getBranches()
         model->setData(index, q.value(1)); //city_name
         index = model->index(row, 1);
         model->setData(index, q.value(2)); //city_id
-        model->blockSignals(false);
-        ui->comboBoxCurrentBranch->addItem(q.value(1).toString(),q.value(0));
+        model->blockSignals(false);        
         model->sort(1);
         ++row;
     }
@@ -100,8 +99,7 @@ void BranchWidget::onRemoveBranchClicked()
 
 void BranchWidget::onCurrentBrancheChanged()
 {
-    QSettings settings;
-    settings.setValue("db/CurrentBranch",ui->comboBoxCurrentBranch->itemData(ui->comboBoxCurrentBranch->currentIndex()).toString());
+    SetupManager::instance()->setCurrentBranch(ui->currentBranchWidget->getCurrentBranch());
 }
 
 void BranchWidget::onBranchViewChanged(QStandardItem *qsi)

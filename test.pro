@@ -22,6 +22,8 @@ OBJECTS_DIR = $$PWD/build/xppc/release/obj
 TARGET = xppc
 TEMPLATE = app
 
+INCLUDEPATH += $$PWD
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     receiptmanager.cpp \
@@ -38,7 +40,8 @@ SOURCES += main.cpp\
     userstatisticwidget.cpp \
     productcategorymanager.cpp \
     customerwidget.cpp \
-    devicewidget.cpp
+    devicewidget.cpp \
+    branchselectionwidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -55,7 +58,8 @@ HEADERS  += mainwindow.h \
     userstatisticwidget.h \
     productcategorymanager.h \
     customerwidget.h \
-    devicewidget.h
+    devicewidget.h \
+    branchselectionwidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
@@ -67,7 +71,8 @@ FORMS    += mainwindow.ui \
     userloginpassmanager.ui \
     userstatisticwidget.ui \
     productcategorymanager.ui \
-    devicewidget.ui
+    devicewidget.ui \
+    branchselectionwidget.ui
 
 RESOURCES += \
     Resources.qrc

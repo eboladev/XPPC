@@ -46,7 +46,7 @@ void SetupManager::setDisplayName(QString name)
     displayName = name;
 }
 
-void SetupManager::setCurrentBranch(const int &id)
+void SetupManager::setCurrentBranch(const QVariant &id)
 {
     QSettings settings;
     settings.setValue("db/CurrentBranch",id);
@@ -59,6 +59,23 @@ int SetupManager::getCurrentBranch() const
         return settings.value("db/CurrentBranch").toInt();
     else
         return 0;
+}
+
+void SetupManager::setClientNameCompleterEnabled(const bool &enabled)
+{
+    QSettings settings;
+    settings.setValue("db/ClientNameCompleter", enabled);
+}
+
+bool SetupManager::getClientNameCompleterEnabled()
+{
+    QSettings settings; //(getSettingFile(),  QSettings::IniFormat);
+    if (settings.contains("db/ClientNameCompleter")){
+        return settings.value("db/ClientNameCompleter").toBool();
+    } else {
+        settings.setValue("db/ClientNameCompleter", true);
+        return true;
+    }
 }
 
 QString SetupManager::getFBFileLocation()
@@ -120,7 +137,7 @@ QString SetupManager::getDbUserName()
     if (settings.contains("db/UserName")){
         return settings.value("db/UserName").toString();
     } else {        
-        QString fbusername = "SYSDBA";
+        QString fbusername = "postgres";
         settings.setValue("db/UserName", fbusername);
         return fbusername;
     }

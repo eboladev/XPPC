@@ -5,6 +5,9 @@
 
 class QLabel;
 class QLineEdit;
+class QCompleter;
+class QStandardItemModel;
+class QSortFilterProxyModel;
 
 class CustomerWidget : public QWidget
 {
@@ -16,14 +19,15 @@ public:
     void setName(const QString& name);
     void setPhone(const QString& phone);
     QString getName() const;
-    QString getPhone() const;
-    
+    QString getPhone() const;        
+
 private:
     QLabel* nameLabel;
-    QLabel* phoneLabel;
     QLineEdit* nameEdit;
+    QLabel* phoneLabel;
     QLineEdit* phoneEdit;
-
+    QStandardItemModel* model;
+    QSortFilterProxyModel* proxy;
 };
 
 #endif // CUSTOMERWIDGET_H
