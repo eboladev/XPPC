@@ -3,9 +3,8 @@
 
 #include <QWidget>
 
-namespace Ui {
-class CustomerWidget;
-}
+class QLabel;
+class QLineEdit;
 
 class CustomerWidget : public QWidget
 {
@@ -14,13 +13,17 @@ class CustomerWidget : public QWidget
 public:
     explicit CustomerWidget(QWidget *parent = 0);
     ~CustomerWidget();
-    void setName( QString name);
-    void setPhone( QString phone);
+    void setName(const QString& name);
+    void setPhone(const QString& phone);
     QString getName() const;
     QString getPhone() const;
     
 private:
-    Ui::CustomerWidget *ui;
+    QLabel* nameLabel;
+    QLabel* phoneLabel;
+    QLineEdit* nameEdit;
+    QLineEdit* phoneEdit;
+
 };
 
 #endif // CUSTOMERWIDGET_H

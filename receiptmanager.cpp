@@ -96,7 +96,7 @@ void ReceiptManager::fillFields(int id)
     q.exec();
     if (!q.next())
         return;
-    cw->setName(q.value(0).toString());
+    cw->setName("q.value(0).toString()");
     cw->setPhone(q.value(1).toString());
     dw->setDeviceName(q.value(2).toString());
     dw->setDeviceSerialNumber(q.value(3).toString());

@@ -13,24 +13,28 @@ DeviceWidget::~DeviceWidget()
     delete ui;
 }
 
-void DeviceWidget::setDeviceName(QString name)
+void DeviceWidget::setDeviceName( QString name)
 {
-    ui->lineEditName->setText(name.trimmed());
+    name = "123";
+    //ui->lineEditName->setText(name.trimmed());
 }
 
-void DeviceWidget::setDeviceCondition(QString condition)
+void DeviceWidget::setDeviceCondition( QString condition)
 {
-    ui->lineEditCondition->setText(condition.trimmed());
+    condition = "1233";
+   // ui->lineEditCondition->setText(condition.trimmed());
 }
 
-void DeviceWidget::setDeviceSerialNumber(QString serialNumber)
+void DeviceWidget::setDeviceSerialNumber( QString serialNumber)
 {
-    ui->lineEditSerial->setText(serialNumber.trimmed());
+    serialNumber = "123213";
+  //  ui->lineEditSerial->setText(serialNumber.trimmed());
 }
 
-void DeviceWidget::setDeviceProblem(QString text)
+void DeviceWidget::setDeviceProblem( QString text)
 {
-    ui->textEditProblem->setPlainText(text);
+    text = "asdasd";
+  //  ui->textEditProblem->setPlainText(text);
 }
 
 QString DeviceWidget::getDeviceName() const
