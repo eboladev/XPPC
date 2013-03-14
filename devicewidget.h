@@ -14,10 +14,10 @@ class DeviceWidget : public QWidget
 public:
     explicit DeviceWidget(QWidget *parent = 0);
     ~DeviceWidget();
-    void setDeviceName( QString name);
-    void setDeviceCondition( QString condition);
-    void setDeviceSerialNumber( QString serialNumber);
-    void setDeviceProblem( QString text);
+    void setDeviceName(const QString name);
+    void setDeviceCondition(const QString condition);
+    void setDeviceSerialNumber(const QString serialNumber);
+    void setDeviceProblem(const QString text);
     QString getDeviceName() const;
     QString getDeviceCondition() const;
     QString getDeviceSerialNumber() const;

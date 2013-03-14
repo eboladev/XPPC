@@ -12,14 +12,13 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, 
     SqlExtension(dbConnectionsString),
     ui(new Ui::ReceiptManager)
 {
-    ui->setupUi(this);
-    clearFields();
-    fillFields(id);
+    ui->setupUi(this);     
     ui->pushButtonAddReceipt->setText("Обновить квитанцию");
     ui->pushButtonAddReceipt->setProperty("mode",id);
     setWindowTitle(trUtf8("Управление квитанцией №").append(QString::number(id)));
     setupConnections();
     initWidgets();
+    fillFields(id);
 }
 
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, QWidget *parent) :
@@ -27,8 +26,7 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, QWidget *paren
     SqlExtension(dbConnectionsString),
     ui(new Ui::ReceiptManager)
 {
-    ui->setupUi(this);
-    clearFields();
+    ui->setupUi(this);    
     QSettings settings;
     branch = settings.value("db/CurrentBranch").toInt();
     ui->pushButtonAddReceipt->setProperty("mode",0);
@@ -86,7 +84,7 @@ void ReceiptManager::fillFields(int id)
     if (!getSqlQuery(q))
         return;
     q.prepare("select "
-              "client.name, client.phone, device.name, device.serial, device.problem, ticket.id "
+              "client.name, client.phone, device.name, device.serial, device.problem, device.condition "
               "from tdc_relation "
               "join ticket on(tdc_relation.ticket_id = ticket.id) "
               "join client on(tdc_relation.client_id = client.id) "
@@ -97,10 +95,11 @@ void ReceiptManager::fillFields(int id)
     if (!q.next())
         return;
     cw->setName(q.value(0).toString());
-    /*cw->setPhone(q.value(1).toString());
+    cw->setPhone(q.value(1).toString());
     dw->setDeviceName(q.value(2).toString());
     dw->setDeviceSerialNumber(q.value(3).toString());
-    dw->setDeviceProblem(q.value(4).toString());*/
+    dw->setDeviceProblem(q.value(4).toString());
+    dw->setDeviceCondition(q.value(5).toString());
 }
 
 void ReceiptManager::on_pushButtonClearFields_clicked()
@@ -139,8 +138,8 @@ void ReceiptManager::setupConnections()
 
 void ReceiptManager::initWidgets()
 {
-    cw = new CustomerWidget(this);
-    ui->groupBoxClient->setLayout(cw->layout());
+   /* cw = new CustomerWidget(this);
+    ui->groupBoxClient->setLayout(cw->layout());*/
  /*   QVBoxLayout *vbl = new QVBoxLayout();
     vbl->addWidget(cw);
     ui->groupBoxClient->setLayout(vbl);*/

@@ -37,7 +37,7 @@ void CustomerWidget::setName(const QString &name)
 
 void CustomerWidget::setPhone(const QString &phone)
 {
-   // phoneEdit->setText(phone);
+    phoneEdit->setText(phone);
 }
 
 QString CustomerWidget::getName() const

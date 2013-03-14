@@ -46,6 +46,11 @@
            <property name="flat">
             <bool>true</bool>
            </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="CustomerWidget" name="widget" native="true"/>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
@@ -164,6 +169,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomerWidget</class>
+   <extends>QWidget</extends>
+   <header>customerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
