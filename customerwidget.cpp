@@ -10,6 +10,8 @@
 #include <QCompleter>
 #include <QSqlQuery>
 #include <QSqlDatabase>
+#include <QTreeView>
+#include <QHeaderView>
 
 CustomerWidget::CustomerWidget(QWidget *parent) :
     QWidget(parent)
@@ -39,10 +41,24 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
         proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
         connect(nameEdit, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));
 
-        CompleterWithUserData *completer = new CompleterWithUserData(proxy, this);
+        QTreeView* tw = new QTreeView(this);
+        tw->setModel(proxy);
+        tw->setHeaderHidden(true);
+        tw->setIndentation(-1);
+        tw->resizeColumnToContents(0);
+        QHeaderView* hw = tw->header();
+        hw->setStretchLastSection(false);
+        hw->setCascadingSectionResizes(true);
+        hw->setDefaultSectionSize(150);
+        tw->setHeader(hw);
+
+        QCompleter *completer = new QCompleter(proxy, this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
+        completer->setPopup(tw);
         completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
         nameEdit->setCompleter(completer);
+
+        connect(completer, SIGNAL(activated(QModelIndex)), SLOT(onTest(QModelIndex)));
 
         QSqlQuery q;
         if (!SetupManager::instance()->getSqlQueryForDB(q))
@@ -53,7 +69,9 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
             QStandardItem* item = new QStandardItem(q.value(1).toString());
             item->setData(q.value(0));
             item->setToolTip(trUtf8("Телефон: %0").arg(q.value(2).toString()));
-            model->appendRow(item);
+            QStandardItem* item2 = new QStandardItem(q.value(2).toString());
+            model->appendRow(QList<QStandardItem*>() << item << item2);
+            //model->appendRow(item);
         }
     }
 }
@@ -88,17 +106,8 @@ QVariant CustomerWidget::getCustomerId() const
     //return model->itemFromIndex(proxy->mapToSource(nameEdit->completer()->currentIndex()))->data();
 }
 
-
-QString CompleterWithUserData::pathFromIndex(const QModelIndex &index) const
+void CustomerWidget::onTest(QModelIndex index)
 {
-    QMap<int, QVariant> data = model()->itemData(index);
-    QString code = data.value(CompleteRole).toString();
-    return code;
-}
-
-const int CompleterWithUserData::CompleteRole = Qt::UserRole + 1;
-
-CompleterWithUserData::CompleterWithUserData(QAbstractItemModel *model, QObject *parent) :
-    QCompleter(model,parent)
-{
+    qDebug() << nameEdit->completer()->completionModel()->data(index,Qt::UserRole + 1).toString();
+   // qDebug() << model->item(proxy->mapToSource(index).row(),0)->data().toString();
 }
