@@ -1,4 +1,3 @@
-XPPC
+SCM
 ====
-
-hacker+ service centre manager
+Service center manager
