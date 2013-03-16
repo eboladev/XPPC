@@ -8,6 +8,13 @@ class QLabel;
 class QLineEdit;
 class QStandardItemModel;
 class QSortFilterProxyModel;
+class QCompleter;
+
+enum CompleterRoles
+{
+    IdRole = Qt::UserRole + 1,
+    PhoneRole = Qt::UserRole + 2
+};
 
 class CustomerWidget : public QWidget
 {
@@ -19,11 +26,15 @@ public:
     void setName(const QString& name);
     void setPhone(const QString& phone);
     QString getName() const;
-    QString getPhone() const;
-    QVariant getCustomerId() const;
+    QString getPhone() const;    
+    void setCurrentClientId(const int& id);
+    int getCurrentClientId() const;
 
-private slots:
-    void onTest(QModelIndex);
+private:
+    QCompleter* getCompleter();
+
+private slots:    
+    void onCompleteClientData(QModelIndex);
 
 private:
     QLabel* nameLabel;
@@ -32,6 +43,7 @@ private:
     QLineEdit* phoneEdit;
     QStandardItemModel* model;
     QSortFilterProxyModel* proxy;
+    int currentClientId;
 };
 
 #endif // CUSTOMERWIDGET_H

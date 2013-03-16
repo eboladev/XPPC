@@ -91,6 +91,7 @@ private:
     QString generateTicketQuery();
     //ticket device client relation id
     QVariant getCurrentTDCRId();
+    int getCurrentTicketId();
     /*ticket manager stop*/
 
     /* Merchandise manager begin */

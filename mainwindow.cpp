@@ -107,6 +107,14 @@ QVariant MainWindow::getCurrentTDCRId()
         return QVariant();
 }
 
+int MainWindow::getCurrentTicketId()
+{
+    if (ui->tableViewTicket->currentIndex().isValid())
+        return ticketModel->item(ticketProxy->mapToSource(ui->tableViewTicket->currentIndex()).row(),0)->text().toInt();
+    else
+        return -1;
+}
+
 void MainWindow::sb(QString text)
 {
     ui->statusBar->showMessage(text, STATUSBARTIMEOUT);
@@ -252,7 +260,7 @@ QString MainWindow::generateTicketQuery()
                    "join ticket on(tdc_relation.ticket_id = ticket.id) "
                    "join client on(tdc_relation.client_id = client.id) "
                    "join device on(tdc_relation.device_id = device.id) "
-                   "join branch on(ticket.branch = branch.id) "
+                   "join branch on(device.branch_id = branch.id) "
                    "where ticket.status = %1 "
                    "ORDER BY ticket_id DESC %2")
             .arg(currentStatus == Closed ? ", ticket.price, ticket.date_givenout" : "")
@@ -470,7 +478,7 @@ void MainWindow::onJobListClicked()
 
         db.transaction();
 
-        JobListOnReceiptDialog jlord(dbConnectionString,getCurrentTDCRId().toInt(),this);
+        JobListOnReceiptDialog jlord(dbConnectionString, getCurrentTDCRId().toInt(),this);
         if (jlord.exec())        
             db.commit();        
         else        
@@ -616,19 +624,20 @@ void MainWindow::onMoveBackToWork()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set ticket_status = 1 where ticket_id = ?");
-    q.addBindValue(getCurrentTDCRId());
+    q.prepare("update ticket set status = 0 where id = ?");
+    q.addBindValue(getCurrentTicketId());
     q.exec();
     refreshTicketModel(generateTicketQuery());
 }
 
 void MainWindow::onMoveBackToReady()
 {
+    qDebug() << getCurrentTicketId();
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set ticket_status = 0 where ticket_id = ?");
-    q.addBindValue(getCurrentTDCRId());
+    q.prepare("update ticket set status = 1 where id = ?");
+    q.addBindValue(getCurrentTicketId());
     q.exec();
     refreshTicketModel(generateTicketQuery());
 }
@@ -697,8 +706,8 @@ void MainWindow::on_actionCloseTicket_triggered()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set ticket_status = 2 where ticket_id = ?");
-    q.addBindValue(getCurrentTDCRId());
+    q.prepare("update ticket set status = 2 where id = ?");
+    q.addBindValue(getCurrentTicketId());
     q.exec();
     refreshTicketModel(generateTicketQuery());
 }

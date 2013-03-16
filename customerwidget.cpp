@@ -16,6 +16,7 @@
 CustomerWidget::CustomerWidget(QWidget *parent) :
     QWidget(parent)
 {    
+    currentClientId = -1;
     nameLabel = new QLabel(trUtf8("ФИО:"), this);
     phoneLabel = new QLabel(trUtf8("Телефон:"), this);
     nameEdit = new QLineEdit(this);
@@ -32,6 +33,7 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
     vl->addLayout(horNameLayout);
     vl->addLayout(horPhoneLayout);
     setLayout(vl);
+
 
     if (SetupManager::instance()->getClientNameCompleterEnabled())
     {
@@ -58,7 +60,7 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
         completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
         nameEdit->setCompleter(completer);
 
-        connect(completer, SIGNAL(activated(QModelIndex)), SLOT(onTest(QModelIndex)));
+        connect(completer, SIGNAL(activated(QModelIndex)), SLOT(onCompleteClientData(QModelIndex)));
 
         QSqlQuery q;
         if (!SetupManager::instance()->getSqlQueryForDB(q))
@@ -67,8 +69,9 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
         while(q.next())
         {
             QStandardItem* item = new QStandardItem(q.value(1).toString());
-            item->setData(q.value(0));
-            item->setToolTip(trUtf8("Телефон: %0").arg(q.value(2).toString()));
+            item->setData(q.value(0),IdRole);
+            item->setData(q.value(2).toString(),PhoneRole);
+            item->setToolTip(trUtf8("Телефон: %0").arg(q.value(2).toString()));            
             QStandardItem* item2 = new QStandardItem(q.value(2).toString());
             model->appendRow(QList<QStandardItem*>() << item << item2);
             //model->appendRow(item);
@@ -100,14 +103,23 @@ QString CustomerWidget::getPhone() const
     return phoneEdit->text();
 }
 
-QVariant CustomerWidget::getCustomerId() const
+void CustomerWidget::setCurrentClientId(const int &id)
 {
-    qDebug() << nameEdit->completer()->pathFromIndex(nameEdit->completer()->currentIndex());// << nameEdit->completer()->;
-    //return model->itemFromIndex(proxy->mapToSource(nameEdit->completer()->currentIndex()))->data();
+    currentClientId = id;
 }
 
-void CustomerWidget::onTest(QModelIndex index)
+QCompleter *CustomerWidget::getCompleter()
 {
-    qDebug() << nameEdit->completer()->completionModel()->data(index,Qt::UserRole + 1).toString();
-   // qDebug() << model->item(proxy->mapToSource(index).row(),0)->data().toString();
+    return nameEdit->completer();
+}
+
+void CustomerWidget::onCompleteClientData(QModelIndex index)
+{
+    setPhone(getCompleter()->completionModel()->data(getCompleter()->completionModel()->index(index.row(),0), PhoneRole).toString());
+    setCurrentClientId(getCompleter()->completionModel()->data(getCompleter()->completionModel()->index(index.row(),0), IdRole).toInt());
+}
+
+int CustomerWidget::getCurrentClientId() const
+{
+    return currentClientId;
 }

@@ -35,7 +35,7 @@ void JobListOnReceiptDialog::getEmployeeList()
     if (!getSqlQuery(q))
         return;   
 
-    if (!q.exec("select employee_fio,employee_id,login from Employee"))
+    if (!q.exec("select employee_fio, employee_id, login from Employee"))
         return;
     int row = 0;
     int index = 0;
@@ -58,7 +58,8 @@ void JobListOnReceiptDialog::getJobs(const int &id)
     if (!getSqlQuery(q))
         return;
 
-    q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where Ticket_ID=?");
+    q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket "
+              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id=?");
     q.addBindValue(id);
     if (!q.exec())
         return;
@@ -85,8 +86,7 @@ void JobListOnReceiptDialog::clearField()
 {
     ui->lineEditJobName->clear();
     ui->lineEditPrice->clear();
-    ui->spinBoxQuantity->setValue(1);
-    ui->comboBoxEmployeeList->setCurrentIndex(0);
+    ui->spinBoxQuantity->setValue(1);    
 }
 
 void JobListOnReceiptDialog::on_pushButtonAddJob_clicked()
@@ -97,12 +97,12 @@ void JobListOnReceiptDialog::on_pushButtonAddJob_clicked()
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("insert into JobOnTicket(ticket_id,employee_id,job_name,job_quantity,job_date,job_price) values(?,?,?,?,(SELECT CURRENT_DATE),?)");
+    q.prepare("insert into JobOnTicket(tdc_r_id,employee_id,job_name,job_quantity,job_price) values(?,?,?,?,?)");
     q.addBindValue(m_id);
     q.addBindValue(ui->comboBoxEmployeeList->itemData(ui->comboBoxEmployeeList->currentIndex()));
     q.addBindValue(ui->lineEditJobName->text());
     q.addBindValue(ui->spinBoxQuantity->value());
-    q.addBindValue(ui->lineEditPrice->text());
+    q.addBindValue(ui->lineEditPrice->text().toInt());
     if (!q.exec())
     {
         qDebug() << q.lastError() << q.lastQuery();
@@ -149,7 +149,8 @@ void JobListOnReceiptDialog::onCurrentSelectionChanged(QModelIndex current, QMod
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("select JobOnTicket.employee_id,job_name,job_quantity,job_price from JobOnTicket join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where jot_id=?");
+    q.prepare("select JobOnTicket.employee_id,job_name,job_quantity,job_price from JobOnTicket "
+              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where jot_id=?");
     q.addBindValue(model->item(current.row(),0)->data());
     if (!q.exec())
         return;
@@ -168,10 +169,12 @@ void JobListOnReceiptDialog::on_pushButtonCheckReady_clicked()
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("update ticket set ticket_status = 0 where ticket_id = ?");
+    q.prepare("update ticket set status = 0 whereid = "
+              "(select distinct ticket_id from tdc_relation where id = ?)");
     q.addBindValue(m_id);
     if (!q.exec())
     {
+        qDebug() << q.lastError() << q.lastQuery();
         return;
     }
 

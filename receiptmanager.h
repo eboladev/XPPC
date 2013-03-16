@@ -4,11 +4,23 @@
 #include <QDialog>
 #include "sqlextension.h"
 
-
-
 namespace Ui {
 class ReceiptManager;
 }
+
+struct Ticket
+{
+    int tId = -1; //ticket id
+    int cId = -1; // client id
+    QString cName;
+    QString cPhone;
+    int dId = -1; //device id
+    QString dName;
+    QString dCond;
+    QString dSN;
+    QString dProblem;
+    int bId = -1; // branch id
+};
 
 class ReceiptManager : public QDialog, SqlExtension
 {
@@ -19,17 +31,18 @@ public:
     ~ReceiptManager();
     
 private slots:
-    void onAddTicketClicked();
-    void onUpdateTicketClicked();
     void clearFields();
+    void onAccept();
 
 private:
-    void setupConnections();
-    void initWidgets();
+    void setupConnections();    
     void fillFields(int id);
 
 private:
-    Ui::ReceiptManager *ui;        
+    Ui::ReceiptManager *ui;
+    QList<int> deviceIdList;
+    int currentTicketId;
+    bool editMode;
 };
 
 #endif // RECEIPTMANAGER_H
