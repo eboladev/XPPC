@@ -19,6 +19,8 @@ DEFINES+=RELEASE
 OBJECTS_DIR = $$PWD/build/xppc/release/obj
 }
 
+mac: DEFINES+=OS_MAC
+
 TARGET = xppc
 TEMPLATE = app
 
@@ -61,7 +63,8 @@ HEADERS  += mainwindow.h \
     customerwidget.h \
     devicewidget.h \
     branchselectionwidget.h \
-    querylimitcomboboxwidget.h
+    querylimitcomboboxwidget.h \
+    globals.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \

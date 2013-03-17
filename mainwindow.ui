@@ -131,6 +131,9 @@
             <property name="title">
              <string>Лимит квитанций:</string>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
             <layout class="QGridLayout" name="gridLayout_10">
              <property name="margin">
               <number>1</number>

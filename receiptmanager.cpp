@@ -2,6 +2,8 @@
 #include "ui_receiptmanager.h"
 #include "setupmanager.h"
 #include "branchselectionwidget.h"
+#include "globals.h"
+
 #include <QStandardItemModel>
 
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, QWidget *parent) :
@@ -60,6 +62,7 @@ void ReceiptManager::onAccept()
         return;
 
     Ticket t;
+    t.dId = -1;
     t.bId = ui->branchSelectionWIdget->getCurrentBranch().toInt();
     t.cId = ui->customerWidget->getCurrentClientId();
     t.cName = ui->customerWidget->getName();
@@ -153,7 +156,8 @@ void ReceiptManager::onAccept()
     }
     else
     {
-        q.prepare("insert into ticket(status) values(0) returning id;");
+        q.prepare("insert into ticket(status) values(?) returning id;");
+        q.addBindValue(InWork);
         if (!q.exec())
             qDebug() << q.lastError() << q.lastQuery();
         q.next();

@@ -26,17 +26,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+
+
     enum Tabs
     {
         Tickets = 0,
         Merchandise
-    };
-
-    enum TicketStatus
-    {
-        InWork,
-        Ready,                
-        Closed
     };
 
     /*base begin*/
@@ -50,6 +45,7 @@ private slots:
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
     void onTabChanged(int);
+
 private:
     bool checkDbConnection();
     bool checkDbSettings();
@@ -58,6 +54,8 @@ private:
     bool settingsIsNotEmpty();
     void sb(QString text);    
     bool changeUser(const QString& login, const QString& password);
+    bool executeDialog(QDialog *);
+    QString genUUID();
     /*base end*/
 
     /*ticket manager start*/

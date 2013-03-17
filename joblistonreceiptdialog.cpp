@@ -1,6 +1,7 @@
 #include "joblistonreceiptdialog.h"
 #include "ui_joblistonreceiptdialog.h"
 #include "setupmanager.h"
+#include "globals.h"
 
 #include <QStandardItemModel>
 
@@ -169,8 +170,9 @@ void JobListOnReceiptDialog::on_pushButtonCheckReady_clicked()
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("update ticket set status = 0 whereid = "
+    q.prepare("update ticket set status = ? where id = "
               "(select distinct ticket_id from tdc_relation where id = ?)");
+    q.addBindValue(Ready);
     q.addBindValue(m_id);
     if (!q.exec())
     {

@@ -10,16 +10,16 @@ class ReceiptManager;
 
 struct Ticket
 {
-    int tId = -1; //ticket id
-    int cId = -1; // client id
+    int tId; //ticket id
+    int cId; // client id
     QString cName;
     QString cPhone;
-    int dId = -1; //device id
+    int dId; //device id
     QString dName;
     QString dCond;
     QString dSN;
     QString dProblem;
-    int bId = -1; // branch id
+    int bId; // branch id
 };
 
 class ReceiptManager : public QDialog, SqlExtension

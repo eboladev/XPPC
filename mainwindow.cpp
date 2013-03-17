@@ -9,6 +9,7 @@
 #include "usermanagementdialog.h"
 #include "userstatisticwidget.h"
 #include "productcategorymanager.h"
+#include "globals.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -16,6 +17,17 @@
 #include <QMessageBox>
 #include <QWidgetAction>
 #include <QStandardItem>
+/*
+template<class T>
+QDialog* createDialog( QDialog *parent = 0)
+{
+    return new T(parent);
+};
+template<class T>
+QDialog* createDialog( const int& i, QDialog *parent = 0)
+{
+    return new T(i,parent);
+};*/
 
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
@@ -85,6 +97,10 @@ MainWindow::MainWindow(QWidget *parent) :
     onRefreshCategoryModel();
 
     connect(ui->queryLimitComboBoxWidget, SIGNAL(limitChanged(int)), SLOT(onQueryLimitComboBoxIndexChanged(int)));
+#ifdef OS_MAC
+    ui->menuLoginStatus->setVisible(false);
+    ui->menuLoginStatus->setHidden(true);
+#endif
    // updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -239,17 +255,17 @@ void MainWindow::onActionCategoryProductsClicked()
         }
 
         db.transaction();
+
         ProductCategoryManager pcm(dbConnectionString,this);
         if (pcm.exec())
-        {
             db.commit();
-            onRefreshCategoryModel();
-        }
         else
             db.rollback();
+
         db.close();
     }
     QSqlDatabase::removeDatabase(dbConnectionString);
+    onRefreshCategoryModel();
 }
 
 QString MainWindow::generateTicketQuery()
@@ -298,6 +314,47 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     changePermissions();
     ui->menuCurrentUser->setTitle(fio);
     return true;
+}
+
+bool MainWindow::executeDialog(QDialog *dlg)
+{
+    bool ok = false;
+
+    QString dbConnectionString = dlg->property("db").toString();
+
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return false;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return false;
+        }
+
+        db.transaction();
+
+        if (dlg->exec())
+        {
+            db.commit();
+            ok = true;
+        }
+        else
+            db.rollback();
+
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
+    return ok;
+}
+
+QString MainWindow::genUUID()
+{
+    return QUuid::createUuid().toString();
 }
 
 void MainWindow::refreshTicketModel(const QString &query)
@@ -426,6 +483,19 @@ void MainWindow::onSettingsClicked()
 void MainWindow::onAddTicketClicked()
 {
     updateTableViewTicket->stop();
+
+    QString dbConnectionString = genUUID();
+
+    ReceiptManager* rc = new ReceiptManager(dbConnectionString,-1,this);
+    rc->setProperty("db",dbConnectionString);
+    if (executeDialog(rc))
+    {
+        refreshTicketModel(generateTicketQuery());
+        ui->radioButtonWorking->setChecked(true);
+    }
+
+
+    /*
     QString dbConnectionString = "MSADDRECEIPT";
     {
         if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
@@ -453,9 +523,9 @@ void MainWindow::onAddTicketClicked()
         else        
             db.rollback();       
         db.close();
-    }
+    }*/
     updateTableViewTicket->start(DEFAULTPERIOD);
-    QSqlDatabase::removeDatabase(dbConnectionString);
+    //QSqlDatabase::removeDatabase(dbConnectionString);
 }
 
 void MainWindow::onJobListClicked()
@@ -521,10 +591,15 @@ void MainWindow::on_pushButtonSearch_clicked()
 {
     updateTableViewTicket->stop();
     refreshTicketModel(
-                "select ticket_id,ticket_date_in, branch_name, ticket_fio,ticket_phone,ticket_device, "
-                "ticket_problem from Ticket join branch on(ticket.ticket_branch = branch.id) "
-                "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEdit->text().trimmed()+"%') "
-                "or Ticket_FIO LIKE ('%"+ui->lineEdit->text().trimmed()+"%') ORDER BY Ticket_ID DESC"
+                "select tdc_relation.id, ticket_id, ticket.date_accepted, branch.branch_name, "
+                                   "client.name, client.phone, device.name, device.serial, device.problem %0 "
+                                   "from tdc_relation "
+                                   "join ticket on(tdc_relation.ticket_id = ticket.id) "
+                                   "join client on(tdc_relation.client_id = client.id) "
+                                   "join device on(tdc_relation.device_id = device.id) "
+                                   "join branch on(device.branch_id = branch.id) "
+                                "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEdit->text().trimmed()+"%') "
+                                "or Ticket_FIO LIKE ('%"+ui->lineEdit->text().trimmed()+"%') ORDER BY Ticket_ID DESC"
                 );
 }
 
@@ -624,7 +699,8 @@ void MainWindow::onMoveBackToWork()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set status = 0 where id = ?");
+    q.prepare("update ticket set status = ? where id = ?");
+    q.addBindValue(InWork);
     q.addBindValue(getCurrentTicketId());
     q.exec();
     refreshTicketModel(generateTicketQuery());
@@ -636,7 +712,8 @@ void MainWindow::onMoveBackToReady()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set status = 1 where id = ?");
+    q.prepare("update ticket set status = ? where id = ?");
+    q.addBindValue(Ready);
     q.addBindValue(getCurrentTicketId());
     q.exec();
     refreshTicketModel(generateTicketQuery());
@@ -706,7 +783,8 @@ void MainWindow::on_actionCloseTicket_triggered()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set status = 2 where id = ?");
+    q.prepare("update ticket set status = ? where id = ?");
+    q.addBindValue(Closed);
     q.addBindValue(getCurrentTicketId());
     q.exec();
     refreshTicketModel(generateTicketQuery());
