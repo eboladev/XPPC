@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     customerwidget.cpp \
     devicewidget.cpp \
     branchselectionwidget.cpp \
-    querylimitcomboboxwidget.cpp
+    querylimitcomboboxwidget.cpp \
+    ticketcommentswidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -64,7 +65,8 @@ HEADERS  += mainwindow.h \
     devicewidget.h \
     branchselectionwidget.h \
     querylimitcomboboxwidget.h \
-    globals.h
+    globals.h \
+    ticketcommentswidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
@@ -78,7 +80,8 @@ FORMS    += mainwindow.ui \
     productcategorymanager.ui \
     devicewidget.ui \
     branchselectionwidget.ui \
-    querylimitcomboboxwidget.ui
+    querylimitcomboboxwidget.ui \
+    ticketcommentswidget.ui
 
 RESOURCES += \
     Resources.qrc

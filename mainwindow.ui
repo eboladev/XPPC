@@ -33,7 +33,7 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="tabPosition">
@@ -56,13 +56,7 @@
        <attribute name="title">
         <string>Квитанции</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_7">
-        <property name="margin">
-         <number>1</number>
-        </property>
-        <property name="spacing">
-         <number>1</number>
-        </property>
+       <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
@@ -220,7 +214,7 @@
           <property name="flat">
            <bool>true</bool>
           </property>
-          <layout class="QGridLayout" name="gridLayout_5">
+          <layout class="QGridLayout" name="gridLayout">
            <property name="margin">
             <number>1</number>
            </property>
@@ -245,7 +239,10 @@
               <enum>QAbstractItemView::SelectRows</enum>
              </property>
              <attribute name="horizontalHeaderCascadingSectionResizes">
-              <bool>true</bool>
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderHighlightSections">
+              <bool>false</bool>
              </attribute>
              <attribute name="horizontalHeaderMinimumSectionSize">
               <number>10</number>
@@ -259,6 +256,9 @@
              <attribute name="verticalHeaderDefaultSectionSize">
               <number>20</number>
              </attribute>
+             <attribute name="verticalHeaderHighlightSections">
+              <bool>false</bool>
+             </attribute>
              <attribute name="verticalHeaderMinimumSectionSize">
               <number>15</number>
              </attribute>
@@ -269,82 +269,128 @@
         </item>
         <item row="2" column="0">
          <widget class="QGroupBox" name="groupBoxFastTicketInfo">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>600</height>
+           </size>
+          </property>
           <property name="title">
            <string>Квитанция №</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <property name="margin">
-            <number>1</number>
-           </property>
-           <property name="spacing">
-            <number>1</number>
-           </property>
+          <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonSendSMS">
-               <property name="text">
-                <string>Отправить СМС</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="labelJobPrice">
-               <property name="text">
-                <string>Итого:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEditTicketPrice">
-               <property name="placeholderText">
-                <string>Цена</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonPrintJobList">
-               <property name="text">
-                <string>Списко работ</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonPrintTicketInfo">
-               <property name="text">
-                <string>ПКО</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="0">
-            <widget class="QTreeView" name="treeViewJobsOnTicket">
-             <property name="enabled">
-              <bool>true</bool>
+            <widget class="QTabWidget" name="tabWidgetFastTicketInfo">
+             <property name="currentIndex">
+              <number>0</number>
              </property>
-             <property name="indentation">
-              <number>7</number>
-             </property>
-             <attribute name="headerCascadingSectionResizes">
-              <bool>true</bool>
-             </attribute>
+             <widget class="QWidget" name="JobList">
+              <attribute name="title">
+               <string>Список работ</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_14">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_5">
+                   <item>
+                    <widget class="QLabel" name="labelJobPrice">
+                     <property name="text">
+                      <string>Итого:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lineEditTicketPrice">
+                     <property name="placeholderText">
+                      <string>Стоимость услуг</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QTreeView" name="treeViewJobsOnTicket">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indentation">
+                    <number>7</number>
+                   </property>
+                   <attribute name="headerCascadingSectionResizes">
+                    <bool>false</bool>
+                   </attribute>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="Comments">
+              <attribute name="title">
+               <string>Комментарии</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <widget class="QTreeView" name="treeViewTicketComments">
+                   <property name="indentation">
+                    <number>-1</number>
+                   </property>
+                   <attribute name="headerVisible">
+                    <bool>false</bool>
+                   </attribute>
+                   <attribute name="headerMinimumSectionSize">
+                    <number>15</number>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_12">
+                   <property name="spacing">
+                    <number>1</number>
+                   </property>
+                   <item>
+                    <widget class="QPlainTextEdit" name="plainTextEditComment">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>41</height>
+                      </size>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButtonAddComment">
+                     <property name="text">
+                      <string>Добавить комментарий</string>
+                     </property>
+                     <property name="flat">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
+          <zorder>treeViewJobsOnTicket</zorder>
+          <zorder>plainTextEditComment</zorder>
+          <zorder>pushButtonAddComment</zorder>
+          <zorder>groupBoxTickets</zorder>
+          <zorder>treeViewTicketComments</zorder>
+          <zorder>horizontalSpacer</zorder>
+          <zorder>horizontalSpacer_3</zorder>
+          <zorder>tabWidgetFastTicketInfo</zorder>
          </widget>
         </item>
        </layout>
@@ -740,7 +786,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionConnect"/>
-   <addaction name="actionDisconnect"/>
    <addaction name="separator"/>
    <addaction name="actionOnAddReceiptClicked"/>
    <addaction name="actionOnJobListClicked"/>

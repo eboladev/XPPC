@@ -17,17 +17,6 @@
 #include <QMessageBox>
 #include <QWidgetAction>
 #include <QStandardItem>
-/*
-template<class T>
-QDialog* createDialog( QDialog *parent = 0)
-{
-    return new T(parent);
-};
-template<class T>
-QDialog* createDialog( const int& i, QDialog *parent = 0)
-{
-    return new T(i,parent);
-};*/
 
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
@@ -40,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     jobModel = new QStandardItemModel(this);
     ui->treeViewJobsOnTicket->setModel(jobModel);   
-    ui->groupBoxFastTicketInfo->setVisible(false);
+    ui->tabWidgetFastTicketInfo->setVisible(false);
 
     ticketModel = new QStandardItemModel(this);
     ticketProxy = new QSortFilterProxyModel(this);
@@ -62,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUserControl, SIGNAL(triggered()), SLOT(onActionUserManagementClicked()));
     connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
-
+    connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
     ui->actionCloseTicket->setEnabled(false);
     ui->actionConnect->setEnabled(checkDbSettings());
@@ -81,6 +70,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //do NOT delete it... yet.
     //connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(refreshTicketModel()));
+    ticketComments = new QStandardItemModel(this);
+    ui->treeViewTicketComments->setModel(ticketComments);
+    ui->treeViewTicketComments->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->treeViewTicketComments->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(ui->treeViewTicketComments, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCommentsCustomContextMenuRequested(QPoint)));
 
     cud->accept();
 
@@ -95,6 +89,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(refreshProductModelByCategory(int)), SLOT(onRefreshProductByType(int)));
     connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxyProduct, SLOT(setFilterFixedString(QString)));
     onRefreshCategoryModel();
+
+    connect(ui->pushButtonAddComment, SIGNAL(clicked()), SLOT(onAddCommentToTicketClicked()));
 
     connect(ui->queryLimitComboBoxWidget, SIGNAL(limitChanged(int)), SLOT(onQueryLimitComboBoxIndexChanged(int)));
 #ifdef OS_MAC
@@ -279,7 +275,7 @@ QString MainWindow::generateTicketQuery()
                    "join branch on(device.branch_id = branch.id) "
                    "where ticket.status = %1 "
                    "ORDER BY ticket_id DESC %2")
-            .arg(currentStatus == Closed ? ", ticket.price, ticket.date_givenout" : "")
+            .arg(currentStatus == Closed ? ", ticket.price, ticket.date_givenout" : ", client_notified")
             .arg(QString::number(currentStatus))
             .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
@@ -289,7 +285,7 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     QString passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return false;
+        return false;    
     q.prepare("select password, employee_fio, employee_id, permissions from employee where login = ?");
     q.addBindValue(login);
     q.exec();
@@ -309,6 +305,7 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
         return false;
     }
 
+    currentEmployeeId = q.value(2).toInt();
     SetupManager::instance()->setCurrentUser(login);
     SetupManager::instance()->setPermissons(permissions);
     changePermissions();
@@ -384,7 +381,7 @@ void MainWindow::refreshTicketModel(const QString &query)
         QStandardItem* client_phone = new QStandardItem(q.value(5).toString());
         QStandardItem* device_name = new QStandardItem(q.value(6).toString());
         QStandardItem* device_serial = new QStandardItem(q.value(7).toString());
-        QStandardItem* device_problem = new QStandardItem(q.value(8).toString());
+        QStandardItem* device_problem = new QStandardItem(q.value(8).toString());        
         if (currentStatus==Closed)
         {
             QStandardItem* ticket_price = new QStandardItem(q.value(9).toString());
@@ -392,9 +389,14 @@ void MainWindow::refreshTicketModel(const QString &query)
             ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem << ticket_price << ticket_givenout);
         }
         else
-            ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem);
+        {
+            QStandardItem* client_notified = new QStandardItem();//client notified yes/no
+            client_notified->setCheckable(true);
+            client_notified->setCheckState(q.value(9).toBool() ? Qt::Checked : Qt::Unchecked);
+            //q.value(9).toBool() ? trUtf8("Да") : trUtf8("Нет");
+            ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem << client_notified);
+        }
     }
-    ui->tableViewTicket->resizeColumnsToContents();
 
     ticketModel->setHeaderData(0, Qt::Horizontal, tr("№"));
     ticketModel->setHeaderData(1, Qt::Horizontal, tr("Дата"));
@@ -404,21 +406,28 @@ void MainWindow::refreshTicketModel(const QString &query)
     ticketModel->setHeaderData(5, Qt::Horizontal, tr("Устройство"));
     ticketModel->setHeaderData(6, Qt::Horizontal, tr("Серийный №"));
     ticketModel->setHeaderData(7, Qt::Horizontal, tr("Неисправность"));
-    ui->tableViewTicket->resizeColumnToContents(3);
 
     if (currentStatus==Closed)
     {
         ticketModel->setHeaderData(8, Qt::Horizontal, tr("Цена"));
         ticketModel->setHeaderData(9, Qt::Horizontal, tr("Выдано"));
-        ui->tableViewTicket->resizeColumnsToContents();
     }
     else
     {
+        ticketModel->setHeaderData(8, Qt::Horizontal, tr("Отзвонились"));
         ui->tableViewTicket->setColumnWidth(1,70);
         ui->tableViewTicket->setColumnWidth(4,120);
         ui->tableViewTicket->setColumnWidth(5,200);
+        ui->tableViewTicket->resizeColumnToContents(8);
     }
-    ui->groupBoxFastTicketInfo->setVisible(false);
+
+    ui->tableViewTicket->resizeColumnToContents(0);
+    ui->tableViewTicket->resizeColumnToContents(1);
+    ui->tableViewTicket->resizeColumnToContents(3);
+    ui->tableViewTicket->resizeColumnToContents(4);
+    ui->tableViewTicket->resizeColumnToContents(5);
+
+    ui->tabWidgetFastTicketInfo->setVisible(false);
 }
 
 bool MainWindow::checkDbConnection()
@@ -603,6 +612,48 @@ void MainWindow::on_pushButtonSearch_clicked()
                 );
 }
 
+void MainWindow::onShowCommentsTabClicked()
+{
+    ui->groupBoxFastTicketInfo->setVisible(true);
+    ui->tabWidgetFastTicketInfo->setVisible(true);
+    ui->tabWidgetFastTicketInfo->setTabEnabled(1,true);
+    ui->tabWidgetFastTicketInfo->setCurrentIndex(1);
+}
+
+void MainWindow::onAddCommentToTicketClicked()
+{
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("insert into ticket_comments(comment,tdc_relation_id, employee_id) VALUES(?,?,?) returning id");
+    q.addBindValue(ui->plainTextEditComment->toPlainText());
+    q.addBindValue(getCurrentTDCRId());
+    q.addBindValue(currentEmployeeId);
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+    q.next();
+    QStandardItem* comment = new QStandardItem(ui->plainTextEditComment->toPlainText());
+    comment->setToolTip(ui->plainTextEditComment->toPlainText());
+    comment->setData(q.value(0));//comment id
+    comment->setData(currentEmployeeId,Qt::UserRole + 2);
+    QStandardItem* fio = new QStandardItem(SetupManager::instance()->getCurrentUser());
+    QStandardItem* date = new QStandardItem(QDateTime::currentDateTime().toString());
+    ticketComments->appendRow(QList<QStandardItem*>() << comment << fio << date);
+    ui->plainTextEditComment->clear();
+}
+
+void MainWindow::onRemoveCommentClicked()
+{
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("delete from ticket_comments where id = ?");
+    q.addBindValue(ticketComments->item(ui->treeViewTicketComments->currentIndex().row(),0)->data());
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+    ticketComments->takeRow(ui->treeViewTicketComments->currentIndex().row());
+}
+
 void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 {    
     Q_UNUSED(index);
@@ -649,30 +700,57 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
                                      << trUtf8("Количество") << trUtf8("Цена") << trUtf8("Дата"));
     int totalPrice = 0;
     QSqlQuery q;
-    if (SetupManager::instance()->getSqlQueryForDB(q))
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+
+    q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket "
+              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id=?");
+    q.addBindValue(ticketModel->item(current.row(),0)->data());
+    q.exec();
+    while (q.next())
     {
-        //NYI
-     /*   q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where Ticket_ID=?");
-        q.addBindValue(ticketModel->record(ticketProxy->mapToSource(current).row()).value(0));
-        q.exec();
-        while (q.next())
-        {
-            QStandardItem* fio = new QStandardItem(q.value(0).toString());
-            fio->setData(q.value(5));
-            QStandardItem* jobName = new QStandardItem(q.value(1).toString());
-            QStandardItem* jobQuant = new QStandardItem(q.value(2).toString());
-            QStandardItem* jobPrice = new QStandardItem(q.value(3).toString());
-            QStandardItem* jobDate = new QStandardItem(q.value(4).toString());
-            totalPrice += q.value(3).toInt();
-            jobModel->appendRow(QList<QStandardItem*>() << fio << jobName << jobQuant << jobPrice << jobDate);
-        }
-        ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0);
-        ui->groupBoxFastTicketInfo->setMaximumHeight(height()*0.2);
-        ui->lineEditTicketPrice->setText(QString::number(totalPrice));
-        ui->groupBoxFastTicketInfo->setTitle(trUtf8("Квитанция № %0").arg(getCurrentTicketId().toString()));
-        for (int i = 0 ; i < jobModel->columnCount(); ++i)
-            ui->treeViewJobsOnTicket->resizeColumnToContents(i);*/
+        QStandardItem* fio = new QStandardItem(q.value(0).toString());
+        fio->setData(q.value(5));
+        QStandardItem* jobName = new QStandardItem(q.value(1).toString());
+        QStandardItem* jobQuant = new QStandardItem(q.value(2).toString());
+        QStandardItem* jobPrice = new QStandardItem(q.value(3).toString());
+        QStandardItem* jobDate = new QStandardItem(q.value(4).toString());
+        totalPrice += q.value(3).toInt();
+        jobModel->appendRow(QList<QStandardItem*>() << fio << jobName << jobQuant << jobPrice << jobDate);
     }
+
+    ui->tabWidgetFastTicketInfo->setMaximumHeight(height()*0.35);
+    ui->lineEditTicketPrice->setText(QString::number(totalPrice));
+    ui->groupBoxFastTicketInfo->setTitle(trUtf8("Квитанция № %0").arg(QString::number(getCurrentTicketId())));
+    for (int i = 0 ; i < jobModel->columnCount(); ++i)
+        ui->treeViewJobsOnTicket->resizeColumnToContents(i);
+
+    ticketComments->clear();
+    ticketComments->setHorizontalHeaderLabels(QStringList() << trUtf8("Комментарий") << trUtf8("Автор") << trUtf8("Дата"));
+    q.prepare("select comment, employee_fio, date, id,ticket_comments.employee_id from ticket_comments "
+              "join employee on (employee.employee_id = ticket_comments.employee_id) "
+              "where tdc_relation_id = ?");
+    q.addBindValue(ticketModel->item(current.row(),0)->data());
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+
+    while(q.next())
+    {
+        QStandardItem* comment = new QStandardItem(q.value(0).toString());
+        comment->setToolTip(q.value(0).toString());
+        comment->setData(q.value(3)); //comment id;
+        comment->setData(q.value(4), Qt::UserRole + 2); //employee_id
+        QStandardItem* fio = new QStandardItem(q.value(1).toString());
+        QStandardItem* date = new QStandardItem(q.value(2).toString());
+        ticketComments->appendRow(QList<QStandardItem*>() << comment << fio << date);
+        ui->treeViewTicketComments->resizeColumnToContents(0);
+        ui->treeViewTicketComments->resizeColumnToContents(1);
+        ui->treeViewTicketComments->resizeColumnToContents(2);
+    }
+    ui->treeViewTicketComments->setHeaderHidden(false);
+    ui->tabWidgetFastTicketInfo->setTabEnabled(0,jobModel->rowCount() != 0);
+    ui->tabWidgetFastTicketInfo->setTabEnabled(1,ticketComments->rowCount() != 0);
+    ui->tabWidgetFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
@@ -684,14 +762,41 @@ void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
     if (ind.isValid())
     {
         menu->addAction(trUtf8("Список работ"), this, SLOT(onJobListClicked()));
-        if (currentStatus != Closed)
-            menu->addAction(trUtf8("Закрыть квитанцию"), this, SLOT(on_actionCloseTicket_triggered()));
+        if (currentStatus != Closed)        
+            menu->addAction(trUtf8("Закрыть квитанцию"), this, SLOT(on_actionCloseTicket_triggered()));            
         if (currentStatus != InWork)
             menu->addAction(trUtf8("Вернуть в работу"), this, SLOT(onMoveBackToWork()));
         if (currentStatus != Ready)
             menu->addAction(trUtf8("Поместить в готовые"), this, SLOT(onMoveBackToReady()));
+        menu->addAction(trUtf8("Посмотреть комментарии"), this, SLOT(onShowCommentsTabClicked()));
     }
     menu->exec(QCursor::pos());
+}
+
+void MainWindow::onCommentsCustomContextMenuRequested(const QPoint &pos)
+{
+    QMenu *menu = new QMenu(this);
+    connect(menu, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
+    QModelIndex ind = ui->treeViewTicketComments->indexAt(pos);
+    if (ind.isValid())
+    {
+        if (ticketComments->item(ind.row(),0)->data(Qt::UserRole + 2).toInt() == currentEmployeeId)
+            menu->addAction(trUtf8("Удалить комментарий"), this, SLOT(onRemoveCommentClicked()));
+    }
+    menu->exec(QCursor::pos());
+}
+
+void MainWindow::onIsClientNotifiedClicked(const QModelIndex &index)
+{
+    if (index.column() != 8) //TODO: NO MORE FUCKING HARD NUMBER FOR TABLE HEADERS!;
+        return;
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("update tdc_relation set client_notified = ? where id = ?");
+    q.addBindValue(ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->checkState() == Qt::Checked ? "TRUE" : "FALSE");
+    q.addBindValue(ticketModel->item(ticketProxy->mapToSource(index).row(),0)->data());
+    q.exec();
 }
 
 void MainWindow::onMoveBackToWork()

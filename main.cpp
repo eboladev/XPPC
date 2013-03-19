@@ -56,8 +56,7 @@ int main(int argc, char *argv[])
      if (!QSqlDatabase::isDriverAvailable("QPSQL"))
     {
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
-                              QObject::trUtf8("Запуск программы невозможен: не найден драйвер "
-                                              "QPSQL"));
+                              QObject::trUtf8("Запуск программы невозможен: не найден драйвер QPSQL"));
         return -1;
     }
 

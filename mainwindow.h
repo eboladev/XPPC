@@ -74,9 +74,15 @@ private slots:
     void on_pushButtonSearchClear_clicked();
     void on_pushButtonSearch_clicked();
 
+    void onShowCommentsTabClicked();
+    void onAddCommentToTicketClicked();
+    void onRemoveCommentClicked();
+
     void on_tableViewTicket_doubleClicked(const QModelIndex &index);
     void onTableViewTicketSelectionChanged(QModelIndex, QModelIndex);
     void onCustomContextMenuRequested(const QPoint &pos);
+    void onCommentsCustomContextMenuRequested(const QPoint &pos);
+    void onIsClientNotifiedClicked(const QModelIndex &index);
 
     void onMoveBackToWork();
     void onMoveBackToReady();
@@ -107,9 +113,11 @@ private:
     Ui::MainWindow *ui;
     QStandardItemModel* ticketModel;
     QSortFilterProxyModel* ticketProxy;
+    QStandardItemModel* ticketComments;
     QStandardItemModel* jobModel;
     QTimer* updateTableViewTicket;
     int currentStatus;
+    int currentEmployeeId;
 
     QStandardItemModel* proCatModel; //product category model
     QSqlQueryModel* productModel;
