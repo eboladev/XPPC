@@ -6,10 +6,10 @@
 
 #include <QStandardItemModel>
 
-ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, QWidget *parent) :
+ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int tdcr_id, QWidget *parent) :
     QDialog(parent),
     SqlExtension(dbConnectionsString),
-    currentTicketId(id),
+    currentTicketId(tdcr_id),
     ui(new Ui::ReceiptManager)
 {
     ui->setupUi(this);
@@ -17,7 +17,7 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, 
     setupConnections();
     adjustSize();
 
-    if (id == -1)
+    if (tdcr_id == -1)
     {
         editMode = false;
         setWindowTitle("Добавление квитанции");
@@ -30,12 +30,12 @@ ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int id, 
         QSqlQuery q;
         if (!getSqlQuery(q))
             return;
-        q.prepare("select ticket_id from tdc_relation where id = ?");
-        q.addBindValue(id);
+        q.prepare("select ticket_id from ticket where id = ?");
+        q.addBindValue(tdcr_id);
         q.exec();
         q.next();
         setWindowTitle(trUtf8("Управление квитанцией №").append(QString::number(q.value(0).toInt())));
-        fillFields(id);
+        fillFields(tdcr_id);
     }
 }
 
@@ -74,7 +74,7 @@ void ReceiptManager::onAccept()
     t.tId = currentTicketId;
     if (editMode)
     {
-        q.prepare("select device.id from device join tdc_relation on (tdc_relation.device_id = device.id) where tdc_relation.id = ?");
+        q.prepare("select device.id from device join ticket on (ticket.device_id = device.id) where ticket.id = ?");
         q.addBindValue(currentTicketId);
         q.exec();
         q.next();
@@ -154,7 +154,7 @@ void ReceiptManager::onAccept()
         if (!q.exec())
             qDebug() << q.lastError() << q.lastQuery();
     }
-    else
+    /*else
     {
         q.prepare("insert into ticket(status) values(?) returning id;");
         q.addBindValue(InWork);
@@ -162,13 +162,16 @@ void ReceiptManager::onAccept()
             qDebug() << q.lastError() << q.lastQuery();
         q.next();
         t.tId = q.value(0).toInt();
-    }
+    }*/
 
     if (!editMode)
     {
+        q.exec("select max(ticket_id) from ticket");
+        q.next();
+        t.tId = q.value(0).toInt() + 1;
         if (t.dId > 0)
         {
-            q.prepare("insert into tdc_relation(ticket_id,client_id,device_id) values(?,?,?)");
+            q.prepare("insert into ticket(ticket_id,client_id,device_id) values(?,?,?)");
             q.addBindValue(t.tId);
             q.addBindValue(t.cId);
             q.addBindValue(t.dId);
@@ -179,7 +182,7 @@ void ReceiptManager::onAccept()
         {
             while (!deviceIdList.isEmpty())
             {
-                q.prepare("insert into tdc_relation(ticket_id,client_id,device_id) values(?,?,?)");
+                q.prepare("insert into ticket(ticket_id,client_id,device_id) values(?,?,?)");
                 q.addBindValue(t.tId);
                 q.addBindValue(t.cId);
                 q.addBindValue(deviceIdList.takeFirst());
@@ -200,12 +203,11 @@ void ReceiptManager::fillFields(int id)
     q.prepare("select "
               "client.name, client.phone, device.name, device.serial, "
               "device.problem, device.condition, branch.id, client.id "
-              "from tdc_relation "
-              "join ticket on(tdc_relation.ticket_id = ticket.id) "
-              "join client on(tdc_relation.client_id = client.id) "
-              "join device on(tdc_relation.device_id = device.id) "
+              "from ticket "
+              "join client on(ticket.client_id = client.id) "
+              "join device on(ticket.device_id = device.id) "
               "join branch on (device.branch_id = branch.id) "
-              "where tdc_relation.id = ?");
+              "where ticket.id = ?");
     q.addBindValue(id);
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();

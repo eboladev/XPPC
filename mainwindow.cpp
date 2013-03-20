@@ -28,8 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     jobModel = new QStandardItemModel(this);
-    ui->treeViewJobsOnTicket->setModel(jobModel);   
-    ui->tabWidgetFastTicketInfo->setVisible(false);
+    ui->treeViewJobsOnTicket->setModel(jobModel);       
+    ui->groupBoxFastTicketInfo->setVisible(false);
 
     ticketModel = new QStandardItemModel(this);
     ticketProxy = new QSortFilterProxyModel(this);
@@ -266,16 +266,15 @@ void MainWindow::onActionCategoryProductsClicked()
 
 QString MainWindow::generateTicketQuery()
 {
-    return QString("select tdc_relation.id, ticket_id, ticket.date_accepted, branch.branch_name, "
-                   "client.name, client.phone, device.name, device.serial, device.problem %0 "
-                   "from tdc_relation "
-                   "join ticket on(tdc_relation.ticket_id = ticket.id) "
-                   "join client on(tdc_relation.client_id = client.id) "
-                   "join device on(tdc_relation.device_id = device.id) "
+    return QString("select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
+                   "client.name, client.phone, device.name, device.serial, device.problem, client_notified %0 "
+                   "from ticket "
+                   "join client on(ticket.client_id = client.id) "
+                   "join device on(ticket.device_id = device.id) "
                    "join branch on(device.branch_id = branch.id) "
-                   "where ticket.status = %1 "
-                   "ORDER BY ticket_id DESC %2")
-            .arg(currentStatus == Closed ? ", ticket.price, ticket.date_givenout" : ", client_notified")
+                   "where device.status = %1 "
+                   "ORDER BY ticket.ticket_id DESC %2")
+            .arg(currentStatus == Closed ? ", device.price, device.date_givenout" : "")
             .arg(QString::number(currentStatus))
             .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
@@ -309,6 +308,7 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     SetupManager::instance()->setCurrentUser(login);
     SetupManager::instance()->setPermissons(permissions);
     changePermissions();
+    currentEmployeeName = fio;
     ui->menuCurrentUser->setTitle(fio);
     return true;
 }
@@ -374,28 +374,34 @@ void MainWindow::refreshTicketModel(const QString &query)
     while(q.next())
     {
         QStandardItem* ticket_id = new QStandardItem(q.value(1).toString());
-        ticket_id->setData(q.value(0)); //tdc_relation id
-        QStandardItem* date_accepted = new QStandardItem(q.value(2).toString());
+        ticket_id->setData(q.value(0)); //ticket id
+        ticket_id->setCheckable(true);
+        ticket_id->setCheckState(q.value(9).toBool() ? Qt::Checked : Qt::Unchecked);
+        ticket_id->setToolTip(trUtf8("Клиенту %0").arg(q.value(9).toBool() ? trUtf8("отзвонились") : trUtf8("не отзванивались")));
+        QStandardItem* date_accepted = new QStandardItem(q.value(2).toDate().toString("dd-MM-yyyy"));
+        date_accepted->setToolTip(date_accepted->text());
         QStandardItem* branch = new QStandardItem(q.value(3).toString());
+        branch->setToolTip(q.value(3).toString());
         QStandardItem* client_name = new QStandardItem(q.value(4).toString());
+        client_name->setToolTip(q.value(4).toString());
         QStandardItem* client_phone = new QStandardItem(q.value(5).toString());
+        client_phone->setToolTip(q.value(5).toString());
         QStandardItem* device_name = new QStandardItem(q.value(6).toString());
+        device_name->setToolTip(q.value(6).toString());
         QStandardItem* device_serial = new QStandardItem(q.value(7).toString());
-        QStandardItem* device_problem = new QStandardItem(q.value(8).toString());        
+        device_serial->setToolTip(q.value(7).toString());
+        QStandardItem* device_problem = new QStandardItem(q.value(8).toString());
+        device_problem->setToolTip(QString("<table><tr><td>").append(q.value(8).toString()).append("</td></td></table>"));
         if (currentStatus==Closed)
         {
             QStandardItem* ticket_price = new QStandardItem(q.value(9).toString());
-            QStandardItem* ticket_givenout = new QStandardItem(q.value(10).toString());
+            ticket_price->setToolTip(q.value(9).toString());
+            QStandardItem* ticket_givenout = new QStandardItem(q.value(10).toDate().toString("dd-MM-yyyy"));
+            ticket_givenout->setToolTip(ticket_givenout->text());
             ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem << ticket_price << ticket_givenout);
         }
         else
-        {
-            QStandardItem* client_notified = new QStandardItem();//client notified yes/no
-            client_notified->setCheckable(true);
-            client_notified->setCheckState(q.value(9).toBool() ? Qt::Checked : Qt::Unchecked);
-            //q.value(9).toBool() ? trUtf8("Да") : trUtf8("Нет");
-            ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem << client_notified);
-        }
+            ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem);
     }
 
     ticketModel->setHeaderData(0, Qt::Horizontal, tr("№"));
@@ -414,7 +420,6 @@ void MainWindow::refreshTicketModel(const QString &query)
     }
     else
     {
-        ticketModel->setHeaderData(8, Qt::Horizontal, tr("Отзвонились"));
         ui->tableViewTicket->setColumnWidth(1,70);
         ui->tableViewTicket->setColumnWidth(4,120);
         ui->tableViewTicket->setColumnWidth(5,200);
@@ -427,7 +432,7 @@ void MainWindow::refreshTicketModel(const QString &query)
     ui->tableViewTicket->resizeColumnToContents(4);
     ui->tableViewTicket->resizeColumnToContents(5);
 
-    ui->tabWidgetFastTicketInfo->setVisible(false);
+    ui->groupBoxFastTicketInfo->setVisible(false);
 }
 
 bool MainWindow::checkDbConnection()
@@ -598,34 +603,35 @@ void MainWindow::on_pushButtonSearchClear_clicked()
 
 void MainWindow::on_pushButtonSearch_clicked()
 {
-    updateTableViewTicket->stop();
+    updateTableViewTicket->stop();    
     refreshTicketModel(
-                "select tdc_relation.id, ticket_id, ticket.date_accepted, branch.branch_name, "
-                                   "client.name, client.phone, device.name, device.serial, device.problem %0 "
-                                   "from tdc_relation "
-                                   "join ticket on(tdc_relation.ticket_id = ticket.id) "
-                                   "join client on(tdc_relation.client_id = client.id) "
-                                   "join device on(tdc_relation.device_id = device.id) "
+                "select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
+                                   "client.name, client.phone, device.name, device.serial, device.problem, device.price "
+                                   "from ticket "
+                                   "join client on(ticket.client_id = client.id) "
+                                   "join device on(ticket.device_id = device.id) "
                                    "join branch on(device.branch_id = branch.id) "
                                 "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEdit->text().trimmed()+"%') "
-                                "or Ticket_FIO LIKE ('%"+ui->lineEdit->text().trimmed()+"%') ORDER BY Ticket_ID DESC"
+                                "or client.name LIKE ('%"+ui->lineEdit->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
                 );
 }
 
 void MainWindow::onShowCommentsTabClicked()
 {
     ui->groupBoxFastTicketInfo->setVisible(true);
-    ui->tabWidgetFastTicketInfo->setVisible(true);
+    ui->groupBoxFastTicketInfo->setVisible(true);
     ui->tabWidgetFastTicketInfo->setTabEnabled(1,true);
     ui->tabWidgetFastTicketInfo->setCurrentIndex(1);
 }
 
 void MainWindow::onAddCommentToTicketClicked()
 {
+    if (ui->plainTextEditComment->toPlainText().trimmed().isEmpty())
+        return;
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("insert into ticket_comments(comment,tdc_relation_id, employee_id) VALUES(?,?,?) returning id");
+    q.prepare("insert into ticket_comments(comment, tdc_relation_id, employee_id) VALUES(?,?,?) returning id,date");
     q.addBindValue(ui->plainTextEditComment->toPlainText());
     q.addBindValue(getCurrentTDCRId());
     q.addBindValue(currentEmployeeId);
@@ -636,10 +642,13 @@ void MainWindow::onAddCommentToTicketClicked()
     comment->setToolTip(ui->plainTextEditComment->toPlainText());
     comment->setData(q.value(0));//comment id
     comment->setData(currentEmployeeId,Qt::UserRole + 2);
-    QStandardItem* fio = new QStandardItem(SetupManager::instance()->getCurrentUser());
-    QStandardItem* date = new QStandardItem(QDateTime::currentDateTime().toString());
-    ticketComments->appendRow(QList<QStandardItem*>() << comment << fio << date);
+    QStandardItem* fio = new QStandardItem(currentEmployeeName);
+    QStandardItem* date = new QStandardItem(q.value(1).toDateTime().toString("dd-MM-yyyy hh:mm:ss"));
+    ticketComments->insertRow(0, QList<QStandardItem*>() << comment << fio << date);
     ui->plainTextEditComment->clear();
+    ui->treeViewTicketComments->resizeColumnToContents(0);
+    ui->treeViewTicketComments->resizeColumnToContents(1);
+    ui->treeViewTicketComments->resizeColumnToContents(2);
 }
 
 void MainWindow::onRemoveCommentClicked()
@@ -706,7 +715,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
     q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket "
               "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id=?");
     q.addBindValue(ticketModel->item(current.row(),0)->data());
-    q.exec();
+    q.exec();    
     while (q.next())
     {
         QStandardItem* fio = new QStandardItem(q.value(0).toString());
@@ -741,7 +750,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         comment->setData(q.value(3)); //comment id;
         comment->setData(q.value(4), Qt::UserRole + 2); //employee_id
         QStandardItem* fio = new QStandardItem(q.value(1).toString());
-        QStandardItem* date = new QStandardItem(q.value(2).toString());
+        QStandardItem* date = new QStandardItem(q.value(2).toDateTime().toString("dd-MM-yyyy hh:mm:ss"));
         ticketComments->appendRow(QList<QStandardItem*>() << comment << fio << date);
         ui->treeViewTicketComments->resizeColumnToContents(0);
         ui->treeViewTicketComments->resizeColumnToContents(1);
@@ -750,13 +759,16 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
     ui->treeViewTicketComments->setHeaderHidden(false);
     ui->tabWidgetFastTicketInfo->setTabEnabled(0,jobModel->rowCount() != 0);
     ui->tabWidgetFastTicketInfo->setTabEnabled(1,ticketComments->rowCount() != 0);
-    ui->tabWidgetFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0);
+    ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
 {
     QMenu *menu = new QMenu(this);
     connect(menu, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
+    /*QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
+    if (qmil.count() > 1)*/ //TODO multiselect handling
+
     QModelIndex ind = ui->tableViewTicket->indexAt(pos);
     menu->addAction(trUtf8("Добавить квитанцию"), this, SLOT(onAddTicketClicked()));
     if (ind.isValid())
@@ -788,12 +800,12 @@ void MainWindow::onCommentsCustomContextMenuRequested(const QPoint &pos)
 
 void MainWindow::onIsClientNotifiedClicked(const QModelIndex &index)
 {
-    if (index.column() != 8) //TODO: NO MORE FUCKING HARD NUMBER FOR TABLE HEADERS!;
+    if (index.column() != 0) //TODO: NO MORE FUCKING HARD NUMBER FOR TABLE HEADERS!;
         return;
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update tdc_relation set client_notified = ? where id = ?");
+    q.prepare("update ticket set client_notified = ? where id = ?");
     q.addBindValue(ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->checkState() == Qt::Checked ? "TRUE" : "FALSE");
     q.addBindValue(ticketModel->item(ticketProxy->mapToSource(index).row(),0)->data());
     q.exec();
@@ -804,10 +816,11 @@ void MainWindow::onMoveBackToWork()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set status = ? where id = ?");
+    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
     q.addBindValue(InWork);
-    q.addBindValue(getCurrentTicketId());
-    q.exec();
+    q.addBindValue(getCurrentTDCRId());
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -817,10 +830,12 @@ void MainWindow::onMoveBackToReady()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set status = ? where id = ?");
+    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
     q.addBindValue(Ready);
-    q.addBindValue(getCurrentTicketId());
-    q.exec();
+    q.addBindValue(getCurrentTDCRId());
+    qDebug() << getCurrentTDCRId();
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -888,10 +903,11 @@ void MainWindow::on_actionCloseTicket_triggered()
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set status = ? where id = ?");
+    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
     q.addBindValue(Closed);
-    q.addBindValue(getCurrentTicketId());
-    q.exec();
+    q.addBindValue(getCurrentTDCRId());
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
     refreshTicketModel(generateTicketQuery());
 }
 

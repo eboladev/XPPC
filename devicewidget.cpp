@@ -12,6 +12,7 @@ DeviceWidget::DeviceWidget(QWidget *parent) :
     deviceModel = new QStandardItemModel(this);
     ui->treeViewDeviceList->setModel(deviceModel);
     ui->groupBoxAddedDevices->setVisible(false);
+    ui->treeViewDeviceList->setEditTriggers(QAbstractItemView::NoEditTriggers);
     deviceModel->setHorizontalHeaderLabels(QStringList() << trUtf8("Название") << trUtf8("Состояние") << trUtf8("Серийный номер"));
     connect(ui->pushButtonAdd, SIGNAL(clicked()), SLOT(onAddDeviceClicked()));
     connect(ui->pushButtonRemove, SIGNAL(clicked()), SLOT(onRemoveDeviceClicked()));

@@ -118,6 +118,7 @@ private:
     QTimer* updateTableViewTicket;
     int currentStatus;
     int currentEmployeeId;
+    QString currentEmployeeName;
 
     QStandardItemModel* proCatModel; //product category model
     QSqlQueryModel* productModel;

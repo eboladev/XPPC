@@ -24,7 +24,7 @@ UserManagementDialog::UserManagementDialog(const QString &dbConnectionString, QW
     connect(model, SIGNAL(itemChanged(QStandardItem*)),SLOT(onItemChanged(QStandardItem*)));
     connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));
     ui->treeViewUsers->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->treeViewUsers->setItemDelegateForColumn(4,new CalendarDelegate(this));
+    ui->treeViewUsers->setItemDelegateForColumn(5, new CalendarDelegate(this));
     connect(ui->treeViewUsers, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCustomContextMenuRequested(QPoint)));
     refreshModel();
 }
@@ -40,18 +40,20 @@ void UserManagementDialog::onItemChanged(QStandardItem *item)
     if (!getSqlQuery(q))
         return;
     QModelIndex idx = item->index();    
-    if (idx.column() == 1 || idx.column() == 2 || idx.column() == 3 || idx.column() == 5)
+    if (idx.column() == 3 || idx.column() == 4 || idx.column() == 5 || idx.column() == 6 || idx.column() == 7)
         model->setData(idx,item->text().toInt(),Qt::DisplayRole);
     q.prepare("update employee set employee_fio = ?, employee_rate = ?, "
               "employee_percent = ?, employee_sale_percent = ?, "
-              "employee_last_salary_date = ?, employee_salaryperday = ? "
+              "employee_last_salary_date = ?, employee_salaryperday = ?, "
+              "phone = ? "
               "where employee_id = ?");
-    q.addBindValue(model->item(idx.row(),0)->data(Qt::DisplayRole));
-    q.addBindValue(model->item(idx.row(),1)->data(Qt::DisplayRole).toInt());
-    q.addBindValue(model->item(idx.row(),2)->data(Qt::DisplayRole).toInt());
-    q.addBindValue(model->item(idx.row(),3)->data(Qt::DisplayRole).toInt());
-    q.addBindValue(model->item(idx.row(),4)->data(Qt::DisplayRole));
-    q.addBindValue(model->item(idx.row(),5)->data(Qt::DisplayRole).toInt());
+    q.addBindValue(model->item(idx.row(),0)->text());
+    q.addBindValue(model->item(idx.row(),2)->text().toInt());
+    q.addBindValue(model->item(idx.row(),3)->text().toInt());
+    q.addBindValue(model->item(idx.row(),4)->text().toInt());
+    q.addBindValue(model->item(idx.row(),5)->text());
+    q.addBindValue(model->item(idx.row(),6)->text().toInt());
+    q.addBindValue(model->item(idx.row(),1)->text());
     q.addBindValue(model->item(idx.row(),0)->data());
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();
@@ -80,14 +82,8 @@ void UserManagementDialog::onAddEmployee()
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("insert into employee(employee_fio, employee_rate, "
-              "employee_percent, employee_sale_percent, "
-              "employee_salaryperday) VALUES(?,?,?,?,?)");
+    q.prepare("insert into employee(employee_fio) VALUES(?)");
     q.addBindValue(trUtf8("ФИО"));
-    q.addBindValue(0);
-    q.addBindValue(0);
-    q.addBindValue(0);
-    q.addBindValue(0);
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();
     refreshModel();
@@ -109,7 +105,7 @@ void UserManagementDialog::onFireEmployee()
 void UserManagementDialog::refreshModel()
 {
     model->clear();
-    model->setHorizontalHeaderLabels(QStringList() << trUtf8("ФИО") << trUtf8("Оплата за ремонт") <<
+    model->setHorizontalHeaderLabels(QStringList() << trUtf8("ФИО") << trUtf8("Телефон") << trUtf8("Оплата за ремонт") <<
                                       trUtf8("Процент") << trUtf8("Процент с продаж") <<
                                       trUtf8("Дата з\\п") << trUtf8("З\\п в день") <<
                                       trUtf8("Логин") << trUtf8("Пароль"));
@@ -119,7 +115,7 @@ void UserManagementDialog::refreshModel()
     q.prepare("select employee_id, employee_fio, employee_rate, "
               "employee_percent, employee_sale_percent, "
               "employee_last_salary_date, employee_salaryperday, "
-              "login, password from employee where fired = ? ORDER BY employee_id DESC");
+              "login, password, phone from employee where fired = ? ORDER BY employee_id DESC");
     q.addBindValue(ui->radioButtonFired->isChecked());
     q.exec();
 
@@ -127,8 +123,9 @@ void UserManagementDialog::refreshModel()
     {
         QStandardItem* fio = new QStandardItem(q.value(1).toString());
         fio->setData(q.value(0));
+        fio->setToolTip(fio->text());
         QStandardItem* rate = new QStandardItem(q.value(2).toString());
-        rate->setToolTip(trUtf8("Оплата за ремонт по квитанции."));
+        rate->setToolTip(trUtf8("Оплата за ремонт по квитанции."));        
         QStandardItem* percent = new QStandardItem(q.value(3).toString());
         percent->setToolTip(trUtf8("Процент с ремонта."));
         QStandardItem* sPercent = new QStandardItem(q.value(4).toString());
@@ -138,9 +135,11 @@ void UserManagementDialog::refreshModel()
         QStandardItem* spDay = new QStandardItem(q.value(6).toString());
         spDay->setToolTip(trUtf8("Оплата за раб. день"));
         QStandardItem* login = new QStandardItem(q.value(7).toString());
-        QStandardItem* pass = new QStandardItem();
-        pass->setText(q.value(8).toString().isEmpty() ? trUtf8("Не задан") : trUtf8("Задан"));
-        model->appendRow(QList<QStandardItem*>() << fio << rate
+        login->setToolTip(login->text());
+        QStandardItem* pass = new QStandardItem(q.value(8).toString().isEmpty() ? trUtf8("Не задан") : trUtf8("Задан"));
+        QStandardItem* phone = new QStandardItem(q.value(9).toString());
+        phone->setToolTip(phone->text());
+        model->appendRow(QList<QStandardItem*>() << fio << phone << rate
                          << percent << sPercent << sDate << spDay << login << pass);
     }
     for (int i = 0; i < model->columnCount(); ++i)

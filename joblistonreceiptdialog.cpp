@@ -170,8 +170,7 @@ void JobListOnReceiptDialog::on_pushButtonCheckReady_clicked()
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
-    q.prepare("update ticket set status = ? where id = "
-              "(select distinct ticket_id from tdc_relation where id = ?)");
+    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
     q.addBindValue(Ready);
     q.addBindValue(m_id);
     if (!q.exec())

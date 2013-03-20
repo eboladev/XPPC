@@ -233,7 +233,7 @@
               <bool>true</bool>
              </property>
              <property name="selectionMode">
-              <enum>QAbstractItemView::SingleSelection</enum>
+              <enum>QAbstractItemView::ExtendedSelection</enum>
              </property>
              <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectRows</enum>
@@ -383,14 +383,6 @@
             </widget>
            </item>
           </layout>
-          <zorder>treeViewJobsOnTicket</zorder>
-          <zorder>plainTextEditComment</zorder>
-          <zorder>pushButtonAddComment</zorder>
-          <zorder>groupBoxTickets</zorder>
-          <zorder>treeViewTicketComments</zorder>
-          <zorder>horizontalSpacer</zorder>
-          <zorder>horizontalSpacer_3</zorder>
-          <zorder>tabWidgetFastTicketInfo</zorder>
          </widget>
         </item>
        </layout>
