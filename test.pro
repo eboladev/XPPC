@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     devicewidget.cpp \
     branchselectionwidget.cpp \
     querylimitcomboboxwidget.cpp \
-    ticketcommentswidget.cpp
+    ticketcommentswidget.cpp \
+    guaranteeonticketreasonwidget.cpp
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -66,7 +67,8 @@ HEADERS  += mainwindow.h \
     branchselectionwidget.h \
     querylimitcomboboxwidget.h \
     globals.h \
-    ticketcommentswidget.h
+    ticketcommentswidget.h \
+    guaranteeonticketreasonwidget.h
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
@@ -81,7 +83,8 @@ FORMS    += mainwindow.ui \
     devicewidget.ui \
     branchselectionwidget.ui \
     querylimitcomboboxwidget.ui \
-    ticketcommentswidget.ui
+    ticketcommentswidget.ui \
+    guaranteeonticketreasonwidget.ui
 
 RESOURCES += \
     Resources.qrc

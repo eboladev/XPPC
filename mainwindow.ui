@@ -164,7 +164,7 @@
                   <number>1</number>
                  </property>
                  <item>
-                  <widget class="QLineEdit" name="lineEdit">
+                  <widget class="QLineEdit" name="lineEditSearch">
                    <property name="placeholderText">
                     <string>Поиск</string>
                    </property>
@@ -290,39 +290,102 @@
               </attribute>
               <layout class="QGridLayout" name="gridLayout_14">
                <item row="0" column="0">
-                <layout class="QVBoxLayout" name="verticalLayout_4">
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_5">
-                   <item>
-                    <widget class="QLabel" name="labelJobPrice">
-                     <property name="text">
-                      <string>Итого:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="lineEditTicketPrice">
-                     <property name="placeholderText">
-                      <string>Стоимость услуг</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                  <widget class="QLabel" name="labelJobPrice">
+                   <property name="text">
+                    <string>Итого:</string>
+                   </property>
+                  </widget>
                  </item>
                  <item>
-                  <widget class="QTreeView" name="treeViewJobsOnTicket">
-                   <property name="enabled">
-                    <bool>true</bool>
+                  <widget class="QLineEdit" name="lineEditTicketPrice">
+                   <property name="placeholderText">
+                    <string>Стоимость услуг</string>
                    </property>
-                   <property name="indentation">
-                    <number>7</number>
-                   </property>
-                   <attribute name="headerCascadingSectionResizes">
-                    <bool>false</bool>
-                   </attribute>
                   </widget>
                  </item>
                 </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QSplitter" name="splitter">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <widget class="QTreeView" name="treeViewJobsOnTicket">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="indentation">
+                   <number>7</number>
+                  </property>
+                  <attribute name="headerCascadingSectionResizes">
+                   <bool>false</bool>
+                  </attribute>
+                 </widget>
+                 <widget class="QGroupBox" name="groupBoxGuarantee">
+                  <property name="minimumSize">
+                   <size>
+                    <width>300</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="title">
+                   <string>Гарантия:</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_12">
+                   <item row="0" column="0">
+                    <layout class="QHBoxLayout" name="horizontalLayout_13">
+                     <item>
+                      <widget class="QPushButton" name="pushButtonNotAGuarantee">
+                       <property name="text">
+                        <string>Не гарантия, закрыть</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButtonAcceptToWorkGuarantee">
+                       <property name="text">
+                        <string>Принять в работу</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="1" column="0">
+                    <layout class="QHBoxLayout" name="horizontalLayout_15">
+                     <item>
+                      <widget class="QLabel" name="labelDateAcceptedGuarantee">
+                       <property name="text">
+                        <string>Дата возвращения:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDateTimeEdit" name="dateTimeEditGuaranteeDateAccepted"/>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="2" column="0">
+                    <layout class="QHBoxLayout" name="horizontalLayout_16">
+                     <item>
+                      <widget class="QLabel" name="labelDateAcceptedToWorkGuarantee">
+                       <property name="text">
+                        <string>Дата принятия в работу:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QDateTimeEdit" name="dateTimeEditGuaranteeDateAcceptedToWork"/>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QPlainTextEdit" name="plainTextEditTicketGuaranteeProblem"/>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -393,7 +456,7 @@
          <normaloff>:/icons/icons/inventory-maintenance-icon.png</normaloff>:/icons/icons/inventory-maintenance-icon.png</iconset>
        </attribute>
        <attribute name="title">
-        <string>Витрина</string>
+        <string>Товары</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_11">
         <property name="horizontalSpacing">
@@ -972,7 +1035,7 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>lineEdit</tabstop>
+  <tabstop>lineEditSearch</tabstop>
   <tabstop>pushButtonSearch</tabstop>
   <tabstop>pushButtonSearchClear</tabstop>
   <tabstop>radioButtonReady</tabstop>

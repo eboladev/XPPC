@@ -10,6 +10,7 @@
 #include "userstatisticwidget.h"
 #include "productcategorymanager.h"
 #include "globals.h"
+#include "guaranteeonticketreasonwidget.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -46,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()), SLOT(close()));
     connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()), SLOT(onSettingsClicked()));
     connect(ui->actionBranchTriggered,SIGNAL(triggered()), SLOT(onActionBranchesTriggered()));
-    connect(ui->actionCloseTicket,SIGNAL(triggered()), SLOT(on_actionCloseTicket_triggered()));
+    connect(ui->actionCloseTicket,SIGNAL(triggered()), SLOT(onCloseTicketClicked()));
     connect(ui->actionChangeUser, SIGNAL(triggered()), SLOT(onActionChangeUserClicked()));
     connect(ui->actionUserControl, SIGNAL(triggered()), SLOT(onActionUserManagementClicked()));
     connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
@@ -75,6 +76,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewTicketComments->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->treeViewTicketComments->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(ui->treeViewTicketComments, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCommentsCustomContextMenuRequested(QPoint)));
+
+    connect(ui->pushButtonNotAGuarantee, SIGNAL(clicked()), SLOT(onNotAGuaranteeClicked()));
+    connect(ui->pushButtonAcceptToWorkGuarantee, SIGNAL(clicked()), SLOT(onAcceptAGuaranteeClicked()));
 
     cud->accept();
 
@@ -114,17 +118,76 @@ MainWindow::~MainWindow()
 QVariant MainWindow::getCurrentTDCRId()
 {    
     if (ui->tableViewTicket->currentIndex().isValid())
-        return ticketModel->item(ticketProxy->mapToSource(ui->tableViewTicket->currentIndex()).row(),0)->data();
+        return ticketModel->item(ticketProxy->mapToSource(ui->tableViewTicket->currentIndex()).row(),TicketNumber)->data(TDC_Relation);
     else
         return QVariant();
+}
+
+QVariant MainWindow::getCurrentTDCRId(const QModelIndex &index)
+{
+    if (index.isValid())
+        return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data(TDC_Relation);
+    else
+        return QVariant();
+}
+
+void MainWindow::changeTicketStatus(const int &status)
+{
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
+    for (int i = 0 ; i < qmil.count(); ++i)
+    {
+        if (qmil.at(i).column() != TicketNumber)
+            continue;
+        q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
+        q.addBindValue(status);
+        q.addBindValue(getCurrentTDCRId(qmil.at(i)));
+        if (!q.exec())
+            qDebug() << q.lastError() << q.lastQuery();
+    }
+    refreshTicketModel(generateTicketQuery());
 }
 
 int MainWindow::getCurrentTicketId()
 {
     if (ui->tableViewTicket->currentIndex().isValid())
-        return ticketModel->item(ticketProxy->mapToSource(ui->tableViewTicket->currentIndex()).row(),0)->text().toInt();
+        return ticketModel->item(ticketProxy->mapToSource(ui->tableViewTicket->currentIndex()).row(),TicketNumber)->text().toInt();
     else
         return -1;
+}
+
+int MainWindow::getCurrentTicketId(const QModelIndex &index)
+{
+    if (index.isValid())
+        return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->text().toInt();
+    else
+        return -1;
+}
+
+QString MainWindow::getCurrentTicketDeviceName(const QModelIndex &index)
+{
+    if (index.isValid())
+        return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketDeviceName)->text();
+    else
+        return "";
+}
+
+QString MainWindow::getCurrentTicketDeviceSerial(const QModelIndex &index)
+{
+    if (index.isValid())
+        return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketDeviceSerial)->text();
+    else
+        return "";
+}
+
+QVariant MainWindow::getCurrentTicketGuaranteeId(const QModelIndex &index)
+{
+    if (index.isValid())
+        return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data(GuaranteeId);
+    else
+        return QVariant();
 }
 
 void MainWindow::sb(QString text)
@@ -218,11 +281,11 @@ void MainWindow::onRefreshProductByType(int type)
     }
 
     productModel->setQuery(q);
-    productModel->setHeaderData(0, Qt::Horizontal, trUtf8("Название"));
-    productModel->setHeaderData(1, Qt::Horizontal, trUtf8("Серийный №"));
-    productModel->setHeaderData(2, Qt::Horizontal, trUtf8("Цена"));
-    productModel->setHeaderData(3, Qt::Horizontal, trUtf8("Количество"));
-    productModel->setHeaderData(4, Qt::Horizontal, trUtf8("Гарантия"));
+    productModel->setHeaderData(ProductName, Qt::Horizontal, trUtf8("Название"));
+    productModel->setHeaderData(ProductSerialNumber, Qt::Horizontal, trUtf8("Серийный №"));
+    productModel->setHeaderData(ProductPrice, Qt::Horizontal, trUtf8("Цена"));
+    productModel->setHeaderData(ProductQuantity, Qt::Horizontal, trUtf8("Количество"));
+    productModel->setHeaderData(ProductGuarantee, Qt::Horizontal, trUtf8("Гарантия"));
     ui->tableViewProducts->resizeColumnsToContents();
     sb(QString(trUtf8("Количество товаров %0").arg(productModel->rowCount())));
 }
@@ -267,11 +330,14 @@ void MainWindow::onActionCategoryProductsClicked()
 QString MainWindow::generateTicketQuery()
 {
     return QString("select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
-                   "client.name, client.phone, device.name, device.serial, device.problem, client_notified %0 "
+                   "client.name, client.phone, device.name, device.serial, device.problem, "
+                   "client_notified %0 ,ticket_guarantee.date_accepted, ticket_guarantee.id, "
+                   "ticket_guarantee.date_closed "
                    "from ticket "
                    "join client on(ticket.client_id = client.id) "
                    "join device on(ticket.device_id = device.id) "
                    "join branch on(device.branch_id = branch.id) "
+                   "left join ticket_guarantee on (ticket_guarantee.tdc_r_id = ticket.id) "
                    "where device.status = %1 "
                    "ORDER BY ticket.ticket_id DESC %2")
             .arg(currentStatus == Closed ? ", device.price, device.date_givenout" : "")
@@ -285,7 +351,7 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return false;    
-    q.prepare("select password, employee_fio, employee_id, permissions from employee where login = ?");
+    q.prepare("select password, employee_fio, employee_id, permissions from employee where login = ? and fired = FALSE");
     q.addBindValue(login);
     q.exec();
     if (!q.next())
@@ -374,7 +440,7 @@ void MainWindow::refreshTicketModel(const QString &query)
     while(q.next())
     {
         QStandardItem* ticket_id = new QStandardItem(q.value(1).toString());
-        ticket_id->setData(q.value(0)); //ticket id
+        ticket_id->setData(q.value(0),TDC_Relation); //ticket id
         ticket_id->setCheckable(true);
         ticket_id->setCheckState(q.value(9).toBool() ? Qt::Checked : Qt::Unchecked);
         ticket_id->setToolTip(trUtf8("Клиенту %0").arg(q.value(9).toBool() ? trUtf8("отзвонились") : trUtf8("не отзванивались")));
@@ -395,42 +461,54 @@ void MainWindow::refreshTicketModel(const QString &query)
         if (currentStatus==Closed)
         {
             QStandardItem* ticket_price = new QStandardItem(q.value(9).toString());
-            ticket_price->setToolTip(q.value(9).toString());
+            ticket_price->setToolTip(q.value(9).toString());            
             QStandardItem* ticket_givenout = new QStandardItem(q.value(10).toDate().toString("dd-MM-yyyy"));
             ticket_givenout->setToolTip(ticket_givenout->text());
+            if (!q.value(12).toString().isEmpty() && q.value(14).toString().isEmpty())
+            {
+                ticket_id->setIcon(QIcon(":/icons/icons/emblem-important_9062.png"));
+                ticket_id->setData(q.value(13),GuaranteeId);
+            }
             ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem << ticket_price << ticket_givenout);
         }
         else
+        {
+            if (!q.value(10).toString().isEmpty() && q.value(12).toString().isEmpty())
+            {
+                ticket_id->setIcon(QIcon(":/icons/icons/emblem-important_9062.png"));
+                ticket_id->setData(q.value(11),GuaranteeId);
+            }
             ticketModel->appendRow(QList<QStandardItem*>() << ticket_id << date_accepted << branch << client_name << client_phone << device_name << device_serial << device_problem);
+        }
     }
 
-    ticketModel->setHeaderData(0, Qt::Horizontal, tr("№"));
-    ticketModel->setHeaderData(1, Qt::Horizontal, tr("Дата"));
-    ticketModel->setHeaderData(2, Qt::Horizontal, tr("Филиал"));
-    ticketModel->setHeaderData(3, Qt::Horizontal, tr("ФИО"));
-    ticketModel->setHeaderData(4, Qt::Horizontal, tr("Телефон"));
-    ticketModel->setHeaderData(5, Qt::Horizontal, tr("Устройство"));
-    ticketModel->setHeaderData(6, Qt::Horizontal, tr("Серийный №"));
-    ticketModel->setHeaderData(7, Qt::Horizontal, tr("Неисправность"));
+    ticketModel->setHeaderData(TicketNumber, Qt::Horizontal, tr("№"));
+    ticketModel->setHeaderData(TicketDate, Qt::Horizontal, tr("Дата"));
+    ticketModel->setHeaderData(TicketBranch, Qt::Horizontal, tr("Филиал"));
+    ticketModel->setHeaderData(TicketClientName, Qt::Horizontal, tr("ФИО"));
+    ticketModel->setHeaderData(TicketClientPhone, Qt::Horizontal, tr("Телефон"));
+    ticketModel->setHeaderData(TicketDeviceName, Qt::Horizontal, tr("Устройство"));
+    ticketModel->setHeaderData(TicketDeviceSerial, Qt::Horizontal, tr("Серийный №"));
+    ticketModel->setHeaderData(TicketProblem, Qt::Horizontal, tr("Неисправность"));
 
     if (currentStatus==Closed)
     {
-        ticketModel->setHeaderData(8, Qt::Horizontal, tr("Цена"));
-        ticketModel->setHeaderData(9, Qt::Horizontal, tr("Выдано"));
+        ticketModel->setHeaderData(TicketPrice, Qt::Horizontal, tr("Цена"));
+        ticketModel->setHeaderData(TicketGivenOut, Qt::Horizontal, tr("Выдано"));
     }
     else
     {
-        ui->tableViewTicket->setColumnWidth(1,70);
-        ui->tableViewTicket->setColumnWidth(4,120);
-        ui->tableViewTicket->setColumnWidth(5,200);
-        ui->tableViewTicket->resizeColumnToContents(8);
+        ui->tableViewTicket->setColumnWidth(TicketDate,70);
+        ui->tableViewTicket->setColumnWidth(TicketClientPhone,120);
+        ui->tableViewTicket->setColumnWidth(TicketDeviceName,200);
+        ui->tableViewTicket->resizeColumnToContents(TicketPrice);
     }
 
-    ui->tableViewTicket->resizeColumnToContents(0);
-    ui->tableViewTicket->resizeColumnToContents(1);
-    ui->tableViewTicket->resizeColumnToContents(3);
-    ui->tableViewTicket->resizeColumnToContents(4);
-    ui->tableViewTicket->resizeColumnToContents(5);
+    ui->tableViewTicket->resizeColumnToContents(TicketNumber);
+    ui->tableViewTicket->resizeColumnToContents(TicketDate);
+    ui->tableViewTicket->resizeColumnToContents(TicketClientName);
+    ui->tableViewTicket->resizeColumnToContents(TicketClientPhone);
+    ui->tableViewTicket->resizeColumnToContents(TicketDeviceName);
 
     ui->groupBoxFastTicketInfo->setVisible(false);
 }
@@ -576,25 +654,28 @@ void MainWindow::onJobListClicked()
 
 void MainWindow::on_radioButtonReady_pressed()
 {
+    ui->lineEditSearch->clear();
     currentStatus = Ready;
     refreshTicketModel(generateTicketQuery());
 }
 
 void MainWindow::on_radioButtonWorking_pressed()
 {
+    ui->lineEditSearch->clear();
     currentStatus = InWork;
     refreshTicketModel(generateTicketQuery());
 }
 
 void MainWindow::on_radioButtonClosed_pressed()
 {
+    ui->lineEditSearch->clear();
     currentStatus = Closed;
     refreshTicketModel(generateTicketQuery());
 }
 
 void MainWindow::on_pushButtonSearchClear_clicked()
 {
-    ui->lineEdit->clear();
+    ui->lineEditSearch->clear();
     ui->radioButtonWorking->setChecked(true);
     currentStatus = InWork;
     refreshTicketModel(generateTicketQuery());
@@ -606,13 +687,16 @@ void MainWindow::on_pushButtonSearch_clicked()
     updateTableViewTicket->stop();    
     refreshTicketModel(
                 "select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
-                                   "client.name, client.phone, device.name, device.serial, device.problem, device.price "
-                                   "from ticket "
-                                   "join client on(ticket.client_id = client.id) "
-                                   "join device on(ticket.device_id = device.id) "
-                                   "join branch on(device.branch_id = branch.id) "
-                                "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEdit->text().trimmed()+"%') "
-                                "or client.name LIKE ('%"+ui->lineEdit->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
+                "client.name, client.phone, device.name, device.serial, "
+                "device.problem, device.price, ticket_guarantee.date_accepted, ticket_guarantee.id, "
+                "ticket_guarantee.date_closed "
+                "from ticket "
+                "join client on(ticket.client_id = client.id) "
+                "join device on(ticket.device_id = device.id) "
+                "join branch on(device.branch_id = branch.id) "
+                "left join ticket_guarantee on (ticket_guarantee.tdc_r_id = ticket.id) "
+                "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') "
+                "or client.name LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
                 );
 }
 
@@ -661,6 +745,35 @@ void MainWindow::onRemoveCommentClicked()
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();
     ticketComments->takeRow(ui->treeViewTicketComments->currentIndex().row());
+}
+
+void MainWindow::onNotAGuaranteeClicked()
+{
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("delete from ticket_guarantee where id = ?");
+    q.addBindValue(getCurrentTicketGuaranteeId(ui->tableViewTicket->currentIndex()));
+
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+
+    onCloseTicketClicked();
+}
+
+void MainWindow::onAcceptAGuaranteeClicked()
+{
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
+    q.prepare("update ticket_guarantee set date_moved_to_work = ? where id = ?");
+    q.addBindValue(QDateTime::currentDateTime());
+    q.addBindValue(getCurrentTicketGuaranteeId(ui->tableViewTicket->currentIndex()));
+
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+
+    refreshTicketModel(generateTicketQuery());
 }
 
 void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
@@ -756,31 +869,58 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         ui->treeViewTicketComments->resizeColumnToContents(1);
         ui->treeViewTicketComments->resizeColumnToContents(2);
     }
-    ui->treeViewTicketComments->setHeaderHidden(false);
-    ui->tabWidgetFastTicketInfo->setTabEnabled(0,jobModel->rowCount() != 0);
-    ui->tabWidgetFastTicketInfo->setTabEnabled(1,ticketComments->rowCount() != 0);
-    ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0);
+    bool showGuarantee = false;
+    if (!getCurrentTicketGuaranteeId(current).isNull())
+    {
+        showGuarantee = true;
+        q.prepare("select problem,date_accepted,date_moved_to_work from ticket_guarantee where tdc_r_id = ?");
+        q.addBindValue(getCurrentTDCRId(current));
+        if (!q.exec())
+            qDebug() << q.lastError() << q.lastQuery();
+        q.next();
+        ui->plainTextEditTicketGuaranteeProblem->setPlainText(q.value(0).toString());
+        ui->dateTimeEditGuaranteeDateAccepted->setDateTime(q.value(1).toDateTime());
+        if (!q.value(2).isNull())
+        {
+            ui->dateTimeEditGuaranteeDateAcceptedToWork->setDateTime(q.value(2).toDateTime());
+            ui->labelDateAcceptedToWorkGuarantee->setVisible(true);
+            ui->dateTimeEditGuaranteeDateAcceptedToWork->setVisible(true);
+        }
+        else
+        {
+            ui->labelDateAcceptedToWorkGuarantee->setVisible(false);
+            ui->dateTimeEditGuaranteeDateAcceptedToWork->setVisible(false);
+        }
+    }
+    ui->groupBoxGuarantee->setVisible(showGuarantee);
+    ui->tabWidgetFastTicketInfo->setTabEnabled(TicketJobs,jobModel->rowCount() != 0 || showGuarantee);
+    ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
+    ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
 {
     QMenu *menu = new QMenu(this);
     connect(menu, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
-    /*QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
-    if (qmil.count() > 1)*/ //TODO multiselect handling
+    QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
 
     QModelIndex ind = ui->tableViewTicket->indexAt(pos);
     menu->addAction(trUtf8("Добавить квитанцию"), this, SLOT(onAddTicketClicked()));
     if (ind.isValid())
     {
-        menu->addAction(trUtf8("Список работ"), this, SLOT(onJobListClicked()));
+        if (qmil.count() == 1)
+        {
+            menu->addAction(trUtf8("Список работ"), this, SLOT(onJobListClicked()));
+            menu->addAction(trUtf8("Посмотреть комментарии"), this, SLOT(onShowCommentsTabClicked()));
+        }
         if (currentStatus != Closed)        
-            menu->addAction(trUtf8("Закрыть квитанцию"), this, SLOT(on_actionCloseTicket_triggered()));            
+            menu->addAction(trUtf8("Закрыть квитанцию"), this, SLOT(onCloseTicketClicked()));
         if (currentStatus != InWork)
             menu->addAction(trUtf8("Вернуть в работу"), this, SLOT(onMoveBackToWork()));
         if (currentStatus != Ready)
-            menu->addAction(trUtf8("Поместить в готовые"), this, SLOT(onMoveBackToReady()));
-        menu->addAction(trUtf8("Посмотреть комментарии"), this, SLOT(onShowCommentsTabClicked()));
+            menu->addAction(trUtf8("Поместить в готовые"), this, SLOT(onMoveBackToReady()));        
+        if (currentStatus == Closed)
+            menu->addAction(trUtf8("Гарантия, вернуть в работу"), this, SLOT(submitGuaranteeTicket()));
     }
     menu->exec(QCursor::pos());
 }
@@ -800,43 +940,77 @@ void MainWindow::onCommentsCustomContextMenuRequested(const QPoint &pos)
 
 void MainWindow::onIsClientNotifiedClicked(const QModelIndex &index)
 {
-    if (index.column() != 0) //TODO: NO MORE FUCKING HARD NUMBER FOR TABLE HEADERS!;
+    if (index.column() != TicketNumber)
         return;
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
     q.prepare("update ticket set client_notified = ? where id = ?");
     q.addBindValue(ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->checkState() == Qt::Checked ? "TRUE" : "FALSE");
-    q.addBindValue(ticketModel->item(ticketProxy->mapToSource(index).row(),0)->data());
+    q.addBindValue(ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data());
     q.exec();
 }
 
 void MainWindow::onMoveBackToWork()
 {
-    QSqlQuery q;
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return;
-    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
-    q.addBindValue(InWork);
-    q.addBindValue(getCurrentTDCRId());
-    if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
-    refreshTicketModel(generateTicketQuery());
+    changeTicketStatus(InWork);
 }
 
 void MainWindow::onMoveBackToReady()
 {
-    qDebug() << getCurrentTicketId();
+    onSetGuaranteeDone();
+    changeTicketStatus(Ready);
+}
+
+void MainWindow::submitGuaranteeTicket()
+{
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
-    q.addBindValue(Ready);
-    q.addBindValue(getCurrentTDCRId());
-    qDebug() << getCurrentTDCRId();
-    if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
-    refreshTicketModel(generateTicketQuery());
+    GuaranteeOnTicketReasonWidget* gotrw = new GuaranteeOnTicketReasonWidget(this);
+    QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
+    for (int i = 0; i < qmil.count(); ++i)
+    {
+        if (qmil.at(i).column() != TicketNumber)
+            continue;
+        gotrw->addDevice(getCurrentTDCRId(qmil.at(i)),
+                         getCurrentTicketId(qmil.at(i)),
+                         getCurrentTicketDeviceName(qmil.at(i)),
+                         getCurrentTicketDeviceSerial(qmil.at(i)));
+    }
+    if (gotrw->exec())
+    {
+        for (int i = 0 ; i < qmil.count(); ++i)
+        {
+            if (qmil.at(i).column() != TicketNumber)
+                continue;
+            q.prepare("insert into ticket_guarantee(tdc_r_id,problem) VALUES(?,?)");
+            q.addBindValue(getCurrentTDCRId(qmil.at(i)));//guarantee id
+            q.addBindValue(gotrw->ticketGuaranteeText[getCurrentTDCRId(qmil.at(i)).toString()]);//guarantee text
+            if (!q.exec())
+                qDebug() << q.lastError() << q.lastQuery();
+
+            q.prepare("update ticket set client_notified = 0 where id = ?");
+            q.addBindValue(getCurrentTDCRId(qmil.at(i)));
+            q.exec();
+        }
+        changeTicketStatus(InWork);
+    }
+}
+
+void MainWindow::onSetGuaranteeDone()
+{
+    if (!getCurrentTicketGuaranteeId(ui->tableViewTicket->currentIndex()).isNull())
+    {
+        QSqlQuery q;
+        if (!SetupManager::instance()->getSqlQueryForDB(q))
+            return;
+        q.prepare("update ticket_guarantee set date_closed = ? where id = ?");
+        q.addBindValue(QDateTime::currentDateTime());
+        q.addBindValue(getCurrentTicketGuaranteeId(ui->tableViewTicket->currentIndex()));
+        if (!q.exec())
+            qDebug() << q.lastError() << q.lastQuery();
+    }
 }
 
 void MainWindow::onQueryLimitComboBoxIndexChanged(int)
@@ -898,17 +1072,10 @@ void MainWindow::onActionBranchesTriggered()
     refreshTicketModel(generateTicketQuery());
 }
 
-void MainWindow::on_actionCloseTicket_triggered()
+void MainWindow::onCloseTicketClicked()
 {
-    QSqlQuery q;
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return;
-    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
-    q.addBindValue(Closed);
-    q.addBindValue(getCurrentTDCRId());
-    if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
-    refreshTicketModel(generateTicketQuery());
+    onSetGuaranteeDone();
+    changeTicketStatus(Closed);
 }
 
 void MainWindow::onActionChangeUserClicked()

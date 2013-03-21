@@ -78,24 +78,34 @@ private slots:
     void onAddCommentToTicketClicked();
     void onRemoveCommentClicked();
 
+    void onNotAGuaranteeClicked();
+    void onAcceptAGuaranteeClicked();
+
     void on_tableViewTicket_doubleClicked(const QModelIndex &index);
     void onTableViewTicketSelectionChanged(QModelIndex, QModelIndex);
     void onCustomContextMenuRequested(const QPoint &pos);
     void onCommentsCustomContextMenuRequested(const QPoint &pos);
     void onIsClientNotifiedClicked(const QModelIndex &index);
 
+    void onCloseTicketClicked();
     void onMoveBackToWork();
     void onMoveBackToReady();
+    void submitGuaranteeTicket();
 
     void onQueryLimitComboBoxIndexChanged(int);
 
-    void on_actionCloseTicket_triggered();
-
 private:
+    void onSetGuaranteeDone();
     QString generateTicketQuery();
     //ticket device client relation id
     QVariant getCurrentTDCRId();
+    QVariant getCurrentTDCRId(const QModelIndex& index);
+    void changeTicketStatus(const int& status);
     int getCurrentTicketId();
+    int getCurrentTicketId(const QModelIndex& index);
+    QString getCurrentTicketDeviceName(const QModelIndex& index);
+    QString getCurrentTicketDeviceSerial(const QModelIndex& index);
+    QVariant getCurrentTicketGuaranteeId(const QModelIndex& index);
     /*ticket manager stop*/
 
     /* Merchandise manager begin */
