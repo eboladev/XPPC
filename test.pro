@@ -54,9 +54,9 @@ SOURCES += main.cpp\
     ticketcommentswidget.cpp \
     guaranteeonticketreasonwidget.cpp \
     reportshandler.cpp
-unix {
-    SOURCES += DocumentGenerators/writerunixautomation.cpp
-}
+#unix {
+#    SOURCES += DocumentGenerators/writerunixautomation.cpp
+#}
 win32 {
     SOURCES += DocumentGenerators/writerautomation.cpp \
     SOURCES += DocumentGenerators/wordautomation.cpp \
@@ -85,9 +85,9 @@ HEADERS  += mainwindow.h \
     ticketcommentswidget.h \
     guaranteeonticketreasonwidget.h \
     reportshandler.h
-unix {
-    HEADERS  += DocumentGenerators/writerunixautomation.h
-    }
+#unix {
+#    HEADERS  += DocumentGenerators/writerunixautomation.h
+#    }
 win32 {
     HEADERS  += DocumentGenerators/writerautomation.h \
     HEADERS  += DocumentGenerators/wordautomation.h \
