@@ -20,11 +20,17 @@ OBJECTS_DIR = $$PWD/build/xppc/release/obj
 }
 
 mac: DEFINES+=OS_MAC
+win32:CONFIG += qaxcontainer
 
 TARGET = xppc
 TEMPLATE = app
 
 INCLUDEPATH += $$PWD
+
+win32 {
+    SOURCES += $$PWD/ActiveX/acropdflib.cpp
+    HEADERS += $$PWD/ActiveX/acropdflib.h
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -46,7 +52,16 @@ SOURCES += main.cpp\
     branchselectionwidget.cpp \
     querylimitcomboboxwidget.cpp \
     ticketcommentswidget.cpp \
-    guaranteeonticketreasonwidget.cpp
+    guaranteeonticketreasonwidget.cpp \
+    reportshandler.cpp
+unix {
+    SOURCES += DocumentGenerators/writerunixautomation.cpp
+}
+win32 {
+    SOURCES += DocumentGenerators/writerautomation.cpp \
+    SOURCES += DocumentGenerators/wordautomation.cpp \
+    SOURCES += DocumentGenerators/disphelper.c
+}
 
 HEADERS  += mainwindow.h \
     receiptmanager.h \
@@ -68,7 +83,16 @@ HEADERS  += mainwindow.h \
     querylimitcomboboxwidget.h \
     globals.h \
     ticketcommentswidget.h \
-    guaranteeonticketreasonwidget.h
+    guaranteeonticketreasonwidget.h \
+    reportshandler.h
+unix {
+    HEADERS  += DocumentGenerators/writerunixautomation.h
+    }
+win32 {
+    HEADERS  += DocumentGenerators/writerautomation.h \
+    HEADERS  += DocumentGenerators/wordautomation.h \
+    HEADERS  += DocumentGenerators/disphelper.h
+}
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
