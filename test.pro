@@ -54,10 +54,10 @@ SOURCES += main.cpp\
     ticketcommentswidget.cpp \
     guaranteeonticketreasonwidget.cpp \
     reportshandler.cpp
-unix {
-    SOURCES += DocumentGenerators/writerunixautomation.cpp
-    HEADERS  += DocumentGenerators/writerunixautomation.h
-}
+#unix {
+#    SOURCES += DocumentGenerators/writerunixautomation.cpp
+#}
+
 win32 {
     SOURCES += DocumentGenerators/writerautomation.cpp \
     DocumentGenerators/disphelper.c \
@@ -90,6 +90,10 @@ HEADERS  += mainwindow.h \
     ticketcommentswidget.h \
     guaranteeonticketreasonwidget.h \
     reportshandler.h
+#unix {
+#    HEADERS  += DocumentGenerators/writerunixautomation.h
+#    }
+
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
