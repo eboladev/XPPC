@@ -78,6 +78,8 @@ private slots:
     void onAddCommentToTicketClicked();
     void onRemoveCommentClicked();
 
+    void onGenerateTicketReport();
+
     void onNotAGuaranteeClicked();
     void onAcceptAGuaranteeClicked();
 

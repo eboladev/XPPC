@@ -14,9 +14,10 @@ class ReportsHandler : public QObject
 public:
     explicit ReportsHandler(QObject *parent = 0);
     static bool openTicketReports(const int& ticket_id);
-    static bool saveTicketReports(const QString &path, const int& ticket_id);
+    static bool saveTicketReports(const QString &path, const int& ticket_id);    
 
-private:
+private:    
+    QString money(double n);
     static QString getTemplateType(const int& ticket_id);
 #ifdef Q_OS_WIN32
     static bool generateTicketReport(WordAutomation &wa, const int& ticket_id);

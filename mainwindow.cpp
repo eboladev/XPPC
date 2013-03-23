@@ -11,6 +11,7 @@
 #include "productcategorymanager.h"
 #include "globals.h"
 #include "guaranteeonticketreasonwidget.h"
+#include "reportshandler.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -51,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionChangeUser, SIGNAL(triggered()), SLOT(onActionChangeUserClicked()));
     connect(ui->actionUserControl, SIGNAL(triggered()), SLOT(onActionUserManagementClicked()));
     connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
+    connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
@@ -745,6 +747,11 @@ void MainWindow::onRemoveCommentClicked()
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();
     ticketComments->takeRow(ui->treeViewTicketComments->currentIndex().row());
+}
+
+void MainWindow::onGenerateTicketReport()
+{
+    qDebug() << "report generated" << ReportsHandler::openTicketReports(getCurrentTDCRId().toInt());
 }
 
 void MainWindow::onNotAGuaranteeClicked()

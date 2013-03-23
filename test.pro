@@ -56,11 +56,16 @@ SOURCES += main.cpp\
     reportshandler.cpp
 unix {
     SOURCES += DocumentGenerators/writerunixautomation.cpp
+    HEADERS  += DocumentGenerators/writerunixautomation.h
 }
 win32 {
     SOURCES += DocumentGenerators/writerautomation.cpp \
-    SOURCES += DocumentGenerators/wordautomation.cpp \
-    SOURCES += DocumentGenerators/disphelper.c
+    DocumentGenerators/disphelper.c \
+    DocumentGenerators/wordautomation.cpp
+
+    HEADERS  += DocumentGenerators/writerautomation.h \
+    DocumentGenerators/disphelper.h \
+    DocumentGenerators/wordautomation.h
 }
 
 HEADERS  += mainwindow.h \
@@ -85,14 +90,6 @@ HEADERS  += mainwindow.h \
     ticketcommentswidget.h \
     guaranteeonticketreasonwidget.h \
     reportshandler.h
-unix {
-    HEADERS  += DocumentGenerators/writerunixautomation.h
-    }
-win32 {
-    HEADERS  += DocumentGenerators/writerautomation.h \
-    HEADERS  += DocumentGenerators/wordautomation.h \
-    HEADERS  += DocumentGenerators/disphelper.h
-}
 
 FORMS    += mainwindow.ui \
     receiptmanager.ui \
