@@ -11,6 +11,7 @@ class ReceiptManager;
 struct Ticket
 {
     int tId; //ticket id
+    int ctId;
     int cId; // client id
     QString cName;
     QString cPhone;
@@ -27,7 +28,7 @@ class ReceiptManager : public QDialog, SqlExtension
     Q_OBJECT
     
 public:    
-    explicit ReceiptManager(const QString dbConnectionsString, const int id = -1, QWidget *parent = 0);
+    explicit ReceiptManager(const QString dbConnectionsString, const int& id = -1, QWidget *parent = 0);
     ~ReceiptManager();
     
 private slots:

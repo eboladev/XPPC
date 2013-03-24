@@ -6,7 +6,7 @@
 
 #include <QStandardItemModel>
 
-ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int tdcr_id, QWidget *parent) :
+ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int &tdcr_id, QWidget *parent) :
     QDialog(parent),
     SqlExtension(dbConnectionsString),
     currentTicketId(tdcr_id),
@@ -57,6 +57,9 @@ void ReceiptManager::clearFields()
 
 void ReceiptManager::onAccept()
 {
+    if (!editMode && ui->deviceWidget->deviceModel->rowCount() == 0)
+        return;
+
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
@@ -72,8 +75,11 @@ void ReceiptManager::onAccept()
     t.dProblem = ui->deviceWidget->getDeviceProblem();
     t.dSN = ui->deviceWidget->getDeviceSerialNumber();
     t.tId = currentTicketId;
+    t.ctId = -1;
+
     if (editMode)
     {
+        qDebug() << currentTicketId;
         q.prepare("select device.id from device join ticket on (ticket.device_id = device.id) where ticket.id = ?");
         q.addBindValue(currentTicketId);
         q.exec();
@@ -82,7 +88,7 @@ void ReceiptManager::onAccept()
     }
 
     if (t.cId == -1)
-    {
+    {       
         q.prepare("insert into client(name,phone) values(?,?) returning id");
         q.addBindValue(t.cName);
         q.addBindValue(t.cPhone);
@@ -90,15 +96,33 @@ void ReceiptManager::onAccept()
             qDebug() << q.lastError() << q.lastQuery();
         q.next();
         t.cId = q.value(0).toInt();
-     }
-    else
-    {
-        q.prepare("update client set name = ?, phone = ? where id = ?");
-        q.addBindValue(t.cName);
-        q.addBindValue(t.cPhone);
+        q.prepare("insert into client_ticket(client_id) values(?) returning id");
         q.addBindValue(t.cId);
         if (!q.exec())
             qDebug() << q.lastError() << q.lastQuery();
+        q.next();
+        t.ctId = q.value(0).toInt(); //№ квитанции
+     }
+    else
+    {//такой клиент уже есть в базе
+        if (editMode)
+        {
+            q.prepare("update client set name = ?, phone = ? where id = ?");
+            q.addBindValue(t.cName);
+            q.addBindValue(t.cPhone);
+            q.addBindValue(t.cId);
+            if (!q.exec())
+                qDebug() << q.lastError() << q.lastQuery();
+        }
+        else
+        {
+            q.prepare("insert into client_ticket(client_id) values(?) returning id");
+            q.addBindValue(t.cId);
+            if (!q.exec())
+                qDebug() << q.lastError() << q.lastQuery();
+            q.next();
+            t.ctId = q.value(0).toInt(); //№ квитанции
+        }
     }
 
     if (editMode)
@@ -166,7 +190,26 @@ void ReceiptManager::onAccept()
 
     if (!editMode)
     {
-        q.exec("select max(ticket_id) from ticket");
+        if (t.dId > 0)
+        {
+            q.prepare("insert into ticket(device_id,ticket_id) VALUES(?,?)");
+            q.addBindValue(t.dId);
+            q.addBindValue(t.ctId);
+            if (!q.exec())
+                qDebug() << q.lastError() << q.lastQuery();
+        }
+        else
+        {
+            while (!deviceIdList.isEmpty())
+            {
+                q.prepare("insert into ticket(device_id,ticket_id) VALUES(?,?)");
+                q.addBindValue(deviceIdList.takeFirst());
+                q.addBindValue(t.ctId);
+                if (!q.exec())
+                    qDebug() << q.lastError() << q.lastQuery();
+            }
+        }
+       /* q.exec("select max(ticket_id) from ticket");
         q.next();
         t.tId = q.value(0).toInt() + 1;
         if (t.dId > 0)
@@ -189,7 +232,7 @@ void ReceiptManager::onAccept()
                 if (!q.exec())
                     qDebug() << q.lastError() << q.lastQuery();
             }
-        }
+        }*/
     }
 
     accept();
@@ -203,8 +246,9 @@ void ReceiptManager::fillFields(int id)
     q.prepare("select "
               "client.name, client.phone, device.name, device.serial, "
               "device.problem, device.condition, branch.id, client.id "
-              "from ticket "
-              "join client on(ticket.client_id = client.id) "
+              "from client_ticket "
+              "join client on(client_ticket.client_id = client.id) "
+              "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
               "join device on(ticket.device_id = device.id) "
               "join branch on (device.branch_id = branch.id) "
               "where ticket.id = ?");

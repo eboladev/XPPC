@@ -27,6 +27,9 @@ TEMPLATE = app
 
 INCLUDEPATH += $$PWD
 
+CONFIG(debug, debug|release):DEFINES += DEBUG
+CONFIG(release, debug|release):DEFINES += RELEASE
+
 win32 {
     SOURCES += $$PWD/ActiveX/acropdflib.cpp
     HEADERS += $$PWD/ActiveX/acropdflib.h

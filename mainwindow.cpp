@@ -103,6 +103,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuLoginStatus->setVisible(false);
     ui->menuLoginStatus->setHidden(true);
 #endif
+#ifdef RELEASE
+    ui->menuShowcase->setEnabled(false);
+    ui->tabWidget->setTabEnabled(1,false);
+#endif
    // updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
@@ -138,13 +142,18 @@ void MainWindow::changeTicketStatus(const int &status)
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
+
     QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
     for (int i = 0 ; i < qmil.count(); ++i)
     {
         if (qmil.at(i).column() != TicketNumber)
             continue;
-        q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
+        q.prepare(QString("update device set status = ? %0 "
+                          "where device.id = (select device_id from ticket where id = ?)")
+                  .arg(status == Closed ? ", date_givenout = ?" : ""));
         q.addBindValue(status);
+        if (status == Closed)
+            q.addBindValue(QDate::currentDate().toString("dd.MM.yyyy"));
         q.addBindValue(getCurrentTDCRId(qmil.at(i)));
         if (!q.exec())
             qDebug() << q.lastError() << q.lastQuery();
@@ -331,18 +340,47 @@ void MainWindow::onActionCategoryProductsClicked()
 
 QString MainWindow::generateTicketQuery()
 {
-    return QString("select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
+   /* return QString("select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
                    "client.name, client.phone, device.name, device.serial, device.problem, "
                    "client_notified %0 ,ticket_guarantee.date_accepted, ticket_guarantee.id, "
                    "ticket_guarantee.date_closed "
                    "from ticket "
                    "join client on(ticket.client_id = client.id) "
                    "join device on(ticket.device_id = device.id) "
-                   "join branch on(device.branch_id = branch.id) "
+                   "join branch on(device.branch_id = branch.id) "                   
                    "left join ticket_guarantee on (ticket_guarantee.tdc_r_id = ticket.id) "
                    "where device.status = %1 "
                    "ORDER BY ticket.ticket_id DESC %2")
             .arg(currentStatus == Closed ? ", device.price, device.date_givenout" : "")
+            .arg(QString::number(currentStatus))
+            .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));*/
+    return QString("SELECT "
+                   "ticket.id, " //0
+                   "ticket.ticket_id, "  //1
+                   "device.date_accepted, " //2
+                   "branch.branch_name, " //3
+                   "client.name, " //4
+                   "client.phone, " //5
+                   "device.name, " //6
+                   "device.serial, " //7
+                   "device.problem, " //8
+                   "ticket.client_notified, " //9
+                   "%0 " //10,11
+                   "ticket_guarantee.date_accepted, " //10,12
+                   "ticket_guarantee.id, " //11,13
+                   "ticket_guarantee.date_closed " //12,14
+                   "FROM "
+                   "client_ticket "
+                   "INNER JOIN client ON (client_ticket.client_id = client.id) "
+                   "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+                   "left JOIN ticket_guarantee ON (ticket.id = ticket_guarantee.tdc_r_id) "
+                   "INNER JOIN device ON (device.id = ticket.device_id) "
+                   "INNER JOIN branch ON (device.branch_id = branch.id) "
+                   "WHERE "
+                   "device.status = %1 "
+            "ORDER BY "
+            "ticket.id DESC %2")
+            .arg(currentStatus == Closed ? "device.price, device.date_givenout, " : "")
             .arg(QString::number(currentStatus))
             .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
@@ -462,9 +500,9 @@ void MainWindow::refreshTicketModel(const QString &query)
         device_problem->setToolTip(QString("<table><tr><td>").append(q.value(8).toString()).append("</td></td></table>"));
         if (currentStatus==Closed)
         {
-            QStandardItem* ticket_price = new QStandardItem(q.value(9).toString());
+            QStandardItem* ticket_price = new QStandardItem(q.value(10).toString());
             ticket_price->setToolTip(q.value(9).toString());            
-            QStandardItem* ticket_givenout = new QStandardItem(q.value(10).toDate().toString("dd-MM-yyyy"));
+            QStandardItem* ticket_givenout = new QStandardItem(q.value(11).toDate().toString("dd-MM-yyyy"));
             ticket_givenout->setToolTip(ticket_givenout->text());
             if (!q.value(12).toString().isEmpty() && q.value(14).toString().isEmpty())
             {
@@ -695,7 +733,7 @@ void MainWindow::on_pushButtonSearch_clicked()
                 "from ticket "
                 "join client on(ticket.client_id = client.id) "
                 "join device on(ticket.device_id = device.id) "
-                "join branch on(device.branch_id = branch.id) "
+                "join branch on(device.branch_id = branch.id) "                
                 "left join ticket_guarantee on (ticket_guarantee.tdc_r_id = ticket.id) "
                 "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') "
                 "or client.name LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"

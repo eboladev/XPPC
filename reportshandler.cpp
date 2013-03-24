@@ -257,6 +257,7 @@ QString ReportsHandler::getTemplateType(const int &ticket_id)
     return  ".\\Reports\\ticket.dotx";
 }
 
+#ifdef OS_WIN32
 bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_id)
 {        
     QSqlQuery q;
@@ -340,3 +341,4 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
         wa.insertText(QDateTime::currentDateTime().toString("dd-MM-yyyy"));
     return true;
 }
+#endif
