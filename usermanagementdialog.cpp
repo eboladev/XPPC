@@ -73,8 +73,10 @@ void UserManagementDialog::onCustomContextMenuRequested(const QPoint &pos)
             menu->addAction(trUtf8("Уволить"), this, SLOT(onFireEmployee()));
         if (ui->radioButtonFired->isChecked())
             menu->addAction(trUtf8("Восстановить"), this, SLOT(onFireEmployee()));
+#ifdef RELEASE
         qDebug() << SetupManager::instance()->getCurrentUser();
         if (SetupManager::instance()->getCurrentUser() == model->item(proxy->mapToSource(ui->treeViewUsers->currentIndex()).row(),0)->text())
+#endif
             menu->addAction(trUtf8("Логин\\пароль"),this, SLOT(onChangeLoginpass()));
     }
     menu->exec(QCursor::pos());
