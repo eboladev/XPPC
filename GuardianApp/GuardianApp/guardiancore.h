@@ -42,6 +42,7 @@ private:
     void saveLogFile(QFileInfo);
     bool compressToZip(const QByteArray& data,const QString& fileName, const QString& archiveFileName);
     void sendMail();
+    void fillExampleConfig();
 
 private slots:
     void onStateChanges(QProcess::ProcessState);

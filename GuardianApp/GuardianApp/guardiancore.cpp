@@ -55,6 +55,7 @@ bool GuardianCore::checkConfig()
 
     if (!s.contains("base/Executable"))
     {
+        fillExampleConfig();
         qDebug() << "nothing to guard, executable_path variable is empty";
         return false;
     }
@@ -83,7 +84,10 @@ bool GuardianCore::checkConfig()
                     senderName.isEmpty() ||
                     senderEMail.isEmpty() ||
                     mailTo.isEmpty())
+            {
+                fillExampleConfig();
                 sendLog = false;
+            }
         }
 
         QString logsPath = s.contains("base/LogsDir") ? s.value("base/LogsDir").toString() : "";
@@ -164,7 +168,6 @@ void GuardianCore::saveLogFile(QFileInfo fi)
             fileName.append(".zip");
             MimeAttachment *mime = new MimeAttachment(new QFile(fileName));
             QFile log(QDir::toNativeSeparators(filePath));
-            qDebug () << "log file opened" << log.open(QIODevice::ReadOnly);
             mime->setContent(log.readAll());
             log.close();
             currentEMail.attachementsList.append(mime);
@@ -179,17 +182,8 @@ void GuardianCore::saveLogFile(QFileInfo fi)
     else
     {
         filePath.append(".txt");
-        // source.copy(filePath);
-        /*QFile target(filePath);
-        if (!target.open(QIODevice::WriteOnly))
-        {
-            qDebug() << "cant save log file" << filePath;
-            return;
-        }
-        target.write(source.readAll());
-        target.close();*/
+        source.copy(filePath);
     }
-
     source.close();
 }
 
@@ -210,10 +204,6 @@ bool GuardianCore::compressToZip(const QByteArray& data,const QString& fileName,
 
 void GuardianCore::sendMail()
 {
-   /* if (currentEMail.recipientsList.isEmpty())
-    {
-        return;
-    }*/
     // создаём объект smtp клиента
     SmtpClient smtp(smtpAddress, smtpPort, SmtpClient::TcpConnection);
 
@@ -264,17 +254,29 @@ void GuardianCore::sendMail()
         message.deletePart(mime);
 }
 
+void GuardianCore::fillExampleConfig()
+{
+    QSettings s(getSettingsFile(),QSettings::IniFormat);
+    QStringList sl;
+    sl << "base/Executable" << "base/ProcessLogs" << "base/LogsDir"
+       << "base/CompressLogs" << "base/SaveLogsDir" <<
+          "email/SendLog" << "email/MailTo" << "email/SMTPAddress" <<
+          "email/SMTPPort" << "email/SMTPLogin" << "email/SMTPPass" <<
+          "email/SMTPSenderName" << "email/SMTPSenderAddress";
+    foreach (QString value, sl)
+        if (!s.contains(value))
+            s.setValue(value,QVariant());
+    exit(-1);
+}
+
 void GuardianCore::onStateChanges(QProcess::ProcessState state)
 {
     QProcess *process = qobject_cast<QProcess*>(sender());
 
-    //qDebug() << process->error();
-    //qDebug() << process->exitCode();
     if (process->exitCode() != 0)
     {
         if (processLogs)        
             saveLogFile(getLastFileInLogs());
-        //qDebug() << process->readAllStandardError() << process->readAllStandardOutput();
         initProcess();
         startProgram(executable);
     }    
