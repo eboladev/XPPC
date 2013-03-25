@@ -339,21 +339,7 @@ void MainWindow::onActionCategoryProductsClicked()
 }
 
 QString MainWindow::generateTicketQuery()
-{
-   /* return QString("select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
-                   "client.name, client.phone, device.name, device.serial, device.problem, "
-                   "client_notified %0 ,ticket_guarantee.date_accepted, ticket_guarantee.id, "
-                   "ticket_guarantee.date_closed "
-                   "from ticket "
-                   "join client on(ticket.client_id = client.id) "
-                   "join device on(ticket.device_id = device.id) "
-                   "join branch on(device.branch_id = branch.id) "                   
-                   "left join ticket_guarantee on (ticket_guarantee.tdc_r_id = ticket.id) "
-                   "where device.status = %1 "
-                   "ORDER BY ticket.ticket_id DESC %2")
-            .arg(currentStatus == Closed ? ", device.price, device.date_givenout" : "")
-            .arg(QString::number(currentStatus))
-            .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));*/
+{   
     return QString("SELECT "
                    "ticket.id, " //0
                    "ticket.ticket_id, "  //1

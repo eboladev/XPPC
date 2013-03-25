@@ -257,7 +257,7 @@ QString ReportsHandler::getTemplateType(const int &ticket_id)
     return  ".\\Reports\\ticket.dotx";
 }
 
-#ifdef OS_WIN32
+#ifdef Q_OS_WIN32
 bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_id)
 {        
     QSqlQuery q;
@@ -275,9 +275,10 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
               "device.condition, "
               "ticket.ticket_id "
               "FROM "
-              "ticket "
-              "INNER JOIN client ON (ticket.client_id = client.id) "
-              "INNER JOIN device ON (ticket.device_id = device.id) "
+              "client_ticket "
+              "INNER JOIN client ON (client_ticket.client_id = client.id) "
+              "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+              "INNER JOIN device ON (device.id = ticket.device_id) "
               "where ticket.id = ?");
     q.addBindValue(ticket_id);
     if (!q.exec())
