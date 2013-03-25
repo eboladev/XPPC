@@ -56,7 +56,9 @@ SOURCES += main.cpp\
     querylimitcomboboxwidget.cpp \
     ticketcommentswidget.cpp \
     guaranteeonticketreasonwidget.cpp \
-    reportshandler.cpp
+    reportshandler.cpp \
+    reportssettings.cpp \
+    reportselectionwidget.cpp
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -92,7 +94,9 @@ HEADERS  += mainwindow.h \
     globals.h \
     ticketcommentswidget.h \
     guaranteeonticketreasonwidget.h \
-    reportshandler.h
+    reportshandler.h \
+    reportssettings.h \
+    reportselectionwidget.h
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }
@@ -112,7 +116,9 @@ FORMS    += mainwindow.ui \
     branchselectionwidget.ui \
     querylimitcomboboxwidget.ui \
     ticketcommentswidget.ui \
-    guaranteeonticketreasonwidget.ui
+    guaranteeonticketreasonwidget.ui \
+    reportssettings.ui \
+    reportselectionwidget.ui
 
 RESOURCES += \
     Resources.qrc

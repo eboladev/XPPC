@@ -38,5 +38,13 @@ enum TicketFastInfoTabs
     TicketJobs = 0,
     TicketComments
 };
+enum ReportTypes
+{
+    TicketReport = 0,
+    JobListReport = 1,
+    CashReceiptReport = 2,
+    PricetTagReport = 3,
+    CashCheckReport = 4
+};
 
 #endif // GLOBALS_H

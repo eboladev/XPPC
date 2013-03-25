@@ -13,14 +13,17 @@ class ReportsHandler : public QObject
     Q_OBJECT
 public:
     explicit ReportsHandler(QObject *parent = 0);
-    static bool openTicketReports(const int& ticket_id);
+    static bool openReport(const int& ticket_id, const int& report_type);
     static bool saveTicketReports(const QString &path, const int& ticket_id);    
 
 private:    
-    QString money(double n);
-    static QString getTemplateType(const int& ticket_id);
+    static QString money(double n);
+    static QString getTemplateType(const int& template_type);
+    static QString getTemplatePath(const int& report_type);
 #ifdef Q_OS_WIN32
+    static bool loadTemplate(WordAutomation &wa, const int& report_type);
     static bool generateTicketReport(WordAutomation &wa, const int& ticket_id);
+    static bool generateJobObTicketReport(WordAutomation &wa, const int& ticket_id);
     //static bool generateTicketReport(WriterAutomation &wa, const QString &scenarioLogId);
 #endif
     

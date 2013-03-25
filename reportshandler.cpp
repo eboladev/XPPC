@@ -1,5 +1,6 @@
 #include "reportshandler.h"
 #include "setupmanager.h"
+#include "globals.h"
 
 #include <QTemporaryFile>
 #include <QDir>
@@ -9,11 +10,13 @@ ReportsHandler::ReportsHandler(QObject *parent) :
 {
 }
 
-bool ReportsHandler::openTicketReports(const int &ticket_id)
+bool ReportsHandler::openReport(const int &ticket_id, const int &report_type)
 {
 #ifdef Q_OS_WIN32
     bool res = false;
-    QString templateType = getTemplateType(ticket_id);
+    qDebug() << report_type;
+    QString templateType = getTemplateType(report_type);
+    qDebug() << templateType;
     /*if (templateType.contains(".ott"))
     {
         WriterAutomation wa;
@@ -28,14 +31,49 @@ bool ReportsHandler::openTicketReports(const int &ticket_id)
         {
             qDebug() << "template ok";
             WordAutomation wa;
-            if (generateTicketReport(wa, ticket_id))
+            switch(report_type)
             {
-                wa.setQuitFromWordAutomaticaly(false);
-                wa.setVisible(true);
-                res = true;
+            case TicketReport:
+            {
+                if (generateTicketReport(wa, ticket_id))
+                {
+                    wa.setQuitFromWordAutomaticaly(false);
+                    wa.setVisible(true);
+                    res = true;
+                }
+                else
+                    wa.setQuitFromWordAutomaticaly(true);
             }
-            else
-                wa.setQuitFromWordAutomaticaly(true);
+                break;
+            case JobListReport:
+            {
+                if (generateJobObTicketReport(wa, ticket_id))
+                {
+                    wa.setQuitFromWordAutomaticaly(false);
+                    wa.setVisible(true);
+                    res = true;
+                }
+                else
+                    wa.setQuitFromWordAutomaticaly(true);
+            }
+                break;
+            case CashReceiptReport:
+            {
+
+            }
+                break;
+            case PricetTagReport:
+            {
+
+            }
+                break;
+            case CashCheckReport:
+            {
+
+            }
+                break;
+            }
+
         }
     return res;
 #endif
@@ -252,18 +290,88 @@ QString ReportsHandler::money(double n)
         return s;
 }
 
-QString ReportsHandler::getTemplateType(const int &ticket_id)
+QString ReportsHandler::getTemplateType(const int &template_type)
 {
-    return  ".\\Reports\\ticket.dotx";
+    QSqlQuery q;
+
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return "";
+
+    q.prepare("select report_path from reports where branch_id = ? and report_type = ?");
+    q.addBindValue(SetupManager::instance()->getCurrentBranch());
+    q.addBindValue(template_type);
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+
+    if (!q.next())
+        return "";
+
+    QRegExp re;
+    re.setPattern("[//*\\\\*](\\w*\\d*\\.\\w*)");
+    if (re.indexIn(q.value(0).toString(),0) >= 0)
+        return re.cap(1); //filename;
+    else
+        return "";
+}
+
+QString ReportsHandler::getTemplatePath(const int &report_type)
+{
+    QSqlQuery q;
+
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return "";
+
+    q.prepare("select report_path from reports where branch_id = ? and report_type = ?");
+    q.addBindValue(SetupManager::instance()->getCurrentBranch());
+    q.addBindValue(report_type);
+
+    if (!q.exec())
+    {
+        qDebug() << q.lastError() << q.lastQuery();
+        return "";
+    }
+
+    if (!q.next())
+        return "";
+
+    return q.value(0).toString();
+}
+
+bool ReportsHandler::loadTemplate(WordAutomation &wa, const int &report_type)
+{
+    QString templateName = QDir::tempPath() + "/templateXXXXXX.doc";
+    templateName = QDir::toNativeSeparators(templateName);
+
+    QTemporaryFile tempFile(templateName);
+    if (!tempFile.open())
+        return false;
+
+    QFile repDot(getTemplatePath(report_type));
+
+    if (!repDot.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "template didnt open";
+        return false;
+    }
+    tempFile.write(repDot.readAll());
+    tempFile.close();
+
+    if (!wa.loadDocument(tempFile.fileName(), true))
+        return false;
+    else
+        return true;
 }
 
 #ifdef Q_OS_WIN32
 bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_id)
 {        
     QSqlQuery q;
+
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return false;
+
     wa.setQuitFromWordAutomaticaly(true);
+
     if (!wa.isWordPresent())
         return false;
 
@@ -281,10 +389,16 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
               "INNER JOIN device ON (device.id = ticket.device_id) "
               "where ticket.id = ?");
     q.addBindValue(ticket_id);
+
     if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
+    {
+        qDebug() << q.lastError() << q.lastQuery();        
+        return false;
+    }
+
     if (!q.next())
         return false;
+
     QString clientName(q.value(0).toString());
     QString clientPhone(q.value(1).toString());
     QString deviceName(q.value(2).toString());
@@ -292,23 +406,7 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
     QString deviceCondition(q.value(4).toString());
     QString ticketId(q.value(5).toString());
 
-    QString templateName = QDir::tempPath() + "/templateXXXXXX.doc";
-    templateName = QDir::toNativeSeparators(templateName);
-
-    QTemporaryFile tempFile(templateName);
-    if (!tempFile.open())
-        return false;
-
-    QFile repDot("..\\Reports\\ticket2.dotx");
-    QFileInfo fi(repDot);
-    if (!repDot.open(QIODevice::ReadOnly))
-    {
-        qDebug() << "template didnt open";
-    }
-    tempFile.write(repDot.readAll());
-    tempFile.close();    
-
-    if (!wa.loadDocument(tempFile.fileName(), true))
+    if (!loadTemplate(wa,TicketReport))
         return false;
 
     if (wa.findBookmarkByName("client_name"))
@@ -341,5 +439,89 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
     if (wa.findBookmarkByName("current_date2"))
         wa.insertText(QDateTime::currentDateTime().toString("dd-MM-yyyy"));
     return true;
+}
+
+bool ReportsHandler::generateJobObTicketReport(WordAutomation &wa, const int &ticket_id)
+{
+    QSqlQuery q;
+
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return false;
+
+    wa.setQuitFromWordAutomaticaly(true);
+
+    if (!wa.isWordPresent())
+        return false;
+
+    if (!loadTemplate(wa,JobListReport))
+        return false;
+
+    if (wa.findTableByName("jobTable"))
+    {
+        q.prepare("select job_name,job_quantity,job_price from JobOnTicket "
+                  " where tdc_r_id=?");
+        q.addBindValue(ticket_id);
+        if (!q.exec())
+        {
+            qDebug() << q.lastError() << q.lastQuery();
+            return false;
+        }
+
+        int row = 1;
+        int currentRow = 2;
+        int totalPrice = 0;
+        while (q.next())
+        {
+            wa.insertRows(1);
+            if (wa.selectCellInTableByPos(1,currentRow))
+                wa.insertText(QString::number(row));
+            if (wa.selectCellInTableByPos(2,currentRow))
+                wa.insertText(q.value(0).toString());
+            if (wa.selectCellInTableByPos(3,currentRow))
+                wa.insertText(trUtf8("шт."));
+            if (wa.selectCellInTableByPos(4,currentRow))
+                wa.insertText(q.value(1).toString());
+            if (wa.selectCellInTableByPos(5,currentRow))
+                wa.insertText(q.value(2).toString());
+            if (wa.selectCellInTableByPos(6,currentRow))
+                wa.insertText(QString::number(q.value(1).toInt()*q.value(2).toInt()));
+            totalPrice += q.value(1).toInt()*q.value(2).toInt();
+            ++row;
+            ++currentRow;
+        }
+        wa.insertRows(1);
+        if (wa.selectCellInTableByPos(2,currentRow))
+            wa.insertText(trUtf8("Итого:"));
+        if (wa.selectCellInTableByPos(6,currentRow))
+            wa.insertText(QString::number(totalPrice));
+        if (wa.findBookmarkByName("jobs_total"))
+            wa.insertText(QString::number(row-1));
+        if (wa.findBookmarkByName("current_date"))
+            wa.insertText(QDate::currentDate().toString("dd.MM.yyyy"));
+        if (wa.findBookmarkByName("current_date2"))
+            wa.insertText(QDate::currentDate().toString("dd.MM.yyyy"));
+
+        q.prepare("select client.name, client_ticket.id "
+                  "FROM "
+                  "client_ticket "
+                  "INNER JOIN client ON (client_ticket.client_id = client.id) "
+                  "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) where ticket.id = ?");
+        q.addBindValue(ticket_id);
+        q.exec();
+        if (q.next())
+        {
+            if (wa.findBookmarkByName("client_name"))
+                wa.insertText(q.value(0).toString());
+            if (wa.findBookmarkByName("client_name2"))
+                wa.insertText(q.value(0).toString());
+            if (wa.findBookmarkByName("ticket_id"))
+                wa.insertText(q.value(1).toString());
+            if (wa.findBookmarkByName("ticket_id2"))
+                wa.insertText(q.value(1).toString());
+        }
+        if (wa.findBookmarkByName("total_price"))
+            wa.insertText(money(totalPrice));
+        return true;
+    }
 }
 #endif

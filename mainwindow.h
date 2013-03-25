@@ -41,6 +41,7 @@ private slots:
     void onActionUserManagementClicked();
     void onChangeUserInPopupMenu();
     void onRejectUserInPopupMenu();
+    void onActionReportSettignsClicked();
     void changePermissions();
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
@@ -79,6 +80,7 @@ private slots:
     void onRemoveCommentClicked();
 
     void onGenerateTicketReport();
+    void onGenerateJobListReport();
 
     void onNotAGuaranteeClicked();
     void onAcceptAGuaranteeClicked();

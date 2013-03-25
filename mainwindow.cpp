@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "guaranteeonticketreasonwidget.h"
 #include "reportshandler.h"
+#include "reportssettings.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -43,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     currentStatus = InWork;
 
     connect(ui->tableViewTicket, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCustomContextMenuRequested(QPoint)));
+    connect(ui->actionReportSettings, SIGNAL(triggered()), SLOT(onActionReportSettignsClicked()));
     connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()), SLOT(onAddTicketClicked()));
     connect(ui->actionOnJobListClicked,SIGNAL(triggered()), SLOT(onJobListClicked()));
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()), SLOT(close()));
@@ -53,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUserControl, SIGNAL(triggered()), SLOT(onActionUserManagementClicked()));
     connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
     connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
+    connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()), SLOT(onGenerateJobListReport()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
@@ -775,7 +778,12 @@ void MainWindow::onRemoveCommentClicked()
 
 void MainWindow::onGenerateTicketReport()
 {
-    qDebug() << "report generated" << ReportsHandler::openTicketReports(getCurrentTDCRId().toInt());
+    qDebug() << "report generated" << ReportsHandler::openReport(getCurrentTDCRId().toInt(),TicketReport);
+}
+
+void MainWindow::onGenerateJobListReport()
+{
+    qDebug() << "report generated" << ReportsHandler::openReport(getCurrentTDCRId().toInt(),JobListReport);
 }
 
 void MainWindow::onNotAGuaranteeClicked()
@@ -1157,4 +1165,32 @@ void MainWindow::onRejectUserInPopupMenu()
 {
     ui->menuCurrentUser->hide();    
     cud->setVisible(true);
+}
+
+void MainWindow::onActionReportSettignsClicked()
+{
+    QString dbConnectionString = "REPORTMANAGEMENT";
+    {
+        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
+        if (!db.isOpen())
+        {
+            QSqlDatabase::removeDatabase(dbConnectionString);
+            return;
+        }
+
+        db.transaction();
+        ReportsSettings* rs = new ReportsSettings(dbConnectionString,this);
+        if (rs->exec())
+            db.commit();
+        else
+            db.rollback();
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(dbConnectionString);
 }

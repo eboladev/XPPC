@@ -763,7 +763,7 @@
       <string>Печать</string>
      </property>
      <addaction name="actionPrintTicket"/>
-     <addaction name="action_12"/>
+     <addaction name="actionJobOnTicketPrint"/>
      <addaction name="action_13"/>
     </widget>
     <addaction name="actionOnAddReceiptClicked"/>
@@ -779,6 +779,7 @@
     <addaction name="actionBranchTriggered"/>
     <addaction name="actionAddProductCategory"/>
     <addaction name="actionUserControl"/>
+    <addaction name="actionReportSettings"/>
    </widget>
    <widget class="QMenu" name="menuCurrentUser">
     <property name="tearOffEnabled">
@@ -926,7 +927,7 @@
     <string>Квитанция</string>
    </property>
   </action>
-  <action name="action_12">
+  <action name="actionJobOnTicketPrint">
    <property name="text">
     <string>Акт выполненных работ</string>
    </property>
@@ -1028,6 +1029,11 @@
   <action name="action_2">
    <property name="text">
     <string>Список отсутствующих товаров</string>
+   </property>
+  </action>
+  <action name="actionReportSettings">
+   <property name="text">
+    <string>Настройки документов</string>
    </property>
   </action>
  </widget>
