@@ -4,6 +4,27 @@
 #include <QObject>
 #include <QProcess>
 #include <QFileInfo>
+#include <QDir>
+#include <QQueue>
+#include "SmtpClient/src/smtpclient.h"
+
+struct EMailToSend
+{
+    // Тело письма
+    QString mailBody;
+
+    // тема письма
+    QString mailSubject;
+
+    // список вложений
+    QList<MimePart*> attachementsList;
+
+    // список получателей
+    QList<EmailAddress*> recipientsList;
+
+    // идентификатор
+    int id;
+};
 
 class GuardianCore : public QObject
 {
@@ -18,8 +39,9 @@ private:
     bool checkConfig();
     void initProcess();
     QFileInfo getLastFileInLogs();
-    void saveCompressedFile(QFileInfo);
-    void compressToZip(QByteArray data, QString fileName, QString archiveFileName);
+    void saveLogFile(QFileInfo);
+    bool compressToZip(const QByteArray& data,const QString& fileName, const QString& archiveFileName);
+    void sendMail();
 
 private slots:
     void onStateChanges(QProcess::ProcessState);
@@ -27,8 +49,20 @@ private slots:
 private:
     QString executable;
     bool processLogs;
-    QString logsPath;
+    bool compressLogs;
+    bool sendLog;
+    int previousValue;
+    QDir logsDir;
+    QDir logsSaveDir;
     QProcess* processGlobal;
+    QString smtpAddress;
+    int smtpPort;
+    QString smtpUserName;
+    QString smtpPassword;
+    QString senderName;
+    QString senderEMail;
+    QString mailTo;
+    EMailToSend currentEMail;
 };
 
 #endif // GUARDIANCORE_H
