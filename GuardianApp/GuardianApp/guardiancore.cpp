@@ -28,11 +28,7 @@ GuardianCore::~GuardianCore()
 
 QString GuardianCore::getSettingsFile()
 {
-#ifdef Q_OS_UNIX
-    return QDir::homePath() + "/guardiansettings.ini";
-#else
-    return QDir::homePath() + ".\\guardiansettings.ini";
-#endif
+    return QDir::toNativeSeparators(QDir::homePath() + QDir::separator() + "guardiansettings.ini");
 }
 
 void GuardianCore::startProgram(QString &executable_path)
@@ -50,7 +46,7 @@ void GuardianCore::startProgram(QString &executable_path)
 bool GuardianCore::checkConfig()
 {
     QSettings s(getSettingsFile(), QSettings::IniFormat);
-
+    qDebug() << getSettingsFile();
     QString executable_path = s.contains("base/Executable") ? s.value("base/Executable").toString() : "";
 
     if (!s.contains("base/Executable"))
@@ -60,7 +56,7 @@ bool GuardianCore::checkConfig()
         return false;
     }
 
-    processLogs = s.value("base/ProcessLogs").toBool();
+    processLogs = s.contains("base/ProcessLogs") ?  s.value("base/ProcessLogs").toBool() : false ;
 
     if (processLogs)
     {
@@ -105,6 +101,7 @@ bool GuardianCore::checkConfig()
 
     if (!executableFile.exists())
     {
+        fillExampleConfig();
         qDebug() << "executable file unreachable";
         return false;
     }
@@ -266,6 +263,11 @@ void GuardianCore::fillExampleConfig()
     foreach (QString value, sl)
         if (!s.contains(value))
             s.setValue(value,QVariant());
+    QTimer t;
+    QEventLoop el;
+    connect(&t, SIGNAL(timeout()), &el, SLOT(quit()));
+    t.start(3000);
+    el.exec();
     exit(-1);
 }
 

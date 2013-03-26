@@ -33,7 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
     jobModel = new QStandardItemModel(this);
     ui->treeViewJobsOnTicket->setModel(jobModel);       
     ui->groupBoxFastTicketInfo->setVisible(false);
-
+#ifdef RELEASE
+    ui->tabWidget->setCurrentIndex(0);
+#endif
     ticketModel = new QStandardItemModel(this);
     ticketProxy = new QSortFilterProxyModel(this);
     ticketProxy->setSourceModel(ticketModel);
