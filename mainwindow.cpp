@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()), SLOT(onAddTicketClicked()));
     connect(ui->actionOnJobListClicked,SIGNAL(triggered()), SLOT(onJobListClicked()));
     connect(ui->actionExitMenuClicked,SIGNAL(triggered()), SLOT(close()));
-    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()), SLOT(onSettingsClicked()));
+    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()), SLOT(onDBSettingsClicked()));
     connect(ui->actionBranchTriggered,SIGNAL(triggered()), SLOT(onActionBranchesTriggered()));
     connect(ui->actionCloseTicket,SIGNAL(triggered()), SLOT(onCloseTicketClicked()));
     connect(ui->actionChangeUser, SIGNAL(triggered()), SLOT(onActionChangeUserClicked()));
@@ -382,6 +382,7 @@ QString MainWindow::generateTicketQuery()
 bool MainWindow::changeUser(const QString &login, const QString &password)
 {
     QString passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
+
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return false;    
@@ -391,13 +392,14 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     if (!q.next())
     {
         QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Ошибка входа!"));
-        qDebug() << q.lastQuery() << login;
+        qDebug() << q.lastQuery() << login;        
         return false;
     }
 
     int permissions = q.value(3).toInt();
     QString fio = q.value(1).toString();
     QString passwordB = q.value(0).toString().remove(0,2); //remove the \x escape character(thanks for postgress for adding it >_>)
+    QVariant currentUserId = q.value(2);
     if (passwordHash != passwordB)
     {
         QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Пароль не православный!"));
@@ -407,6 +409,7 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     currentEmployeeId = q.value(2).toInt();
     SetupManager::instance()->setCurrentUser(login);
     SetupManager::instance()->setPermissons(permissions);
+    SetupManager::instance()->setCurrentUserId(currentUserId);
     changePermissions();
     currentEmployeeName = fio;
     ui->menuCurrentUser->setTitle(fio);
@@ -578,9 +581,11 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
 {
     try
     {
+        qDebug() << "trying to remove db" << dbConnectionName;
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
-        ticketModel->removeColumns(0,ticketModel->columnCount());
+        ticketModel->removeColumns(0,ticketModel->columnCount());        
+        qDebug() << QSqlDatabase::connectionNames();
         return true;
     }
     catch(...)
@@ -596,7 +601,7 @@ bool MainWindow::settingsIsNotEmpty()
     return settings.allKeys().count();
 }
 
-void MainWindow::onSettingsClicked()
+void MainWindow::onDBSettingsClicked()
 {   
     ConnectDialog cd(this);
     if (cd.exec())
@@ -946,8 +951,7 @@ void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
 {
     QMenu *menu = new QMenu(this);
     connect(menu, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
-    QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
-
+    QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedRows(TicketNumber);
     QModelIndex ind = ui->tableViewTicket->indexAt(pos);
     menu->addAction(trUtf8("Добавить квитанцию"), this, SLOT(onAddTicketClicked()));
     if (ind.isValid())
@@ -1064,12 +1068,8 @@ void MainWindow::onQueryLimitComboBoxIndexChanged(int)
 
 void MainWindow::on_actionConnect_triggered()
 {
-    if (!connectToDb(CONNECTIONNAME))
-    {
-        qDebug() << "failed to connect to DB on action connect";
-        return;
-    }    
-    refreshTicketModel(generateTicketQuery());
+    if (connectToDb(CONNECTIONNAME))
+        refreshTicketModel(generateTicketQuery());
 }
 
 void MainWindow::on_actionDisconnect_triggered()

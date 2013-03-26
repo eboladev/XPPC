@@ -2,8 +2,13 @@
 #include "ui_joblistonreceiptdialog.h"
 #include "setupmanager.h"
 #include "globals.h"
+#include "employeewidget.h"
+#include "jobitemmodel.h"
+#include "joblistitemmodel.h"
 
-#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QCompleter>
+#include <QTreeView>
 
 JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString, const int &id, QWidget *parent) :
     QDialog(parent),
@@ -11,17 +16,57 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     m_id(id),
     ui(new Ui::JobListOnReceiptDialog)
 {
-    ui->setupUi(this);
-
-    model = new QStandardItemModel(this);
-    ui->tableView->setModel(model);
+    ui->setupUi(this);    
+    jobsModel = new JobItemModel(dbConnectionsString, this);
+    ui->tableViewJobs->setModel(jobsModel);
     setWindowTitle(trUtf8("Управление списком работ по квитанции №").append(QString::number(id)));
     connect(ui->pushButtonOK, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->pushButtonCancel,SIGNAL(clicked()),this, SLOT(reject()));
-    connect(ui->pushButtonCheckReady,SIGNAL(clicked()),this,SLOT(on_pushButtonCheckReady_clicked()));
+    connect(ui->pushButtonAddJob, SIGNAL(clicked()), this, SLOT(onPushButtonAddJobClicked()));
+    connect(ui->pushButtonDeleteJob, SIGNAL(clicked()), this, SLOT(onPushButtonDeleteJobClicked()));
     connect(ui->pushButtonUpdateJob, SIGNAL(clicked()), this, SLOT(onUpdateClicked()));
-    connect(ui->tableView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentSelectionChanged(QModelIndex,QModelIndex)));
-    getEmployeeList();
+    connect(ui->pushButtonClearField, SIGNAL(clicked()), this, SLOT(clearField()));
+    connect(ui->tableViewJobs->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentSelectionChanged(QModelIndex,QModelIndex)));
+
+    connect(ui->lineEditJobName, SIGNAL(textChanged(QString)), this, SLOT(onJobStateHasChanged()));
+    connect(ui->lineEditGuarantee, SIGNAL(textChanged(QString)), this, SLOT(onJobStateHasChanged()));
+    connect(ui->lineEditPrice, SIGNAL(textChanged(QString)), this, SLOT(onJobStateHasChanged()));
+    connect(ui->groupBoxGuarantee, SIGNAL(toggled(bool)), this, SLOT(onJobStateHasChanged()));
+
+    employeeWidget = new EmployeeWidget(dbConnectionsString, ui->employeeWidget);
+    employeeWidget->setEmployeeCurrentId();
+    ui->employeeWidget->setMinimumHeight(employeeWidget->geometry().height());
+    ui->employeeWidget->setMinimumWidth(employeeWidget->geometry().width());
+    adjustSize();
+    //ui->groupBoxGuarantee->setEnabled(false); //temp
+    employeeWidget->setEnabled(false); //temp
+
+    //TODO: create completer_with_treeview class
+    jobListModel = new JobListItemModel(dbConnectionsString,this);
+    jobListProxy = new QSortFilterProxyModel(this);
+    jobListProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    jobListProxy->setSourceModel(jobListModel);
+
+    connect(ui->lineEditJobName, SIGNAL(textChanged(QString)), jobListProxy, SLOT(setFilterFixedString(QString)));
+
+    QTreeView* tw = new QTreeView(this);
+    tw->setModel(jobListProxy);
+    tw->setHeaderHidden(true);
+    tw->setIndentation(-1);
+    tw->resizeColumnToContents(0);
+    QHeaderView* hw = tw->header();
+    hw->setStretchLastSection(false);
+    hw->setCascadingSectionResizes(true);
+    hw->setDefaultSectionSize(150);
+    tw->setHeader(hw);
+
+    QCompleter *completer = new QCompleter(jobListProxy, this);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setPopup(tw);
+    completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+    ui->lineEditJobName->setCompleter(completer);
+    connect(completer, SIGNAL(activated(QModelIndex)), SLOT(onCompleteJobData(QModelIndex)));
+    ui->lineEditJobName->setProperty("jobId",-1);
     getJobs(id);
 }
 
@@ -30,57 +75,20 @@ JobListOnReceiptDialog::~JobListOnReceiptDialog()
     delete ui;
 }
 
-void JobListOnReceiptDialog::getEmployeeList()
+void JobListOnReceiptDialog::getJobs(const QVariant &id)
 {
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;   
-
-    if (!q.exec("select employee_fio, employee_id, login from Employee"))
-        return;
-    int row = 0;
-    int index = 0;
-    while (q.next())
-    {
-        if (SetupManager::instance()->getCurrentUser().compare(q.value(2).toString()) == 0)
-            index = row;
-        ui->comboBoxEmployeeList->addItem(q.value(0).toString(),q.value(1).toInt());
-        ++row;
-    }
-    ui->comboBoxEmployeeList->setCurrentIndex(index);
+    jobsModel->getJobs(id);
+    ui->tableViewJobs->resizeColumnsToContents();
 }
 
-void JobListOnReceiptDialog::getJobs(const int &id)
+bool JobListOnReceiptDialog::checkPermissions(const QVariant &selectedEmployeeId) const
 {
-    model->clear();
-    model->setHorizontalHeaderLabels(QStringList() << trUtf8("Мастер") << trUtf8("Наименование")
-                                     << trUtf8("Количество") << trUtf8("Цена") << trUtf8("Дата"));
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-
-    q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket "
-              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id=?");
-    q.addBindValue(id);
-    if (!q.exec())
-        return;
-
-    while (q.next())
-    {
-        QStandardItem* fio = new QStandardItem(q.value(0).toString());
-        fio->setData(q.value(5));
-        QStandardItem* jobName = new QStandardItem(q.value(1).toString());
-        QStandardItem* jobQuant = new QStandardItem(q.value(2).toString());
-        QStandardItem* jobPrice = new QStandardItem(q.value(3).toString());
-        QStandardItem* jobDate = new QStandardItem(q.value(4).toString());
-        model->appendRow(QList<QStandardItem*>() << fio << jobName << jobQuant << jobPrice << jobDate);
-    }
-    ui->tableView->resizeColumnsToContents();    
+    return SetupManager::instance()->getCurrentUserId() == selectedEmployeeId;
 }
 
-void JobListOnReceiptDialog::on_pushButtonClearField_clicked()
+QCompleter *JobListOnReceiptDialog::getCompleter()
 {
-    clearField();
+    return ui->lineEditJobName->completer();
 }
 
 void JobListOnReceiptDialog::clearField()
@@ -90,55 +98,42 @@ void JobListOnReceiptDialog::clearField()
     ui->spinBoxQuantity->setValue(1);    
 }
 
-void JobListOnReceiptDialog::on_pushButtonAddJob_clicked()
+void JobListOnReceiptDialog::onPushButtonAddJobClicked()
 {
     if (ui->lineEditJobName->text().isEmpty() ||
             ui->lineEditPrice->text().isEmpty())
         return;
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-    q.prepare("insert into JobOnTicket(tdc_r_id,employee_id,job_name,job_quantity,job_price) values(?,?,?,?,?)");
-    q.addBindValue(m_id);
-    q.addBindValue(ui->comboBoxEmployeeList->itemData(ui->comboBoxEmployeeList->currentIndex()));
-    q.addBindValue(ui->lineEditJobName->text());
-    q.addBindValue(ui->spinBoxQuantity->value());
-    q.addBindValue(ui->lineEditPrice->text().toInt());
-    if (!q.exec())
-    {
-        qDebug() << q.lastError() << q.lastQuery();
-        return;
-    }
+
+    jobsModel->addJob(m_id,
+                      SetupManager::instance()->getCurrentUserId(),
+                      ui->lineEditJobName->text().trimmed(),
+                      ui->spinBoxQuantity->value(),
+                      ui->lineEditPrice->text().toInt());
+   // if (ui->lineEditJobName->property("jobId").toInt() != -1)
+        jobListModel->addJob(ui->lineEditJobName->text().trimmed(),
+                             ui->lineEditPrice->text().toInt(),
+                             ui->groupBoxGuarantee->isChecked(),
+                             ui->lineEditGuarantee->text().trimmed());
     getJobs(m_id);
 }
 
-void JobListOnReceiptDialog::on_pushButtonDeleteJob_clicked()
+void JobListOnReceiptDialog::onPushButtonDeleteJobClicked()
 {
-    QSqlQuery q;
-    if (!getSqlQuery(q))
+    if (!ui->tableViewJobs->currentIndex().isValid())
         return;
-    q.prepare("delete from JobOnTicket where jot_id=?");
-    q.addBindValue(model->item(ui->tableView->currentIndex().row(),0)->data());
-    if (!q.exec())
-        return;
+    jobsModel->deleteJob(ui->tableViewJobs->currentIndex());
     getJobs(m_id);
 }
 
 void JobListOnReceiptDialog::onUpdateClicked()
 {
-    if (!ui->tableView->currentIndex().isValid())
+    if (!ui->tableViewJobs->currentIndex().isValid())
         return;
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-    q.prepare("update JobOnTicket set employee_id = ?, job_name = ?, "
-              "job_quantity = ?, job_price = ? where jot_id = ?");
-    q.addBindValue(ui->comboBoxEmployeeList->itemData(ui->comboBoxEmployeeList->currentIndex()));
-    q.addBindValue(ui->lineEditJobName->text());
-    q.addBindValue(ui->spinBoxQuantity->value());
-    q.addBindValue(ui->lineEditPrice->text());
-    q.addBindValue(model->item(ui->tableView->currentIndex().row(),0)->data());
-    q.exec();
+    jobsModel->updateJob(ui->tableViewJobs->currentIndex(),
+                         SetupManager::instance()->getCurrentUserId(),
+                         ui->lineEditJobName->text().trimmed(),
+                         ui->spinBoxQuantity->value(),
+                         ui->lineEditPrice->text().toInt());
     getJobs(m_id);
 }
 
@@ -147,37 +142,44 @@ void JobListOnReceiptDialog::onCurrentSelectionChanged(QModelIndex current, QMod
     Q_UNUSED(previous);
     if (!current.isValid())
         return;
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-    q.prepare("select JobOnTicket.employee_id,job_name,job_quantity,job_price from JobOnTicket "
-              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where jot_id=?");
-    q.addBindValue(model->item(current.row(),0)->data());
-    if (!q.exec())
-        return;
-    while (q.next())
-    {
-        ui->comboBoxEmployeeList->setCurrentIndex(ui->comboBoxEmployeeList->findData(q.value(0)));
-        ui->lineEditJobName->setText(q.value(1).toString());
-        ui->lineEditPrice->setText(q.value(3).toString());
-        ui->spinBoxQuantity->setValue(q.value(2).toInt());
-        m_jid = model->item(ui->tableView->currentIndex().row(),0)->data().toInt();
-    }
+
+    Job currentJob;
+    currentJob.id = jobsModel->item(current.row(),0)->data();
+    jobsModel->getCurrentJobName(currentJob);
+    ui->lineEditJobName->setText(currentJob.name);
+    ui->lineEditPrice->setText(QString::number(currentJob.price));
+    ui->spinBoxQuantity->setValue(currentJob.quantity);
+    ui->pushButtonDeleteJob->setEnabled(checkPermissions(currentJob.employeeId));
+    ui->pushButtonUpdateJob->setEnabled(checkPermissions(currentJob.employeeId));
 }
 
-void JobListOnReceiptDialog::on_pushButtonCheckReady_clicked()
+void JobListOnReceiptDialog::onCompleteJobData(QModelIndex index)
 {
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-    q.prepare("update device set status = ? where device.id = (select device_id from ticket where id = ?)");
-    q.addBindValue(Ready);
-    q.addBindValue(m_id);
-    if (!q.exec())
-    {
-        qDebug() << q.lastError() << q.lastQuery();
-        return;
-    }
+    qDebug() << "complete job data";
+    ui->groupBoxGuarantee->setChecked(getCompleter()->
+                                      completionModel()->
+                                      data(getCompleter()->
+                                           completionModel()->
+                                           index(index.row(),JobListModelHeader::Name),JobListModelData::HasGuarantee).toBool());
+    if (ui->groupBoxGuarantee->isChecked())
+        ui->lineEditGuarantee->setText(getCompleter()->
+                                       completionModel()->
+                                       data(getCompleter()->
+                                            completionModel()->
+                                            index(index.row(),JobListModelHeader::Name),JobListModelData::GuaranteePeriod).toString());
+    ui->lineEditPrice->setText(getCompleter()->
+                               completionModel()->
+                               data(getCompleter()->
+                                    completionModel()->
+                                    index(index.row(),JobListModelHeader::Price),JobListModelData::Text).toString());
+    ui->lineEditJobName->setProperty("jobId",getCompleter()->
+                                     completionModel()->
+                                     data(getCompleter()->
+                                          completionModel()->
+                                          index(index.row(),JobListModelHeader::Name),JobListModelData::ID));
+}
 
-    accept();
+void JobListOnReceiptDialog::onJobStateHasChanged()
+{
+    ui->lineEditJobName->setProperty("jobId",-1);
 }

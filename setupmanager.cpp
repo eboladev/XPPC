@@ -26,6 +26,11 @@ QString SetupManager::getCurrentUser()
     return currentUser;
 }
 
+QVariant SetupManager::getCurrentUserId() const
+{
+    return currentUserId;
+}
+
 void SetupManager::setPermissons(int p)
 {
     permission = p;
@@ -34,6 +39,11 @@ void SetupManager::setPermissons(int p)
 void SetupManager::setCurrentUser(QString user)
 {
     currentUser = user;
+}
+
+void SetupManager::setCurrentUserId(const QVariant &id)
+{
+    currentUserId = id;
 }
 
 QString SetupManager::getDisplayName()

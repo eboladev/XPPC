@@ -65,7 +65,7 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
         QSqlQuery q;
         if (!SetupManager::instance()->getSqlQueryForDB(q))
             return;
-        q.exec("select id, name, phone from client ");//where name LIKE '%"+FIO+"%'
+        q.exec("select id, name, phone from client ");
         while(q.next())
         {
             QStandardItem* item = new QStandardItem(q.value(1).toString());

@@ -64,7 +64,7 @@ private slots:
     void onAddTicketClicked();
     void onJobListClicked();
 
-    void onSettingsClicked();
+    void onDBSettingsClicked();
 
     void on_radioButtonReady_pressed();
     void on_radioButtonWorking_pressed();

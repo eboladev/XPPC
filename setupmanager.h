@@ -31,9 +31,11 @@ public:
     static SetupManager* instance();
     int getPermissions();
     QString getCurrentUser();
+    QVariant getCurrentUserId() const;
     QString getDisplayName();
     void setPermissons(int permisson);
     void setCurrentUser(QString user);
+    void setCurrentUserId(const QVariant& id);
     void setDisplayName(QString name);
 
     void setCurrentBranch(const QVariant &id);
@@ -76,6 +78,7 @@ private:
     QString currentUser;
     QString displayName;
     int currentBranch;
+    QVariant currentUserId;
     int permission;
     int fbStatus;
     int dbStatus;

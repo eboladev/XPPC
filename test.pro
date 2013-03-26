@@ -57,7 +57,11 @@ SOURCES += main.cpp\
     guaranteeonticketreasonwidget.cpp \
     reportshandler.cpp \
     reportssettings.cpp \
-    reportselectionwidget.cpp
+    reportselectionwidget.cpp \
+    employeewidget.cpp \
+    employeeitemmodel.cpp \
+    jobitemmodel.cpp \
+    joblistitemmodel.cpp
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -95,7 +99,11 @@ HEADERS  += mainwindow.h \
     guaranteeonticketreasonwidget.h \
     reportshandler.h \
     reportssettings.h \
-    reportselectionwidget.h
+    reportselectionwidget.h \
+    employeewidget.h \
+    employeeitemmodel.h \
+    jobitemmodel.h \
+    joblistitemmodel.h
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }
@@ -117,7 +125,8 @@ FORMS    += mainwindow.ui \
     ticketcommentswidget.ui \
     guaranteeonticketreasonwidget.ui \
     reportssettings.ui \
-    reportselectionwidget.ui
+    reportselectionwidget.ui \
+    employeewidget.ui
 
 RESOURCES += \
     Resources.qrc

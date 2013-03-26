@@ -6,7 +6,7 @@
 
 #include "sqlextension.h"
 
-class QStandardItemModel;
+class EmployeeItemModel;
 class QStandardItem;
 class QSortFilterProxyModel;
 
@@ -34,7 +34,6 @@ public:
     ~UserManagementDialog();
 
 private slots:
-    void onItemChanged(QStandardItem*);
     void onCustomContextMenuRequested(const QPoint&);
     void onAddEmployee();
     void onFireEmployee();
@@ -42,12 +41,9 @@ private slots:
     void onChangeLoginpass();
 
 private:
-    QVariant getCurrentId();
-
-private:
     Ui::UserManagementDialog *ui;
-    QStandardItemModel* model;
-    QSortFilterProxyModel* proxy;
+    EmployeeItemModel* employeeModel;
+    QSortFilterProxyModel* employeeProxyModel;
 };
 
 #endif // USERMANAGEMENTDIALOG_H

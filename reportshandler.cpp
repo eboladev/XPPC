@@ -334,6 +334,7 @@ QString ReportsHandler::getTemplatePath(const int &report_type)
     if (!q.next())
         return "";
 
+    qDebug() << q.value(0).toString();
     return q.value(0).toString();
 }
 

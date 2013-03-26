@@ -80,8 +80,12 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
     dialog.setWindowTitle("Connection result");
     QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(CONNECTIONNAME.toLatin1(), false);
 
-    if (!fireBirdSQLDatabase.isOpen())
+    if (fireBirdSQLDatabase.isOpen())
     {
+        fireBirdSQLDatabase.close();
+        QSqlDatabase::removeDatabase(CONNECTIONNAME);
+        qDebug() << QSqlDatabase::connectionNames() << fireBirdSQLDatabase.isOpen() << fireBirdSQLDatabase.isValid();
+    }
         fireBirdSQLDatabase = QSqlDatabase::addDatabase("QPSQL", CONNECTIONNAME.toLatin1());
         fireBirdSQLDatabase.setDatabaseName(ui->lineEditDBName->text().trimmed());
         fireBirdSQLDatabase.setHostName(ui->lineEditHost->text().trimmed());
@@ -91,13 +95,14 @@ void ConnectDialog::on_pushButtonTestConnection_clicked()
         if  (fireBirdSQLDatabase.open())        
             su->setText("Connection succesfull");                    
         else        
-            su->setText("Connection failed");                    
-    }
+            su->setText("Connection failed");
+        fireBirdSQLDatabase.close();
+        QSqlDatabase::removeDatabase(CONNECTIONNAME);
+        qDebug() << QSqlDatabase::connectionNames();
+    /*}
     else    
-        su->setText("Connection succesfull and already opened");    
+        su->setText("Connection succesfull and already opened");*/
     dialog.exec();
-    fireBirdSQLDatabase.close();
-    QSqlDatabase::removeDatabase(CONNECTIONNAME);
 }
 
 void ConnectDialog::on_pushButtonConnect_clicked()
