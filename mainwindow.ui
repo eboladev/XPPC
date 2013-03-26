@@ -71,7 +71,16 @@
              <bool>true</bool>
             </property>
             <layout class="QGridLayout" name="gridLayout_3">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>2</number>
+             </property>
+             <property name="topMargin">
+              <number>2</number>
+             </property>
+             <property name="rightMargin">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
               <number>2</number>
              </property>
              <property name="spacing">
@@ -132,7 +141,16 @@
              <bool>true</bool>
             </property>
             <layout class="QGridLayout" name="gridLayout_10">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>1</number>
+             </property>
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="rightMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
               <number>1</number>
              </property>
              <property name="spacing">
@@ -153,7 +171,16 @@
              <bool>true</bool>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>2</number>
+             </property>
+             <property name="topMargin">
+              <number>2</number>
+             </property>
+             <property name="rightMargin">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
               <number>2</number>
              </property>
              <property name="spacing">
@@ -218,7 +245,16 @@
            <bool>true</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <property name="margin">
+           <property name="leftMargin">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
+           <property name="rightMargin">
+            <number>1</number>
+           </property>
+           <property name="bottomMargin">
             <number>1</number>
            </property>
            <property name="spacing">
@@ -462,14 +498,23 @@
         <string>Товары</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_11">
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
         <property name="horizontalSpacing">
          <number>1</number>
         </property>
         <property name="verticalSpacing">
          <number>5</number>
-        </property>
-        <property name="margin">
-         <number>1</number>
         </property>
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -482,7 +527,16 @@
              <bool>true</bool>
             </property>
             <layout class="QGridLayout" name="gridLayout_9">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>1</number>
+             </property>
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="rightMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
               <number>1</number>
              </property>
              <property name="spacing">
@@ -557,7 +611,16 @@
                <bool>true</bool>
               </property>
               <layout class="QGridLayout" name="gridLayout_8">
-               <property name="margin">
+               <property name="leftMargin">
+                <number>1</number>
+               </property>
+               <property name="topMargin">
+                <number>1</number>
+               </property>
+               <property name="rightMargin">
+                <number>1</number>
+               </property>
+               <property name="bottomMargin">
                 <number>1</number>
                </property>
                <property name="spacing">
@@ -655,7 +718,16 @@
                   <bool>true</bool>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_6">
-                  <property name="margin">
+                  <property name="leftMargin">
+                   <number>1</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>1</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>1</number>
+                  </property>
+                  <property name="bottomMargin">
                    <number>1</number>
                   </property>
                   <item row="0" column="0">
@@ -775,7 +847,6 @@
     <property name="title">
      <string>Настройки</string>
     </property>
-    <addaction name="actionChangeUser"/>
     <addaction name="actionBranchTriggered"/>
     <addaction name="actionAddProductCategory"/>
     <addaction name="actionUserControl"/>
@@ -853,6 +924,8 @@
    <addaction name="actionAddProduct"/>
    <addaction name="actionSellProduct"/>
    <addaction name="actionAttachToTicket"/>
+   <addaction name="separator"/>
+   <addaction name="actionChangeUser"/>
   </widget>
   <action name="actionConnect">
    <property name="icon">

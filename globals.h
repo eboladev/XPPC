@@ -38,6 +38,13 @@ enum TicketFastInfoTabs
     TicketJobs = 0,
     TicketComments
 };
+
+enum MainTabs
+{
+    TicketsTab = 0,
+    ProductsTab = 1
+};
+
 enum ReportTypes
 {
     TicketReport = 0,

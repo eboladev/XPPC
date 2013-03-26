@@ -19,7 +19,6 @@ DEFINES+=RELEASE
 OBJECTS_DIR = $$PWD/build/xppc/release/obj
 }
 
-mac: DEFINES+=OS_MAC
 win32:CONFIG += qaxcontainer
 
 TARGET = xppc

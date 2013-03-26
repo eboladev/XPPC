@@ -69,8 +69,10 @@ void UserManagementDialog::onCustomContextMenuRequested(const QPoint &pos)
         menu->addAction(trUtf8("Добавить"), this, SLOT(onAddEmployee()));
     if (ind.isValid())
     {
+#ifdef DEBUG
         if (ui->radioButtonWorking->isChecked())
             menu->addAction(trUtf8("Уволить"), this, SLOT(onFireEmployee()));
+#endif
         if (ui->radioButtonFired->isChecked())
             menu->addAction(trUtf8("Восстановить"), this, SLOT(onFireEmployee()));
 #ifdef RELEASE

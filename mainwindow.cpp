@@ -86,8 +86,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->pushButtonNotAGuarantee, SIGNAL(clicked()), SLOT(onNotAGuaranteeClicked()));
     connect(ui->pushButtonAcceptToWorkGuarantee, SIGNAL(clicked()), SLOT(onAcceptAGuaranteeClicked()));
+    connect(ui->pushButtonAddComment, SIGNAL(clicked()), SLOT(onAddCommentToTicketClicked()));
 
+#ifdef DEBUG
     cud->accept();
+#endif
 
     productModel = new QSqlQueryModel(this);
     proCatModel = new QStandardItemModel(this);
@@ -99,12 +102,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeViewCategory->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(onCurrentCategoryChanged(QModelIndex,QModelIndex)));
     connect(this, SIGNAL(refreshProductModelByCategory(int)), SLOT(onRefreshProductByType(int)));
     connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), proxyProduct, SLOT(setFilterFixedString(QString)));
-    onRefreshCategoryModel();
-
-    connect(ui->pushButtonAddComment, SIGNAL(clicked()), SLOT(onAddCommentToTicketClicked()));
+    if (ui->tabWidget->currentIndex() == ProductsTab)
+        onRefreshCategoryModel();
 
     connect(ui->queryLimitComboBoxWidget, SIGNAL(limitChanged(int)), SLOT(onQueryLimitComboBoxIndexChanged(int)));
-#ifdef OS_MAC
+#ifdef Q_WS_MAC
     ui->menuLoginStatus->setVisible(false);
     ui->menuLoginStatus->setHidden(true);
 #endif
@@ -227,6 +229,7 @@ void MainWindow::changePermissions()
     ui->tabTickets->setEnabled(permissions);
     ui->tabShowcase->setEnabled(permissions);
     ui->menuTicket->setEnabled(permissions);
+    ui->menuSettings->setEnabled(permissions);
 }
 
 void MainWindow::onTabChanged(int tab)

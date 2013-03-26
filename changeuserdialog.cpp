@@ -9,6 +9,10 @@ ChangeUserDialog::ChangeUserDialog(QWidget *parent) :
     connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(onAccept()));
     connect(ui->pushButtonCancel, SIGNAL(clicked()), SLOT(reject()));
     connect(ui->pushButtonLogout, SIGNAL(clicked()), SLOT(onLogout()));
+#ifdef RELEASE
+    ui->lineEditLogin->clear();
+    ui->lineEditPassword->clear();
+#endif
 }
 
 ChangeUserDialog::~ChangeUserDialog()
