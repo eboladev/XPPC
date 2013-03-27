@@ -32,9 +32,7 @@ private slots:
     void onUpdateClicked();
     void onCurrentSelectionChanged(QModelIndex, QModelIndex);
 
-    void onCompleteJobData(QModelIndex);
-
-    void onJobStateHasChanged();
+    void onCompleteJobData(QModelIndex);    
 
 private:
     void getJobs(const QVariant &id);

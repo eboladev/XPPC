@@ -33,6 +33,7 @@ public:
                 const int& price,
                 const bool& hasGuarantee,
                 const QString& guaranteePeriod);
+    bool isJobExist(const QString& name);
 private:
     void appendRow(const QVariant& id,
                    const QString& name,

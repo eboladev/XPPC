@@ -40,7 +40,7 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
         model = new QStandardItemModel(this);
         proxy = new QSortFilterProxyModel(this);
         proxy->setSourceModel(model);
-        proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);        
         connect(nameEdit, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));
 
         QTreeView* tw = new QTreeView(this);

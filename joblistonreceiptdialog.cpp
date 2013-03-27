@@ -28,17 +28,11 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     connect(ui->pushButtonClearField, SIGNAL(clicked()), this, SLOT(clearField()));
     connect(ui->tableViewJobs->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentSelectionChanged(QModelIndex,QModelIndex)));
 
-    connect(ui->lineEditJobName, SIGNAL(textChanged(QString)), this, SLOT(onJobStateHasChanged()));
-    connect(ui->lineEditGuarantee, SIGNAL(textChanged(QString)), this, SLOT(onJobStateHasChanged()));
-    connect(ui->lineEditPrice, SIGNAL(textChanged(QString)), this, SLOT(onJobStateHasChanged()));
-    connect(ui->groupBoxGuarantee, SIGNAL(toggled(bool)), this, SLOT(onJobStateHasChanged()));
-
     employeeWidget = new EmployeeWidget(dbConnectionsString, ui->employeeWidget);
     employeeWidget->setEmployeeCurrentId();
     ui->employeeWidget->setMinimumHeight(employeeWidget->geometry().height());
     ui->employeeWidget->setMinimumWidth(employeeWidget->geometry().width());
     adjustSize();
-    //ui->groupBoxGuarantee->setEnabled(false); //temp
     employeeWidget->setEnabled(false); //temp
 
     //TODO: create completer_with_treeview class
@@ -64,7 +58,7 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setPopup(tw);
     completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-    ui->lineEditJobName->setCompleter(completer);
+    ui->lineEditJobName->setCompleter(completer);    
     connect(completer, SIGNAL(activated(QModelIndex)), SLOT(onCompleteJobData(QModelIndex)));
     ui->lineEditJobName->setProperty("jobId",-1);
     getJobs(id);
@@ -109,7 +103,7 @@ void JobListOnReceiptDialog::onPushButtonAddJobClicked()
                       ui->lineEditJobName->text().trimmed(),
                       ui->spinBoxQuantity->value(),
                       ui->lineEditPrice->text().toInt());
-   // if (ui->lineEditJobName->property("jobId").toInt() != -1)
+    if (!jobListModel->isJobExist(ui->lineEditJobName->text().trimmed()))
         jobListModel->addJob(ui->lineEditJobName->text().trimmed(),
                              ui->lineEditPrice->text().toInt(),
                              ui->groupBoxGuarantee->isChecked(),
@@ -154,8 +148,7 @@ void JobListOnReceiptDialog::onCurrentSelectionChanged(QModelIndex current, QMod
 }
 
 void JobListOnReceiptDialog::onCompleteJobData(QModelIndex index)
-{
-    qDebug() << "complete job data";
+{    
     ui->groupBoxGuarantee->setChecked(getCompleter()->
                                       completionModel()->
                                       data(getCompleter()->
@@ -166,7 +159,7 @@ void JobListOnReceiptDialog::onCompleteJobData(QModelIndex index)
                                        completionModel()->
                                        data(getCompleter()->
                                             completionModel()->
-                                            index(index.row(),JobListModelHeader::Name),JobListModelData::GuaranteePeriod).toString());
+                                            index(index.row(),JobListModelHeader::Name),JobListModelData::GuaranteePeriod).toString());    
     ui->lineEditPrice->setText(getCompleter()->
                                completionModel()->
                                data(getCompleter()->
@@ -177,9 +170,4 @@ void JobListOnReceiptDialog::onCompleteJobData(QModelIndex index)
                                      data(getCompleter()->
                                           completionModel()->
                                           index(index.row(),JobListModelHeader::Name),JobListModelData::ID));
-}
-
-void JobListOnReceiptDialog::onJobStateHasChanged()
-{
-    ui->lineEditJobName->setProperty("jobId",-1);
 }

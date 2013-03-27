@@ -28,8 +28,7 @@ void JobListItemModel::addJob(const QString &name,
                               const int &price,
                               const bool &hasGuarantee,
                               const QString &guaranteePeriod)
-{
-    qDebug() << "addJob" << name << price << hasGuarantee << guaranteePeriod;
+{    
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
@@ -46,23 +45,33 @@ void JobListItemModel::addJob(const QString &name,
     appendRow(q.value(0),name,price,hasGuarantee,guaranteePeriod);
 }
 
+bool JobListItemModel::isJobExist(const QString &name)
+{
+    for (int i = 0; i < rowCount(); ++i)
+        if (item(i,JobListModelHeader::Name)->text().compare(name) == 0) //contains that job
+            return true;
+    return false;
+}
+
 void JobListItemModel::appendRow(const QVariant &id,
                                  const QString &name,
                                  const int &price,
                                  const bool &hasGuarantee,
                                  const QString &guaranteePeriod)
-{
-    qDebug() << "append row" << id << name << price << hasGuarantee << guaranteePeriod;
+{    
     QStandardItem* nameItem = new QStandardItem(name);
+
     nameItem->setData(id, JobListModelData::ID);
     nameItem->setData(hasGuarantee, JobListModelData::HasGuarantee);
-    if (hasGuarantee)
+
+    if (!hasGuarantee)
         nameItem->setToolTip(trUtf8("Гарантия: нет"));
     else
     {
         nameItem->setToolTip(trUtf8("Срок гарантии: %0").arg(guaranteePeriod));
-        nameItem->setData(guaranteePeriod, JobListModelData::GuaranteePeriod);
+        nameItem->setData(guaranteePeriod, JobListModelData::GuaranteePeriod);        
     }
+
     QStandardItem* priceItem = new QStandardItem(QString::number(price));
     QStandardItemModel::appendRow(QList<QStandardItem*>() << nameItem << priceItem);
 }
