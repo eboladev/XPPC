@@ -52,15 +52,13 @@ void UserManagementDialog::onCustomContextMenuRequested(const QPoint &pos)
         if (ui->radioButtonFired->isChecked())
             menu->addAction(trUtf8("Восстановить"), this, SLOT(onFireEmployee()));
 #ifdef RELEASE
-        qDebug() << SetupManager::instance()->getCurrentUser() << employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),8)->data().toBool();
-        if (employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),7)->data().toBool())
-        {
-            qDebug() << Q_FUNC_INFO;
-            if (SetupManager::instance()->getCurrentUser() == employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),0)->text())
+        if (employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),8)->data().toBool())
+        {            
+            if (SetupManager::instance()->getCurrentUser() == employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),7)->text())
                 menu->addAction(trUtf8("Логин\\пароль"),this, SLOT(onChangeLoginpass()));
         }
         else
-#endif            
+#endif
             menu->addAction(trUtf8("Логин\\пароль"),this, SLOT(onChangeLoginpass()));
     }
     menu->exec(QCursor::pos());
