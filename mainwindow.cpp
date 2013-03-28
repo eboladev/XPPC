@@ -277,12 +277,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
     if (event->type() == QEvent::MouseMove ||
-            event->type() == QEvent::KeyPress)
-      {
-        qDebug() << "timer restarted";
+            event->type() == QEvent::KeyPress)              
         userActivityTimer->start(5000);
-      }
-      return false;
+    return false;
 }
 
 void MainWindow::onRefreshCategoryModel()

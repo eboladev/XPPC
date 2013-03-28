@@ -56,6 +56,7 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
             QStandardItem* login = new QStandardItem(q.value(7).toString());
             login->setToolTip(login->text());
             QStandardItem* pass = new QStandardItem(q.value(8).toString().isEmpty() ? trUtf8("Не задан") : trUtf8("Задан"));
+            pass->setData(q.value(8).toString().isEmpty() ? false : true);
             QStandardItem* phone = new QStandardItem(q.value(9).toString());
             phone->setToolTip(phone->text());
             appendRow(QList<QStandardItem*>() << fio << phone << rate
