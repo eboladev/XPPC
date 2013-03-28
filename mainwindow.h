@@ -39,13 +39,13 @@ private slots:
     void onActionChangeUserClicked();
     void onActionBranchesTriggered();
     void onActionUserManagementClicked();
-    void onChangeUserInPopupMenu();
-    void onRejectUserInPopupMenu();
     void onActionReportSettignsClicked();
     void changePermissions();
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
     void onTabChanged(int);
+    void onSuccessfullLogin();
+    bool eventFilter(QObject *, QEvent *);
 
 private:
     bool checkDbConnection();
@@ -57,10 +57,13 @@ private:
     bool changeUser(const QString& login, const QString& password);
     bool executeDialog(QDialog *);
     QString genUUID();
+
+signals:
+    void successfullLogin();
     /*base end*/
 
     /*ticket manager start*/
-private slots:
+private slots:    
     void onAddTicketClicked();
     void onJobListClicked();
 
@@ -130,6 +133,7 @@ private:
     QStandardItemModel* ticketComments;
     QStandardItemModel* jobModel;
     QTimer* updateTableViewTicket;
+    QTimer* userActivityTimer;
     int currentStatus;
     int currentEmployeeId;
     QString currentEmployeeName;
@@ -138,7 +142,7 @@ private:
     QSqlQueryModel* productModel;
     QSortFilterProxyModel* proxyProduct;
 
-    ChangeUserDialog* cud;    
+    ChangeUserDialog* cud;
     QString defaultConfName;            
 };
 

@@ -13,6 +13,8 @@ ChangeUserDialog::ChangeUserDialog(QWidget *parent) :
     ui->lineEditLogin->clear();
     ui->lineEditPassword->clear();
 #endif
+    setProperty("login",ui->lineEditLogin->text());
+    setProperty("password",ui->lineEditPassword->text());
 }
 
 ChangeUserDialog::~ChangeUserDialog()

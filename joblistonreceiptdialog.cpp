@@ -10,7 +10,7 @@
 #include <QCompleter>
 #include <QTreeView>
 
-JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString, const int &id, QWidget *parent) :
+JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString, const int &id, const int &ticket_id = 0, QWidget *parent) :
     QDialog(parent),
     SqlExtension(dbConnectionsString),
     m_id(id),
@@ -19,7 +19,7 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     ui->setupUi(this);    
     jobsModel = new JobItemModel(dbConnectionsString, this);
     ui->tableViewJobs->setModel(jobsModel);
-    setWindowTitle(trUtf8("Управление списком работ по квитанции №").append(QString::number(id)));
+    setWindowTitle(trUtf8("Управление списком работ по квитанции №").append(QString::number(ticket_id)));
     connect(ui->pushButtonOK, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->pushButtonCancel,SIGNAL(clicked()),this, SLOT(reject()));
     connect(ui->pushButtonAddJob, SIGNAL(clicked()), this, SLOT(onPushButtonAddJobClicked()));
@@ -88,24 +88,23 @@ QCompleter *JobListOnReceiptDialog::getCompleter()
 void JobListOnReceiptDialog::clearField()
 {
     ui->lineEditJobName->clear();
-    ui->lineEditPrice->clear();
+    ui->spinBoxPrice->setValue(1);
     ui->spinBoxQuantity->setValue(1);    
 }
 
 void JobListOnReceiptDialog::onPushButtonAddJobClicked()
 {
-    if (ui->lineEditJobName->text().isEmpty() ||
-            ui->lineEditPrice->text().isEmpty())
+    if (ui->lineEditJobName->text().isEmpty())
         return;
 
     jobsModel->addJob(m_id,
                       SetupManager::instance()->getCurrentUserId(),
                       ui->lineEditJobName->text().trimmed(),
                       ui->spinBoxQuantity->value(),
-                      ui->lineEditPrice->text().toInt());
+                      ui->spinBoxPrice->value());
     if (!jobListModel->isJobExist(ui->lineEditJobName->text().trimmed()))
         jobListModel->addJob(ui->lineEditJobName->text().trimmed(),
-                             ui->lineEditPrice->text().toInt(),
+                             ui->spinBoxPrice->value(),
                              ui->groupBoxGuarantee->isChecked(),
                              ui->lineEditGuarantee->text().trimmed());
     getJobs(m_id);
@@ -127,7 +126,7 @@ void JobListOnReceiptDialog::onUpdateClicked()
                          SetupManager::instance()->getCurrentUserId(),
                          ui->lineEditJobName->text().trimmed(),
                          ui->spinBoxQuantity->value(),
-                         ui->lineEditPrice->text().toInt());
+                         ui->spinBoxPrice->value());
     getJobs(m_id);
 }
 
@@ -141,7 +140,7 @@ void JobListOnReceiptDialog::onCurrentSelectionChanged(QModelIndex current, QMod
     currentJob.id = jobsModel->item(current.row(),0)->data();
     jobsModel->getCurrentJobName(currentJob);
     ui->lineEditJobName->setText(currentJob.name);
-    ui->lineEditPrice->setText(QString::number(currentJob.price));
+    ui->spinBoxPrice->setValue(currentJob.price);
     ui->spinBoxQuantity->setValue(currentJob.quantity);
     ui->pushButtonDeleteJob->setEnabled(checkPermissions(currentJob.employeeId));
     ui->pushButtonUpdateJob->setEnabled(checkPermissions(currentJob.employeeId));
@@ -160,11 +159,11 @@ void JobListOnReceiptDialog::onCompleteJobData(QModelIndex index)
                                        data(getCompleter()->
                                             completionModel()->
                                             index(index.row(),JobListModelHeader::Name),JobListModelData::GuaranteePeriod).toString());    
-    ui->lineEditPrice->setText(getCompleter()->
+    ui->spinBoxPrice->setValue(getCompleter()->
                                completionModel()->
                                data(getCompleter()->
                                     completionModel()->
-                                    index(index.row(),JobListModelHeader::Price),JobListModelData::Text).toString());
+                                    index(index.row(),JobListModelHeader::Price),JobListModelData::Text).toInt());
     ui->lineEditJobName->setProperty("jobId",getCompleter()->
                                      completionModel()->
                                      data(getCompleter()->

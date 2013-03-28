@@ -37,7 +37,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="tabPosition">
        <enum>QTabWidget::North</enum>
@@ -317,7 +317,7 @@
                  </property>
                  <widget class="QTreeView" name="treeViewJobsOnTicket">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="indentation">
                    <number>7</number>
@@ -734,7 +734,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -783,6 +783,9 @@
     <addaction name="actionReportSettings"/>
    </widget>
    <widget class="QMenu" name="menuCurrentUser">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="tearOffEnabled">
      <bool>false</bool>
     </property>
@@ -815,20 +818,10 @@
     <addaction name="action"/>
     <addaction name="action_2"/>
    </widget>
-   <widget class="QMenu" name="menuLoginStatus">
-    <property name="title">
-     <string>LoginStatus</string>
-    </property>
-    <property name="icon">
-     <iconset resource="Resources.qrc">
-      <normaloff>:/icons/icons/Remove-Male-User24.png</normaloff>:/icons/icons/Remove-Male-User24.png</iconset>
-    </property>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTicket"/>
    <addaction name="menuShowcase"/>
    <addaction name="menuSettings"/>
-   <addaction name="menuLoginStatus"/>
    <addaction name="menuCurrentUser"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -845,7 +838,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionConnect"/>
+   <addaction name="actionChangeUser"/>
    <addaction name="separator"/>
    <addaction name="actionOnAddReceiptClicked"/>
    <addaction name="actionOnJobListClicked"/>
@@ -951,7 +944,7 @@
   <action name="actionChangeUser">
    <property name="icon">
     <iconset resource="Resources.qrc">
-     <normaloff>:/icons/icons/Accept-Male-User24.png</normaloff>:/icons/icons/Accept-Male-User24.png</iconset>
+     <normaloff>:/icons/icons/Remove-Male-User24.png</normaloff>:/icons/icons/Remove-Male-User24.png</iconset>
    </property>
    <property name="text">
     <string>Сменить пользователя</string>

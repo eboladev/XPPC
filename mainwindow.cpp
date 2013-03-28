@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    qApp->installEventFilter(this);
     jobModel = new QStandardItemModel(this);
     ui->treeViewJobsOnTicket->setModel(jobModel);       
     ui->groupBoxFastTicketInfo->setVisible(false);
@@ -69,13 +70,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
 
     cud = new ChangeUserDialog(this);
-    QWidgetAction* wa = new QWidgetAction(this);
-    wa->setDefaultWidget(cud);
-    connect(cud, SIGNAL(accepted()), SLOT(onChangeUserInPopupMenu()));
-    connect(cud, SIGNAL(rejected()), SLOT(onRejectUserInPopupMenu()));
     connect(cud, SIGNAL(changePermissions()), SLOT(changePermissions()));
-    ui->menuCurrentUser->addAction(wa);
+    connect(this, SIGNAL(successfullLogin()), cud, SLOT(onSuccesfullLogin()));
+    connect(this, SIGNAL(successfullLogin()), this, SLOT(onSuccessfullLogin()));
 
+
+    userActivityTimer = new QTimer(this);
+    connect(userActivityTimer, SIGNAL(timeout()), cud, SLOT(onLogout()));
     //do NOT delete it... yet.
     //connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(refreshTicketModel()));
     ticketComments = new QStandardItemModel(this);
@@ -88,8 +89,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButtonAcceptToWorkGuarantee, SIGNAL(clicked()), SLOT(onAcceptAGuaranteeClicked()));
     connect(ui->pushButtonAddComment, SIGNAL(clicked()), SLOT(onAddCommentToTicketClicked()));
 
-#ifdef DEBUG
-    cud->accept();
+#ifdef DEBUG    
+    changeUser(cud->getUser(),cud->getPassword());
 #endif
 
     productModel = new QSqlQueryModel(this);
@@ -165,6 +166,7 @@ void MainWindow::changeTicketStatus(const int &status)
         if (!q.exec())
             qDebug() << q.lastError() << q.lastQuery();
     }
+    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -217,19 +219,23 @@ void MainWindow::changePermissions()
 {
     if (SetupManager::instance()->getCurrentUser().isEmpty())
     {
-        ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
+        ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
         ui->menuCurrentUser->setTitle(trUtf8("Вход не выполнен"));
     }
-    else
-    {
-        ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png"));
-        cud->onSuccesfullLogin();
-    }
-    bool permissions = SetupManager::instance()->getPermissions();
+    else    
+        ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png"));
+
+    bool permissions = SetupManager::instance()->getPermissions();    
     ui->tabTickets->setEnabled(permissions);
     ui->tabShowcase->setEnabled(permissions);
     ui->menuTicket->setEnabled(permissions);
+    ui->menuShowcase->setEnabled(permissions);
     ui->menuSettings->setEnabled(permissions);
+    ui->tabWidget->setEnabled(permissions);
+    foreach (QAction* act,ui->menuTicket->actions())
+        act->setEnabled(permissions);
+    foreach (QAction* act,ui->menuShowcase->actions())
+        act->setEnabled(permissions);
 }
 
 void MainWindow::onTabChanged(int tab)
@@ -258,6 +264,25 @@ void MainWindow::onTabChanged(int tab)
         break;
     };
     }
+}
+
+void MainWindow::onSuccessfullLogin()
+{
+    refreshTicketModel(generateTicketQuery());
+    ui->tabWidget->setEnabled(true);
+    ui->tabTickets->setEnabled(true);
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    Q_UNUSED(obj);
+    if (event->type() == QEvent::MouseMove ||
+            event->type() == QEvent::KeyPress)
+      {
+        qDebug() << "timer restarted";
+        userActivityTimer->start(5000);
+      }
+      return false;
 }
 
 void MainWindow::onRefreshCategoryModel()
@@ -409,10 +434,12 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     currentEmployeeId = q.value(2).toInt();
     SetupManager::instance()->setCurrentUser(login);
     SetupManager::instance()->setPermissons(permissions);
-    SetupManager::instance()->setCurrentUserId(currentUserId);
-    changePermissions();
+    SetupManager::instance()->setCurrentUserId(currentUserId);    
     currentEmployeeName = fio;
+    changePermissions();
     ui->menuCurrentUser->setTitle(fio);
+    qDebug() << Q_FUNC_INFO;
+    emit successfullLogin();
     return true;
 }
 
@@ -582,9 +609,12 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
     try
     {
         qDebug() << "trying to remove db" << dbConnectionName;
+
+        ticketModel->clear();
+        cud->onLogout();
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
-        ticketModel->removeColumns(0,ticketModel->columnCount());        
+        ui->actionChangeUser->setEnabled(false);
         qDebug() << QSqlDatabase::connectionNames();
         return true;
     }
@@ -679,7 +709,7 @@ void MainWindow::onJobListClicked()
 
         db.transaction();
 
-        JobListOnReceiptDialog jlord(dbConnectionString, getCurrentTDCRId().toInt(),this);
+        JobListOnReceiptDialog jlord(dbConnectionString, getCurrentTDCRId().toInt(), getCurrentTicketId(), this);
         if (jlord.exec())        
             db.commit();        
         else        
@@ -695,6 +725,7 @@ void MainWindow::on_radioButtonReady_pressed()
 {
     ui->lineEditSearch->clear();
     currentStatus = Ready;
+    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -702,6 +733,7 @@ void MainWindow::on_radioButtonWorking_pressed()
 {
     ui->lineEditSearch->clear();
     currentStatus = InWork;
+    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -709,6 +741,7 @@ void MainWindow::on_radioButtonClosed_pressed()
 {
     ui->lineEditSearch->clear();
     currentStatus = Closed;
+    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -717,6 +750,7 @@ void MainWindow::on_pushButtonSearchClear_clicked()
     ui->lineEditSearch->clear();
     ui->radioButtonWorking->setChecked(true);
     currentStatus = InWork;
+    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
     //updateTableViewTicket->start(DEFAULTPERIOD);
 }
@@ -1067,14 +1101,13 @@ void MainWindow::onQueryLimitComboBoxIndexChanged(int)
 }
 
 void MainWindow::on_actionConnect_triggered()
-{
-    if (connectToDb(CONNECTIONNAME))
-        refreshTicketModel(generateTicketQuery());
+{        
+    ui->actionChangeUser->setEnabled(connectToDb(CONNECTIONNAME));
 }
 
 void MainWindow::on_actionDisconnect_triggered()
 {
-    disconnectFromDb(CONNECTIONNAME);
+    disconnectFromDb(CONNECTIONNAME);    
     ui->actionConnect->setEnabled(settingsIsNotEmpty());
 }
 
@@ -1123,10 +1156,11 @@ void MainWindow::onCloseTicketClicked()
 }
 
 void MainWindow::onActionChangeUserClicked()
-{
-    ChangeUserDialog cud;
-    if (cud.exec())    
-        changeUser(cud.getUser(),cud.getPassword()) ? ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png")) : ui->menuLoginStatus->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
+{         
+    if (cud->exec())
+        changeUser(cud->getUser(),cud->getPassword()) ?
+                    ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png")) :
+                    ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
 }
 
 void MainWindow::onActionUserManagementClicked()
@@ -1155,21 +1189,6 @@ void MainWindow::onActionUserManagementClicked()
         db.close();
     }
     QSqlDatabase::removeDatabase(dbConnectionString);
-}
-
-void MainWindow::onChangeUserInPopupMenu()
-{
-    ChangeUserDialog * cud = qobject_cast<ChangeUserDialog*>(sender());
-    if (!cud)
-        return;
-    changeUser(cud->getUser(),cud->getPassword());
-    cud->setVisible(true);
-}
-
-void MainWindow::onRejectUserInPopupMenu()
-{
-    ui->menuCurrentUser->hide();    
-    cud->setVisible(true);
 }
 
 void MainWindow::onActionReportSettignsClicked()

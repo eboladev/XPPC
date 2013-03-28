@@ -19,10 +19,10 @@ public:
 
 public slots:
     void onSuccesfullLogin();
+    void onLogout();
 
 private slots:
     void onAccept();
-    void onLogout();
 
 signals:
     void changePermissions();

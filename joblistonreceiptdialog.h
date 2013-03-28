@@ -19,7 +19,7 @@ class JobListOnReceiptDialog : public QDialog, SqlExtension
     Q_OBJECT
     
 public:
-    explicit JobListOnReceiptDialog(const QString dbConnectionsString, const int &id, QWidget *parent = 0);
+    explicit JobListOnReceiptDialog(const QString dbConnectionsString, const int &id,const int& ticket_id, QWidget *parent = 0);
     ~JobListOnReceiptDialog();
     
 private slots:

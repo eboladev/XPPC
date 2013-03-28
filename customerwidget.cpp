@@ -34,15 +34,13 @@ CustomerWidget::CustomerWidget(QWidget *parent) :
     vl->addLayout(horPhoneLayout);
     setLayout(vl);
 
-
     if (SetupManager::instance()->getClientNameCompleterEnabled())
     {
         model = new QStandardItemModel(this);
         proxy = new QSortFilterProxyModel(this);
         proxy->setSourceModel(model);
         proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);        
-        connect(nameEdit, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));
-
+        connect(nameEdit, SIGNAL(textChanged(QString)), proxy, SLOT(setFilterFixedString(QString)));        
         QTreeView* tw = new QTreeView(this);
         tw->setModel(proxy);
         tw->setHeaderHidden(true);

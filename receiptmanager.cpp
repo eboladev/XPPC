@@ -57,9 +57,6 @@ void ReceiptManager::clearFields()
 
 void ReceiptManager::onAccept()
 {
-    if (!editMode && ui->deviceWidget->deviceModel->rowCount() == 0)
-        return;
-
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;

@@ -37,7 +37,7 @@ private slots:
 
 private:
     void setupConnections();    
-    void fillFields(int id);
+    void fillFields(int id);    
 
 private:
     Ui::ReceiptManager *ui;
