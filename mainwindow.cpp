@@ -278,9 +278,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
     if (event->type() == QEvent::MouseMove ||
+<<<<<<< HEAD
             event->type() == QEvent::KeyPress)
         userActivityTimer->start(USERTIMEOUT);
       return false;
+=======
+            event->type() == QEvent::KeyPress)              
+        userActivityTimer->start(5000);
+    return false;
+>>>>>>> 1f9170dda71f163da8c7255dcf4398800973fc4c
 }
 
 void MainWindow::onRefreshCategoryModel()
