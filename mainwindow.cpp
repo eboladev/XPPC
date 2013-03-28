@@ -24,6 +24,7 @@
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
 const int STATUSBARTIMEOUT = 10000;
+const int USERTIMEOUT = 600000;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -278,10 +279,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     Q_UNUSED(obj);
     if (event->type() == QEvent::MouseMove ||
             event->type() == QEvent::KeyPress)
-      {
-        qDebug() << "timer restarted";
-        userActivityTimer->start(5000);
-      }
+        userActivityTimer->start(USERTIMEOUT);
       return false;
 }
 
