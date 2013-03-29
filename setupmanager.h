@@ -37,6 +37,8 @@ public:
     void setCurrentUser(QString user);
     void setCurrentUserId(const QVariant& id);
     void setDisplayName(QString name);
+    QString getLastUserLogin() const;
+    void setLastUserLogin(const QString &value);
 
     void setCurrentBranch(const QVariant &id);
     int getCurrentBranch() const;
@@ -70,9 +72,6 @@ public:
 
 public:
     static void encryptDecrypt(QByteArray &ba);
-signals:
-
-public slots:
 
 private:
     QString currentUser;

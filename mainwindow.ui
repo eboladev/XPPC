@@ -48,6 +48,9 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
       <property name="movable">
        <bool>false</bool>
       </property>
@@ -91,6 +94,9 @@
                   <iconset resource="Resources.qrc">
                    <normaloff>:/icons/icons/Star-Empty24.png</normaloff>:/icons/icons/Star-Empty24.png</iconset>
                  </property>
+                 <property name="shortcut">
+                  <string>Alt+1</string>
+                 </property>
                  <property name="checked">
                   <bool>true</bool>
                  </property>
@@ -105,6 +111,9 @@
                   <iconset resource="Resources.qrc">
                    <normaloff>:/icons/icons/Star-Half-Full24.png</normaloff>:/icons/icons/Star-Half-Full24.png</iconset>
                  </property>
+                 <property name="shortcut">
+                  <string>Alt+2</string>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -115,6 +124,9 @@
                  <property name="icon">
                   <iconset resource="Resources.qrc">
                    <normaloff>:/icons/icons/Star-Full24.png</normaloff>:/icons/icons/Star-Full24.png</iconset>
+                 </property>
+                 <property name="shortcut">
+                  <string>Alt+3</string>
                  </property>
                 </widget>
                </item>
@@ -272,6 +284,9 @@
         </item>
         <item row="2" column="0">
          <widget class="QGroupBox" name="groupBoxFastTicketInfo">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -284,6 +299,9 @@
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
             <widget class="QTabWidget" name="tabWidgetFastTicketInfo">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="currentIndex">
               <number>0</number>
              </property>
@@ -775,7 +793,7 @@
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
-     <string>Настройки</string>
+     <string>&amp;Настройки</string>
     </property>
     <addaction name="actionBranchTriggered"/>
     <addaction name="actionAddProductCategory"/>
@@ -818,10 +836,17 @@
     <addaction name="action"/>
     <addaction name="action_2"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Справка</string>
+    </property>
+    <addaction name="action_Qt"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTicket"/>
    <addaction name="menuShowcase"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
    <addaction name="menuCurrentUser"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -875,10 +900,22 @@
    <property name="text">
     <string>Настройки</string>
    </property>
+   <property name="toolTip">
+    <string>Настройки...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
   </action>
   <action name="actionExitMenuClicked">
    <property name="text">
     <string>Выход</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
    </property>
   </action>
   <action name="actionOnAddReceiptClicked">
@@ -887,7 +924,7 @@
      <normaloff>:/icons/icons/create-ticket-icon.png</normaloff>:/icons/icons/create-ticket-icon.png</iconset>
    </property>
    <property name="text">
-    <string>Добавить</string>
+    <string>Добавить...</string>
    </property>
    <property name="toolTip">
     <string>Добавить квитанцию</string>
@@ -899,7 +936,7 @@
      <normaloff>:/icons/icons/product-sales-report-icon.png</normaloff>:/icons/icons/product-sales-report-icon.png</iconset>
    </property>
    <property name="text">
-    <string>Список работ</string>
+    <string>Список работ...</string>
    </property>
    <property name="toolTip">
     <string>Список работ по квитанции</string>
@@ -919,17 +956,17 @@
   </action>
   <action name="actionPrintTicket">
    <property name="text">
-    <string>Квитанция</string>
+    <string>Квитанция...</string>
    </property>
   </action>
   <action name="actionJobOnTicketPrint">
    <property name="text">
-    <string>Акт выполненных работ</string>
+    <string>Акт выполненных работ...</string>
    </property>
   </action>
   <action name="action_13">
    <property name="text">
-    <string>Приходный кассовый ордер</string>
+    <string>Приходный кассовый ордер...</string>
    </property>
   </action>
   <action name="actionBranchTriggered">
@@ -938,7 +975,7 @@
      <normaloff>:/icons/icons/business-info24.png</normaloff>:/icons/icons/business-info24.png</iconset>
    </property>
    <property name="text">
-    <string>Филиалы</string>
+    <string>Филиалы...</string>
    </property>
   </action>
   <action name="actionChangeUser">
@@ -947,7 +984,7 @@
      <normaloff>:/icons/icons/Remove-Male-User24.png</normaloff>:/icons/icons/Remove-Male-User24.png</iconset>
    </property>
    <property name="text">
-    <string>Сменить пользователя</string>
+    <string>Сменить пользователя...</string>
    </property>
   </action>
   <action name="actionUserControl">
@@ -956,7 +993,7 @@
      <normaloff>:/icons/icons/Edit-Male-User24.png</normaloff>:/icons/icons/Edit-Male-User24.png</iconset>
    </property>
    <property name="text">
-    <string>Управление пользователями</string>
+    <string>Управление пользователями...</string>
    </property>
   </action>
   <action name="actionAddProduct">
@@ -968,7 +1005,7 @@
      <normaloff>:/icons/icons/Package-Add-icon.png</normaloff>:/icons/icons/Package-Add-icon.png</iconset>
    </property>
    <property name="text">
-    <string>Добавить товар</string>
+    <string>Добавить товар...</string>
    </property>
   </action>
   <action name="actionSellProduct">
@@ -998,7 +1035,7 @@
      <normaloff>:/icons/icons/packing24.png</normaloff>:/icons/icons/packing24.png</iconset>
    </property>
    <property name="text">
-    <string>Управление категориями товаров</string>
+    <string>Управление категориями товаров...</string>
    </property>
   </action>
   <action name="action_6">
@@ -1029,6 +1066,20 @@
   <action name="actionReportSettings">
    <property name="text">
     <string>Настройки документов</string>
+   </property>
+  </action>
+  <action name="action_Qt">
+   <property name="text">
+    <string>О версии Qt</string>
+   </property>
+   <property name="toolTip">
+    <string>О версии Qt</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutQtRole</enum>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

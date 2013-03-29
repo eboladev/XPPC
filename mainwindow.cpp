@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connectEstablished = false;
     qApp->installEventFilter(this);
     jobModel = new QStandardItemModel(this);
     ui->treeViewJobsOnTicket->setModel(jobModel);       
@@ -60,24 +61,25 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
     connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
     connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()), SLOT(onGenerateJobListReport()));
+    connect(ui->action_Qt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
     ui->actionCloseTicket->setEnabled(false);
     ui->actionConnect->setEnabled(checkDbSettings());
-    changePermissions();
-    on_actionConnect_triggered();
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
 
     cud = new ChangeUserDialog(this);
-    connect(cud, SIGNAL(changePermissions()), SLOT(changePermissions()));
-    connect(this, SIGNAL(successfullLogin()), cud, SLOT(onSuccesfullLogin()));
-    connect(this, SIGNAL(successfullLogin()), this, SLOT(onSuccessfullLogin()));
+    connect(cud, SIGNAL(userLogOut()), SLOT(onUserLogOut()));
 
+    on_actionConnect_triggered();
+
+    changePermissions();
 
     userActivityTimer = new QTimer(this);
     connect(userActivityTimer, SIGNAL(timeout()), cud, SLOT(onLogout()));
+    connect(userActivityTimer, SIGNAL(timeout()), this, SLOT(onActionChangeUserClicked()));
     //do NOT delete it... yet.
     //connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(refreshTicketModel()));
     ticketComments = new QStandardItemModel(this);
@@ -116,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuShowcase->setEnabled(false);
     ui->tabWidget->setTabEnabled(1,false);
 #endif
-   // updateTableViewTicket->start(DEFAULTPERIOD);
+   // updateTableViewTicket->start(DEFAULTPERIOD);        
 }
 
 MainWindow::~MainWindow()
@@ -217,22 +219,25 @@ void MainWindow::sb(QString text)
 }
 
 void MainWindow::changePermissions()
-{
+{    
     if (SetupManager::instance()->getCurrentUser().isEmpty())
     {
         ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
         ui->menuCurrentUser->setTitle(trUtf8("Вход не выполнен"));
     }
-    else    
+    else        
         ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png"));
 
     bool permissions = SetupManager::instance()->getPermissions();    
+    qDebug() << SetupManager::instance()->getCurrentUser() << Q_FUNC_INFO << permissions << SetupManager::instance()->getPermissions();
     ui->tabTickets->setEnabled(permissions);
     ui->tabShowcase->setEnabled(permissions);
     ui->menuTicket->setEnabled(permissions);
     ui->menuShowcase->setEnabled(permissions);
     ui->menuSettings->setEnabled(permissions);
     ui->tabWidget->setEnabled(permissions);
+    ui->tabWidgetFastTicketInfo->setEnabled(permissions);
+    ui->treeViewJobsOnTicket->setEnabled(permissions);
     foreach (QAction* act,ui->menuTicket->actions())
         act->setEnabled(permissions);
     foreach (QAction* act,ui->menuShowcase->actions())
@@ -267,20 +272,40 @@ void MainWindow::onTabChanged(int tab)
     }
 }
 
-void MainWindow::onSuccessfullLogin()
+void MainWindow::onUserLogOut()
 {
-    refreshTicketModel(generateTicketQuery());
-    ui->tabWidget->setEnabled(true);
-    ui->tabTickets->setEnabled(true);
+    SetupManager::instance()->setCurrentUser("");
+    SetupManager::instance()->setCurrentUserId(-1);
+    SetupManager::instance()->setPermissons(0);
+    userActivityTimer->stop();
+    changePermissions();
+}
+
+void MainWindow::onUserLogIn()
+{
+    qDebug() << Q_FUNC_INFO << SetupManager::instance()->getCurrentUser();
+    startUserActivityTimer();
+    cud->onSuccesfullLogin();
+    changePermissions();
+    qDebug() << cud->getUser();
+    SetupManager::instance()->setLastUserLogin(cud->getUser());
+    if (ui->tabWidget->currentIndex() == 0)
+        refreshTicketModel(generateTicketQuery());
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    Q_UNUSED(obj);
-    if (event->type() == QEvent::MouseMove ||
-            event->type() == QEvent::KeyPress)
-        userActivityTimer->start(USERTIMEOUT);
-      return false;
+    Q_UNUSED(obj);    
+    if (SetupManager::instance()->getCurrentUser().isEmpty()&&
+            (event->type() == QEvent::MouseMove ||
+             event->type() == QEvent::KeyPress))
+        startUserActivityTimer();
+    return false;
+}
+
+void MainWindow::startUserActivityTimer()
+{
+    userActivityTimer->start(USERTIMEOUT);
 }
 
 void MainWindow::onRefreshCategoryModel()
@@ -434,10 +459,10 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
     SetupManager::instance()->setPermissons(permissions);
     SetupManager::instance()->setCurrentUserId(currentUserId);    
     currentEmployeeName = fio;
-    changePermissions();
     ui->menuCurrentUser->setTitle(fio);
-    qDebug() << Q_FUNC_INFO;
-    emit successfullLogin();
+
+    onUserLogIn();
+
     return true;
 }
 
@@ -773,8 +798,7 @@ void MainWindow::on_pushButtonSearch_clicked()
 
 void MainWindow::onShowCommentsTabClicked()
 {
-    ui->groupBoxFastTicketInfo->setVisible(true);
-    ui->groupBoxFastTicketInfo->setVisible(true);
+    ui->groupBoxFastTicketInfo->setVisible(true);    
     ui->tabWidgetFastTicketInfo->setTabEnabled(1,true);
     ui->tabWidgetFastTicketInfo->setCurrentIndex(1);
 }
@@ -974,9 +998,11 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         }
     }
     ui->groupBoxGuarantee->setVisible(showGuarantee);
+    qDebug() << Q_FUNC_INFO;
     ui->tabWidgetFastTicketInfo->setTabEnabled(TicketJobs,jobModel->rowCount() != 0 || showGuarantee);
     ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
     ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
+    ui->groupBoxFastTicketInfo->setEnabled(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
@@ -1100,11 +1126,14 @@ void MainWindow::onQueryLimitComboBoxIndexChanged(int)
 
 void MainWindow::on_actionConnect_triggered()
 {        
-    ui->actionChangeUser->setEnabled(connectToDb(CONNECTIONNAME));
+    connectEstablished = connectToDb(CONNECTIONNAME);
+    qDebug() << connectEstablished << Q_FUNC_INFO;
+    ui->actionChangeUser->setEnabled(connectEstablished);
 }
 
 void MainWindow::on_actionDisconnect_triggered()
 {
+    connectEstablished = false;
     disconnectFromDb(CONNECTIONNAME);    
     ui->actionConnect->setEnabled(settingsIsNotEmpty());
 }
@@ -1154,7 +1183,8 @@ void MainWindow::onCloseTicketClicked()
 }
 
 void MainWindow::onActionChangeUserClicked()
-{         
+{
+    cud->setUser(SetupManager::instance()->getLastUserLogin());
     if (cud->exec())
         changeUser(cud->getUser(),cud->getPassword()) ?
                     ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png")) :

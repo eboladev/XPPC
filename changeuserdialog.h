@@ -15,17 +15,16 @@ public:
     explicit ChangeUserDialog(QWidget *parent = 0);
     ~ChangeUserDialog();
     QString getUser();
+    void setUser(const QString& userLogin);
     QString getPassword();
 
 public slots:
     void onSuccesfullLogin();
     void onLogout();
-
-private slots:
-    void onAccept();
+    bool exec();
 
 signals:
-    void changePermissions();
+    void userLogOut();
 
 private:
     Ui::ChangeUserDialog *ui;

@@ -2,7 +2,10 @@
 
 
 SetupManager::SetupManager(QObject *parent) :
-    QObject(parent), dbStatus(FBCantOpen)
+    QObject(parent),
+    dbStatus(FBCantOpen),
+    permission(0),
+    currentUserId(QVariant())
 {
 }
 
@@ -14,6 +17,18 @@ Q_GLOBAL_STATIC(SetupManager, singlton_instance)
 SetupManager * SetupManager::instance()
 {
     return singlton_instance();
+}
+
+QString SetupManager::getLastUserLogin() const
+{
+    QSettings settings;
+    return settings.value("user/lastLogin","").toString();
+}
+
+void SetupManager::setLastUserLogin(const QString &value)
+{
+    QSettings settings;
+    settings.setValue("user/lastLogin", value);
 }
 
 int SetupManager::getPermissions()
@@ -208,12 +223,12 @@ void SetupManager::encryptDecrypt(QByteArray &ba)
 
 int SetupManager::openSQLDatabase(QString connectionName)
 {   /* fb */
-     QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
+    QSqlDatabase fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (fireBirdSQLDatabase.isOpen())
         return FBAlreadyOpened;
-
+    
     //dbStatus = FBCorrect;
-
+    
     fireBirdSQLDatabase =  QSqlDatabase::database(connectionName.toLatin1(), false);
     if (fireBirdSQLDatabase.isOpen()) return FBCorrect;
     fireBirdSQLDatabase = QSqlDatabase::addDatabase("QPSQL", connectionName.toLatin1());
@@ -227,7 +242,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
     }
     else
         dbStatus = FBCorrect;
-
+    
     qDebug() << fireBirdSQLDatabase.driver()->hasFeature(QSqlDriver::EventNotifications);
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
     return dbStatus;

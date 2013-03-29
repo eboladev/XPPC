@@ -43,9 +43,10 @@ private slots:
     void changePermissions();
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();
-    void onTabChanged(int);
-    void onSuccessfullLogin();
-    bool eventFilter(QObject *, QEvent *);
+    void onTabChanged(int);    
+    void onUserLogOut();
+    void onUserLogIn();
+    bool eventFilter(QObject *, QEvent *);    
 
 private:
     bool checkDbConnection();
@@ -56,10 +57,9 @@ private:
     void sb(QString text);    
     bool changeUser(const QString& login, const QString& password);
     bool executeDialog(QDialog *);
+    void startUserActivityTimer();
     QString genUUID();
 
-signals:
-    void successfullLogin();
     /*base end*/
 
     /*ticket manager start*/
@@ -137,6 +137,8 @@ private:
     int currentStatus;
     int currentEmployeeId;
     QString currentEmployeeName;
+
+    bool connectEstablished;
 
     QStandardItemModel* proCatModel; //product category model
     QSqlQueryModel* productModel;

@@ -1,20 +1,18 @@
 #include "changeuserdialog.h"
 #include "ui_changeuserdialog.h"
-#include "setupmanager.h"
+#include <QDebug>
 ChangeUserDialog::ChangeUserDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ChangeUserDialog)
 {
     ui->setupUi(this);
-    connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(onAccept()));
+    connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(accept()));
     connect(ui->pushButtonCancel, SIGNAL(clicked()), SLOT(reject()));
-    connect(ui->pushButtonLogout, SIGNAL(clicked()), SLOT(onLogout()));
+    connect(ui->pushButtonLogout, SIGNAL(clicked()), SLOT(onLogout()));    
 #ifdef RELEASE
     ui->lineEditLogin->clear();
     ui->lineEditPassword->clear();
 #endif
-    setProperty("login",ui->lineEditLogin->text());
-    setProperty("password",ui->lineEditPassword->text());
 }
 
 ChangeUserDialog::~ChangeUserDialog()
@@ -27,6 +25,11 @@ QString ChangeUserDialog::getUser()
     return ui->lineEditLogin->text().trimmed();
 }
 
+void ChangeUserDialog::setUser(const QString &userLogin)
+{
+    ui->lineEditLogin->setText(userLogin);
+}
+
 QString ChangeUserDialog::getPassword()
 {
     return ui->lineEditPassword->text().trimmed();
@@ -34,22 +37,19 @@ QString ChangeUserDialog::getPassword()
 
 void ChangeUserDialog::onSuccesfullLogin()
 {
-    ui->stackedWidget->setCurrentIndex(1);
-}
-
-void ChangeUserDialog::onAccept()
-{
-    setProperty("login",ui->lineEditLogin->text());
-    setProperty("password",ui->lineEditPassword->text());
-    accept();
+    ui->stackedWidget->setCurrentIndex(1);    
 }
 
 void ChangeUserDialog::onLogout()
 {
     ui->stackedWidget->setCurrentIndex(0);
-    SetupManager::instance()->setCurrentUser("");
-    SetupManager::instance()->setPermissons(0);
-    ui->lineEditLogin->setText("");
+    ui->lineEditLogin->setFocus();  
     ui->lineEditPassword->setText("");
-    emit changePermissions();
+    emit userLogOut();
+}
+
+bool ChangeUserDialog::exec()
+{
+    ui->lineEditLogin->setFocus();
+    return QDialog::exec();
 }
