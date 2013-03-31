@@ -6,7 +6,7 @@
 
 #include <QStandardItemModel>
 #include <QMenu>
-#include <QDateEdit>
+#include <QDateTimeEdit>
 #include <QSortFilterProxyModel>
 
 UserManagementDialog::UserManagementDialog(const QString &dbConnectionString, QWidget *parent) :
@@ -110,21 +110,24 @@ QWidget *CalendarDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    QDateEdit* date = new QDateEdit(parent);
+    QDateTimeEdit* date = new QDateTimeEdit(parent);
     return date;
 }
 
 void CalendarDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    QDate date = index.model()->data(index,Qt::DisplayRole).toDate();
-    QDateEdit *dateEdit = qobject_cast<QDateEdit*>(editor);
-    dateEdit->setDate(date);
+    qDebug() << index.model()->data(index,Qt::DisplayRole);
+    QDateTime date;
+    date.fromString(index.model()->data(index,Qt::DisplayRole).toString(),"dd-MM-yyyy_hh-mm-ss");
+    qDebug() << date;
+    QDateTimeEdit *dateEdit = qobject_cast<QDateTimeEdit*>(editor);
+    dateEdit->setDateTime(date);
 }
 
 void CalendarDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    QDateEdit *dateEdit = qobject_cast<QDateEdit*>(editor);
-    model->setData(index, dateEdit->date(), Qt::DisplayRole);
+    QDateTimeEdit *dateEdit = qobject_cast<QDateTimeEdit*>(editor);
+    model->setData(index, dateEdit->dateTime().toString(), Qt::DisplayRole);
 }
 
 void CalendarDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const

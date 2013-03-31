@@ -1055,6 +1055,10 @@ void MainWindow::onIsClientNotifiedClicked(const QModelIndex &index)
     q.addBindValue(ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->checkState() == Qt::Checked ? "TRUE" : "FALSE");
     q.addBindValue(ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data());
     q.exec();
+    if (ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->checkState() == Qt::Checked)
+        ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->setToolTip("Клиенту отзвонились.");
+    else
+        ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->setToolTip("Клиенту не отзванивались.");
 }
 
 void MainWindow::onMoveBackToWork()
