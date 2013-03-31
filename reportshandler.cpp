@@ -308,7 +308,7 @@ QString ReportsHandler::getTemplatePath(const int &report_type)
 
 bool ReportsHandler::loadTemplate(WordAutomation &wa, const int &report_type)
 {
-    QString templateName = QDir::tempPath() + "/templateXXXXXX.doc";
+    QString templateName = QDir::tempPath() + "/templateXXXXXX.dot";
     templateName = QDir::toNativeSeparators(templateName);
 
     qDebug() << templateName;
@@ -332,12 +332,12 @@ bool ReportsHandler::loadTemplate(WordAutomation &wa, const int &report_type)
     qDebug() << "report opened, and its size:" << repDot.size();
 
     tempFile.write(repDot.readAll());    
-
-    qDebug() << "document loaded ?" << tempFile.fileName();
+    repDot.close();
+    qDebug() << "document loaded ?" << tempFile.fileName() << "size" << tempFile.size();
 
     tempFile.close();
 
-    if (!wa.loadDocument(tempFile.fileName()))
+    if (!wa.loadDocument(tempFile.fileName(),true))
         return false;
     else
         return true;

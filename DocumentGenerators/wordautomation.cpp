@@ -94,20 +94,14 @@ bool WordAutomation::selectCellInTableByPos(const int &column, const int &row)
 }
 
 bool WordAutomation::loadDocument(const QString &fileName, const bool &isHidden)
-{
-    qDebug() << "here";
+{    
     LPWSTR p_name = QStringToLPWSTR(QDir::toNativeSeparators(fileName));
     bool ret = false;
-    try {
-        qDebug() << QString::fromWCharArray(p_name);
-        dhCheck(dhGetValue(L"%o", &m_wordDocs, m_word, L"Documents()"));
-        qDebug() << "here should be something" << QString::fromWCharArray(p_name);
-        dhCheck(dhGetValue(L"%o", &m_wordDoc, m_wordDocs, L"Add(%S)", p_name));
-        qDebug() << "here";
-        dhCheck(dhPutValue(m_word, L"Visible = %b", !isHidden));
-        qDebug() << "here";
-        ret = true;
-        qDebug() << "here";
+    try {        
+        dhCheck(dhGetValue(L"%o", &m_wordDocs, m_word, L"Documents()"));        
+        dhCheck(dhGetValue(L"%o", &m_wordDoc, m_wordDocs, L"Add(%S)", p_name));        
+        dhCheck(dhPutValue(m_word, L"Visible = %b", !isHidden));        
+        ret = true;        
     } catch (...) {
     }
     delete p_name;
