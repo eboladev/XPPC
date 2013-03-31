@@ -85,7 +85,7 @@ bool ReportsHandler::saveTicketReports(const QString &path, const int &ticket_id
 
     bool res = false;
 
-    QString templateType = getTemplateType(ticket_id);
+    QString templateType;// = getTemplateType(ticket_id);
 
     /*if (templateType.contains(".ott"))
     {
@@ -292,23 +292,9 @@ QString ReportsHandler::money(double n)
 
 QString ReportsHandler::getTemplateType(const int &template_type)
 {
-    QSqlQuery q;
-
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return "";
-
-    q.prepare("select report_path from reports where branch_id = ? and report_type = ?");
-    q.addBindValue(SetupManager::instance()->getCurrentBranch());
-    q.addBindValue(template_type);
-    if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
-
-    if (!q.next())
-        return "";
-
     QRegExp re;
     re.setPattern("[//*\\\\*](\\w*\\d*\\.\\w*)");
-    if (re.indexIn(q.value(0).toString(),0) >= 0)
+    if (re.indexIn(getTemplatePath(template_type),0) >= 0)
         return re.cap(1); //filename;
     else
         return "";
@@ -316,26 +302,8 @@ QString ReportsHandler::getTemplateType(const int &template_type)
 
 QString ReportsHandler::getTemplatePath(const int &report_type)
 {
-    QSqlQuery q;
-
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return "";
-
-    q.prepare("select report_path from reports where branch_id = ? and report_type = ?");
-    q.addBindValue(SetupManager::instance()->getCurrentBranch());
-    q.addBindValue(report_type);
-
-    if (!q.exec())
-    {
-        qDebug() << q.lastError() << q.lastQuery();
-        return "";
-    }
-
-    if (!q.next())
-        return "";
-
-    qDebug() << q.value(0).toString();
-    return q.value(0).toString();
+    QSettings s;
+    return s.value(QString("reports/%0").arg(QString::number(report_type))).toString();
 }
 
 bool ReportsHandler::loadTemplate(WordAutomation &wa, const int &report_type)
@@ -343,21 +311,33 @@ bool ReportsHandler::loadTemplate(WordAutomation &wa, const int &report_type)
     QString templateName = QDir::tempPath() + "/templateXXXXXX.doc";
     templateName = QDir::toNativeSeparators(templateName);
 
+    qDebug() << templateName;
+
     QTemporaryFile tempFile(templateName);
     if (!tempFile.open())
         return false;
 
+    qDebug() << "temp file opened";
+
     QFile repDot(getTemplatePath(report_type));
+
+    qDebug() << "rep path" << getTemplatePath(report_type);
 
     if (!repDot.open(QIODevice::ReadOnly))
     {
         qDebug() << "template didnt open";
         return false;
     }
-    tempFile.write(repDot.readAll());
+
+    qDebug() << "report opened, and its size:" << repDot.size();
+
+    tempFile.write(repDot.readAll());    
+
+    qDebug() << "document loaded ?" << tempFile.fileName();
+
     tempFile.close();
 
-    if (!wa.loadDocument(tempFile.fileName(), true))
+    if (!wa.loadDocument(tempFile.fileName()))
         return false;
     else
         return true;
@@ -370,9 +350,10 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
 
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return false;
-
+    qDebug() << "db connect ok" << Q_FUNC_INFO;
     wa.setQuitFromWordAutomaticaly(true);
 
+    qDebug() << wa.isWordPresent() << "word present" << Q_FUNC_INFO;
     if (!wa.isWordPresent())
         return false;
 
@@ -396,10 +377,10 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
         qDebug() << q.lastError() << q.lastQuery();        
         return false;
     }
-
+    qDebug() << "query ok";
     if (!q.next())
         return false;
-
+    qDebug() << "query have data";
     QString clientName(q.value(0).toString());
     QString clientPhone(q.value(1).toString());
     QString deviceName(q.value(2).toString());
@@ -409,6 +390,8 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
 
     if (!loadTemplate(wa,TicketReport))
         return false;
+
+    qDebug() << "template loaded";
 
     if (wa.findBookmarkByName("client_name"))
         wa.insertText(clientName);

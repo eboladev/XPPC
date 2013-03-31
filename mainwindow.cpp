@@ -1221,28 +1221,6 @@ void MainWindow::onActionUserManagementClicked()
 
 void MainWindow::onActionReportSettignsClicked()
 {
-    QString dbConnectionString = "REPORTMANAGEMENT";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();
-        ReportsSettings* rs = new ReportsSettings(dbConnectionString,this);
-        if (rs->exec())
-            db.commit();
-        else
-            db.rollback();
-        db.close();
-    }
-    QSqlDatabase::removeDatabase(dbConnectionString);
+    ReportsSettings rs;
+    rs.exec();
 }

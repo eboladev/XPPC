@@ -75,7 +75,7 @@ void EmployeeItemModel::addEmployee()
     q.prepare("insert into employee(employee_fio) VALUES(?)");
     q.addBindValue(trUtf8("ФИО"));
     if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
+        qDebug() << q.lastError() << q.lastQuery();   
 }
 
 void EmployeeItemModel::onFireEmployee(const QModelIndex &index)

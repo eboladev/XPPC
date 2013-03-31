@@ -155,7 +155,7 @@ void ReceiptManager::onAccept()
         }
         else
         {
-            q.prepare("insert into device(name,problem,serial,condition,branch_id) values(?,?,?,?) returning id");
+            q.prepare("insert into device(name,problem,serial,condition,branch_id) values(?,?,?,?,?) returning id");
             q.addBindValue(t.dName);
             q.addBindValue(t.dProblem);
             q.addBindValue(t.dSN);

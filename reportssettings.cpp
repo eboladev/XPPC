@@ -3,11 +3,11 @@
 #include "reportselectionwidget.h"
 #include "globals.h"
 
+#include <QSettings>
 #include <QDebug>
 
-ReportsSettings::ReportsSettings(const QString &dbConenctionString, QWidget *parent) :
-    QDialog(parent),
-    SqlExtension(dbConenctionString),
+ReportsSettings::ReportsSettings(QWidget *parent) :
+    QDialog(parent),    
     ui(new Ui::ReportsSettings)
 {
     ui->setupUi(this);
@@ -24,41 +24,9 @@ ReportsSettings::~ReportsSettings()
 
 void ReportsSettings::onAccept()
 {
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
+    QSettings s;
     for (int i = TicketReport; i != CashCheckReport + 1; ++i)
-    {
-        q.prepare("select report_path from reports where branch_id = ? and report_type = ?");
-        q.addBindValue(ui->branchSelectionWidget->getCurrentBranch());
-        q.addBindValue(i);
-        if (!q.exec())
-            qDebug() << q.lastError() << q.lastQuery();
-        if (!q.next())
-        {
-            QSqlQuery q2;
-            if (!getSqlQuery(q2))
-                return;
-            q2.prepare("insert into reports(report_path,report_type,branch_id) VALUES(?,?,?)");
-            q2.addBindValue(reportsMap[i]->getReportPath());
-            q2.addBindValue(i);
-            q2.addBindValue(ui->branchSelectionWidget->getCurrentBranch());
-            if (!q2.exec())
-                qDebug() << q2.lastError() << q2.lastQuery();
-        }
-        else
-        {
-            QSqlQuery q2;
-            if (!getSqlQuery(q2))
-                return;
-            q2.prepare("update reports set report_path = ? where report_type = ? and branch_id = ?");
-            q2.addBindValue(reportsMap[i]->getReportPath());
-            q2.addBindValue(i);
-            q2.addBindValue(ui->branchSelectionWidget->getCurrentBranch());
-            if (!q2.exec())
-                qDebug() << q2.lastError() << q2.lastQuery();
-        }
-    }
+        s.setValue(QString("reports/%0").arg(i),reportsMap[i]->getReportPath());
     accept();
 }
 
@@ -80,42 +48,10 @@ void ReportsSettings::fillReportSelectWidgets()
     rswCashCheckRep->setGroupBoxTitle(trUtf8("Товарный чек"));
     reportsMap[CashCheckReport] = rswCashCheckRep;
 
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-    q.prepare("select report_type, report_path from reports where branch_id = ?");
-    q.addBindValue(ui->branchSelectionWidget->getCurrentBranch());
-    if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
-    while (q.next())
-    {
-        switch(q.value(0).toInt())
-        {
-        case TicketReport:
-        {
-            rswTicketRep->setReportPath(q.value(1).toString());
-        }
-            break;
-        case JobListReport:
-        {
-            rswJobListRep->setReportPath(q.value(1).toString());
-        }
-            break;
-        case CashReceiptReport:
-        {
-            rswCashReceiptRep->setReportPath(q.value(1).toString());
-        }
-            break;
-        case PricetTagReport:
-        {
-            rswPriceTagRep->setReportPath(q.value(1).toString());
-        }
-            break;
-        case CashCheckReport:
-        {
-            rswCashCheckRep->setReportPath(q.value(1).toString());
-        }
-            break;
-        }
-    }
+    QSettings s;
+    rswTicketRep->setReportPath(s.value("reports/0").toString());
+    rswJobListRep->setReportPath(s.value("reports/1").toString());
+    rswCashReceiptRep->setReportPath(s.value("reports/2").toString());
+    rswPriceTagRep->setReportPath(s.value("reports/3").toString());
+    rswCashCheckRep->setReportPath(s.value("reports/4").toString());
 }

@@ -2,20 +2,19 @@
 #define REPORTSSETTINGS_H
 
 #include <QDialog>
-#include "sqlextension.h"
-
+#include <QMap>
 namespace Ui {
 class ReportsSettings;
 }
 
 class ReportSelectionWidget;
 
-class ReportsSettings : public QDialog, SqlExtension
+class ReportsSettings : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit ReportsSettings(const QString& dbConenctionString, QWidget *parent = 0);
+    explicit ReportsSettings(QWidget *parent = 0);
     ~ReportsSettings();
 
 private slots:
