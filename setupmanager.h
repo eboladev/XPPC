@@ -11,6 +11,8 @@
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlDriver>
 
+#define setupManager (static_cast<SetupManager *>(SetupManager::instance()))
+
 class SetupManager : public QObject
 {
     Q_OBJECT

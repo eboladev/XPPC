@@ -3,6 +3,7 @@
 #include "setupmanager.h"
 
 #include <QMessageBox>
+#include <QCryptographicHash>
 
 UserLoginPassManager::UserLoginPassManager(QWidget *parent) :
     QDialog(parent),
@@ -33,6 +34,11 @@ void UserLoginPassManager::setUserLogin(QString login)
     ui->lineEditLogin->setText(login);
 }
 
+void UserLoginPassManager::setUserId(const QVariant &id)
+{
+    userId = id;
+}
+
 void UserLoginPassManager::onAccept()
 {
     if ((ui->lineEditPassword->text() == ui->lineEditPasswordConfirm->text())
@@ -40,16 +46,27 @@ void UserLoginPassManager::onAccept()
             && !ui->lineEditLogin->text().isEmpty())
     {
         QSqlQuery q;
-        if (!SetupManager::instance()->getSqlQueryForDB(q))
+        if (!setupManager->getSqlQueryForDB(q))
             return;
         q.prepare("select employee_id from employee where login = ?");
         q.addBindValue(ui->lineEditLogin->text());
         q.exec();
-        if (q.next())
+        qDebug() << userId;
+        while (q.next())
         {
-            QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Такой логин уже существует."));
-            return;
+            if (q.value(0) != userId)
+            {
+                QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Такой логин уже существует."));
+                return;
+            }
         }
+
+        q.prepare("update employee set login = ?, password = ? where employee_id = ?");
+        q.addBindValue(getUserLogin());
+        q.addBindValue(QCryptographicHash::hash(getUserPassword().toUtf8(), QCryptographicHash::Sha1));
+        q.addBindValue(userId);
+        if (!q.exec())
+            qDebug() << q.lastError() << q.lastQuery();
         accept();
     }
     else

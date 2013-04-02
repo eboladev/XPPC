@@ -19,10 +19,13 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
 {
     clear();
 
-    setHorizontalHeaderLabels(QStringList() << trUtf8("ФИО") << trUtf8("Телефон") << trUtf8("Оплата за ремонт") <<
-                                      trUtf8("Процент") << trUtf8("Процент с продаж") <<
-                                      trUtf8("Дата з\\п") << trUtf8("З\\п в день") <<
-                                      trUtf8("Логин") << trUtf8("Пароль"));
+    if (!isGetOnlyNames)
+        setHorizontalHeaderLabels(QStringList() << trUtf8("ФИО") << trUtf8("Телефон") << trUtf8("Оплата за ремонт") <<
+                                  trUtf8("Процент") << trUtf8("Процент с продаж") <<
+                                  trUtf8("Дата з\\п") << trUtf8("З\\п в день") <<
+                                  trUtf8("Логин") << trUtf8("Пароль"));
+    else
+        setHorizontalHeaderLabels(QStringList() << trUtf8("ФИО"));
 
     QSqlQuery q;
 
@@ -38,7 +41,8 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
 
     while (q.next())
     {
-        appendEmployeeRow(q.value(0),
+        appendEmployeeRow(isGetOnlyNames,
+                          q.value(0),
                           q.value(1).toString(),
                           q.value(2).toInt(),
                           q.value(3).toInt(),
@@ -47,20 +51,27 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
                           q.value(6).toInt(),
                           q.value(7).toString(),
                           q.value(8).toString(),
-                          q.value(9).toString());
+                          q.value(9).toString()
+                          );
     }
 }
 
-void EmployeeItemModel::addEmployee()
+bool EmployeeItemModel::addEmployee(const bool &isGetOnlyNames)
 {
     QSqlQuery q;
     if (!getSqlQuery(q))
-        return;
-    q.prepare("insert into employee(employee_fio) VALUES(?)");
+        return false;
+    q.prepare("insert into employee(employee_fio) VALUES(?) returning employee_id");
     q.addBindValue(trUtf8("ФИО"));
     if (!q.exec())
+    {
         qDebug() << q.lastError() << q.lastQuery();
-    appendEmployeeRow();
+        return false;
+    }
+    if (!q.next())
+        return false;
+
+    return appendEmployeeRow(isGetOnlyNames,q.value(0));
 }
 
 void EmployeeItemModel::onFireEmployee(const QModelIndex &index)
@@ -75,33 +86,6 @@ void EmployeeItemModel::onFireEmployee(const QModelIndex &index)
         qDebug() << q.lastError() << q.lastQuery();
 }
 
-void EmployeeItemModel::onItemChanged(QStandardItem *itemChanged)
-{
-    QSqlQuery q;
-    if (!getSqlQuery(q))
-        return;
-    QModelIndex idx = itemChanged->index();
-    if (idx.column() == 3 || idx.column() == 4 || idx.column() == 5 || idx.column() == 6 || idx.column() == 7)
-        setData(idx,itemChanged->text().toInt(),Qt::DisplayRole);
-    q.prepare("update employee set employee_fio = ?, employee_rate = ?, "
-              "employee_percent = ?, employee_sale_percent = ?, "
-              "employee_last_salary_date = ?, employee_salaryperday = ?, "
-              "phone = ? "
-              "where employee_id = ?");
-
-    q.addBindValue(item(idx.row(),0)->text());
-    q.addBindValue(item(idx.row(),2)->text().toInt());
-    q.addBindValue(item(idx.row(),3)->text().toInt());
-    q.addBindValue(item(idx.row(),4)->text().toInt());
-    q.addBindValue(item(idx.row(),5)->text());
-    qDebug() << item(idx.row(),5)->text();
-    q.addBindValue(item(idx.row(),6)->text().toInt());
-    q.addBindValue(item(idx.row(),1)->text());
-    q.addBindValue(item(idx.row(),0)->data());
-    if (!q.exec())
-        qDebug() << q.lastError() << q.lastQuery();
-}
-
 QVariant EmployeeItemModel::getCurrentId(const QModelIndex &index)
 {
     return item(index.row(),0)->data();
@@ -112,7 +96,8 @@ QVariant EmployeeItemModel::getCurrentId()
     return SetupManager::instance()->getCurrentUserId();
 }
 
-void EmployeeItemModel::appendEmployeeRow(const QVariant &id,
+bool EmployeeItemModel::appendEmployeeRow(const bool &isGetOnlyNames,
+                                          const QVariant &id,
                                           const QString &name,
                                           const int &rate,
                                           const int &percent,
@@ -121,11 +106,11 @@ void EmployeeItemModel::appendEmployeeRow(const QVariant &id,
                                           const int &salary_per_day,
                                           const QString &login,
                                           const QString &password,
-                                          const QString &phone,
-                                          const bool &isGetOnlyNames)
+                                          const QString &phone
+                                          )
 {
     QStandardItem* fio = new QStandardItem(name);
-    fio->setData(id);
+    fio->setData(id, IDrole);
     fio->setToolTip(fio->text());
     if (!isGetOnlyNames)
     {
@@ -147,7 +132,18 @@ void EmployeeItemModel::appendEmployeeRow(const QVariant &id,
         phoneItem->setToolTip(phoneItem->text());
         appendRow(QList<QStandardItem*>() << fio << phoneItem << rateItem
                          << percentItem << sPercent << sDate << spDay << loginItem << pass);
+        return true;
     }
     else
-        appendRow(fio);
+    {
+        fio->setData(rate,RateRole);
+        fio->setData(percent, PercentRole);
+        fio->setData(sale_percent, SalePercentRole);
+        fio->setData(salary_per_day, SalaryPerDayRole);
+        fio->setData(login, LoginRole);
+        fio->setData(phone, PhoneRole);
+        fio->setData(password.isEmpty() ? false : true, isPasswordSetRole);
+        appendRow(fio);        
+        return true;
+    }
 }

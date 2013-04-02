@@ -5,6 +5,19 @@
 
 #include "sqlextension.h"
 
+enum EmployeeItemRoles
+{
+    IDrole = Qt::UserRole + 1,
+    isPasswordSetRole = Qt::UserRole + 2,
+    PhoneRole = Qt::UserRole + 3,
+    RateRole = Qt::UserRole + 4,
+    PercentRole = Qt::UserRole + 5,
+    SalePercentRole = Qt::UserRole + 6,
+    SalaryPerDayRole = Qt::UserRole + 7,
+    LoginRole = Qt::UserRole + 8,
+    NameRole = Qt::DisplayRole
+};
+
 class EmployeeItemModel : public QStandardItemModel, SqlExtension
 {
     Q_OBJECT
@@ -14,7 +27,8 @@ public:
     void refreshModel(const bool& isListFired = false, const bool& isGetOnlyNames = false);
     QVariant getCurrentId(const QModelIndex &index);
     QVariant getCurrentId();    
-    void appendEmployeeRow(const QVariant&id = QVariant(),
+    bool appendEmployeeRow(const bool& isGetOnlyNames = false,
+                           const QVariant& id = QVariant(),
                            const QString& name = trUtf8("ФИО"),
                            const int& rate = 0,
                            const int& percent = 0,
@@ -23,18 +37,11 @@ public:
                            const int& salary_per_day = 0,
                            const QString& login = "",
                            const QString& password = "",
-                           const QString& phone = "",
-                           const bool& isGetOnlyNames = false);
-    /*
-employee_id, employee_fio, employee_rate, "
-              "employee_percent, employee_sale_percent, "
-              "employee_last_salary_date, employee_salaryperday, "
-              "login, password, phone
-*/
+                           const QString& phone = "");
+
 public slots:
-    void addEmployee();
-    void onFireEmployee(const QModelIndex &index);
-    void onItemChanged(QStandardItem*);
+    bool addEmployee(const bool& isGetOnlyNames = false);
+    void onFireEmployee(const QModelIndex &index);    
 };
 
 #endif // EMPLOYEEITEMMODEL_H

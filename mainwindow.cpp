@@ -433,8 +433,8 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
 
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return false;    
-    q.prepare("select password, employee_fio, employee_id, permissions from employee where login = ? and fired = FALSE");
+        return false;    //permissions
+    q.prepare("select password, employee_fio, employee_id from employee where login = ? and fired = FALSE");
     q.addBindValue(login);
     q.exec();
     if (!q.next())
@@ -444,7 +444,7 @@ bool MainWindow::changeUser(const QString &login, const QString &password)
         return false;
     }
 
-    int permissions = q.value(3).toInt();
+    int permissions = -1;//q.value(3).toInt();
     QString fio = q.value(1).toString();
     QString passwordB = q.value(0).toString().remove(0,2); //remove the \x escape character(thanks for postgress for adding it >_>)
     QVariant currentUserId = q.value(2);
@@ -780,20 +780,34 @@ void MainWindow::on_pushButtonSearchClear_clicked()
 
 void MainWindow::on_pushButtonSearch_clicked()
 {
-    updateTableViewTicket->stop();    
+    updateTableViewTicket->stop();
+    currentStatus = Closed; //temp workaround
     refreshTicketModel(
-                "select ticket.id, ticket.ticket_id, device.date_accepted, branch.branch_name, "
-                "client.name, client.phone, device.name, device.serial, "
-                "device.problem, device.price, ticket_guarantee.date_accepted, ticket_guarantee.id, "
-                "ticket_guarantee.date_closed "
-                "from ticket "
-                "join client on(ticket.client_id = client.id) "
-                "join device on(ticket.device_id = device.id) "
-                "join branch on(device.branch_id = branch.id) "                
-                "left join ticket_guarantee on (ticket_guarantee.tdc_r_id = ticket.id) "
-                "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') "
-                "or client.name LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
-                );
+                QString("SELECT "
+                        "ticket.id, " //0
+                        "ticket.ticket_id, "  //1
+                        "device.date_accepted, " //2
+                        "branch.branch_name, " //3
+                        "client.name, " //4
+                        "client.phone, " //5
+                        "device.name, " //6
+                        "device.serial, " //7
+                        "device.problem, " //8
+                        "ticket.client_notified, " //9
+                        "device.price, device.date_givenout, " //10,11
+                        "ticket_guarantee.date_accepted, " //10,12
+                        "ticket_guarantee.id, " //11,13
+                        "ticket_guarantee.date_closed " //12,14
+                        "FROM "
+                        "client_ticket "
+                        "INNER JOIN client ON (client_ticket.client_id = client.id) "
+                        "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+                        "left JOIN ticket_guarantee ON (ticket.id = ticket_guarantee.tdc_r_id) "
+                        "INNER JOIN device ON (device.id = ticket.device_id) "
+                        "INNER JOIN branch ON (device.branch_id = branch.id) "
+                        "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') "
+                        "or client.name LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
+                        ));
 }
 
 void MainWindow::onShowCommentsTabClicked()

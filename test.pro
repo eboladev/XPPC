@@ -62,7 +62,8 @@ SOURCES += main.cpp\
     employeeitemmodel.cpp \
     jobitemmodel.cpp \
     joblistitemmodel.cpp \
-    permissionswidget.cpp
+    permissionswidget.cpp \
+    userinfowidget.cpp
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -105,7 +106,8 @@ HEADERS  += mainwindow.h \
     employeeitemmodel.h \
     jobitemmodel.h \
     joblistitemmodel.h \
-    permissionswidget.h
+    permissionswidget.h \
+    userinfowidget.h
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }
@@ -129,7 +131,8 @@ FORMS    += mainwindow.ui \
     reportssettings.ui \
     reportselectionwidget.ui \
     employeewidget.ui \
-    permissionswidget.ui
+    permissionswidget.ui \
+    userinfowidget.ui
 
 RESOURCES += \
     Resources.qrc

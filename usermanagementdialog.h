@@ -2,7 +2,6 @@
 #define USERMANAGEMENTDIALOG_H
 
 #include <QDialog>
-#include <QStyledItemDelegate>
 
 #include "sqlextension.h"
 
@@ -14,17 +13,6 @@ namespace Ui {
 class UserManagementDialog;
 }
 
-class CalendarDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-public:
-    CalendarDelegate(QObject *parent = 0);
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-};
-
 class UserManagementDialog : public QDialog, SqlExtension
 {
     Q_OBJECT
@@ -35,10 +23,16 @@ public:
 
 private slots:
     void onCustomContextMenuRequested(const QPoint&);
+    void onCurrentEmployeeChanges(QModelIndex, QModelIndex);
     void onAddEmployee();
     void onFireEmployee();
     void refreshModel();
     void onChangeLoginpass();
+    void onUserNameChanged(QString);
+    void onUserInfoChangesSaved();
+
+private:
+    QStandardItem* getItemFromIndex(QModelIndex);
 
 private:
     Ui::UserManagementDialog *ui;

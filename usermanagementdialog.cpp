@@ -22,11 +22,14 @@ UserManagementDialog::UserManagementDialog(const QString &dbConnectionString, QW
     connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(accept()));
     connect(ui->pushButtonCancel, SIGNAL(clicked()), SLOT(reject()));
     connect(ui->radioButtonFired, SIGNAL(clicked()), SLOT(refreshModel()));
-    connect(ui->radioButtonWorking, SIGNAL(clicked()), SLOT(refreshModel()));
-    connect(employeeModel, SIGNAL(itemChanged(QStandardItem*)),employeeModel, SLOT(onItemChanged(QStandardItem*)));
+    connect(ui->radioButtonWorking, SIGNAL(clicked()), SLOT(refreshModel()));    
     connect(ui->lineEditFilter, SIGNAL(textChanged(QString)), employeeProxyModel, SLOT(setFilterFixedString(QString)));
-    ui->treeViewUsers->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->treeViewUsers->setItemDelegateForColumn(5, new CalendarDelegate(this));
+    connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddEmployee()));
+    connect(ui->pushButtonFire, SIGNAL(clicked()), this, SLOT(onFireEmployee()));
+    connect(ui->treeViewUsers->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentEmployeeChanges(QModelIndex,QModelIndex)));
+    connect(ui->widgetUserInfo, SIGNAL(userNameChanged(QString)), this, SLOT(onUserNameChanged(QString)));
+    connect(ui->widgetUserInfo, SIGNAL(changesSaved()), this, SLOT(onUserInfoChangesSaved()));
+    ui->treeViewUsers->setContextMenuPolicy(Qt::CustomContextMenu);   
     connect(ui->treeViewUsers, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCustomContextMenuRequested(QPoint)));
     refreshModel();
 }
@@ -52,9 +55,9 @@ void UserManagementDialog::onCustomContextMenuRequested(const QPoint &pos)
         if (ui->radioButtonFired->isChecked())
             menu->addAction(trUtf8("Восстановить"), this, SLOT(onFireEmployee()));
 #ifdef RELEASE
-        if (employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),8)->data().toBool())
-        {            
-            if (SetupManager::instance()->getCurrentUser() == employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),7)->text())
+        if (getItemFromIndex(ui->treeViewUsers->currentIndex())->data(isPasswordSetRole).toBool())
+        {
+            if (SetupManager::instance()->getCurrentUser() == getItemFromIndex(ui->treeViewUsers->currentIndex())->data(LoginRole).toString())
                 menu->addAction(trUtf8("Логин\\пароль"),this, SLOT(onChangeLoginpass()));
         }
         else
@@ -64,19 +67,55 @@ void UserManagementDialog::onCustomContextMenuRequested(const QPoint &pos)
     menu->exec(QCursor::pos());
 }
 
+void UserManagementDialog::onCurrentEmployeeChanges(QModelIndex current, QModelIndex)
+{
+    ui->widgetUserInfo->setEnabled(false);
+    if (!current.isValid())
+        return;
+    else
+    {
+#ifdef RELEASE
+        if (getItemFromIndex(ui->treeViewUsers->currentIndex())->data(isPasswordSetRole).toBool())
+        {
+            if (SetupManager::instance()->getCurrentUser() == getItemFromIndex(ui->treeViewUsers->currentIndex())->data(LoginRole).toString())
+                ui->widgetUserInfo->setEnabled(true);
+        }
+        else
+#endif
+         ui->widgetUserInfo->setEnabled(true);
+    }
+    ui->widgetUserInfo->setUserId(getItemFromIndex(current)->data(IDrole));
+    ui->widgetUserInfo->setUserName(getItemFromIndex(current)->text());
+    ui->widgetUserInfo->setUserPhone(getItemFromIndex(current)->data(PhoneRole).toString());
+    ui->widgetUserInfo->setUserLogin(getItemFromIndex(current)->data(LoginRole).toString());
+    ui->widgetUserInfo->setUserRate(getItemFromIndex(current)->data(RateRole).toInt());
+    ui->widgetUserInfo->setUserPercent(getItemFromIndex(current)->data(PercentRole).toInt());
+    ui->widgetUserInfo->setUserSalePercent(getItemFromIndex(current)->data(SalePercentRole).toInt());
+    ui->widgetUserInfo->setUserSalaryPerDay(getItemFromIndex(current)->data(SalaryPerDayRole).toInt());
+}
+
 void UserManagementDialog::onAddEmployee()
 {
-    employeeModel->addEmployee();
+    if (employeeModel->addEmployee(true))
+    {
+        ui->treeViewUsers->setCurrentIndex(employeeModel->item(employeeModel->rowCount() - 1 ,0)->index());
+        ui->widgetUserInfo->setEnabled(true);//permissions required
+    }
 }
 
 void UserManagementDialog::onFireEmployee()
 {
     employeeModel->onFireEmployee(ui->treeViewUsers->currentIndex());
+    if (employeeModel->rowCount() > 0)
+        ui->treeViewUsers->setCurrentIndex(employeeModel->item(0,0)->index());
+    else
+        ui->widgetUserInfo->setEnabled(false);
+    refreshModel();
 }
 
 void UserManagementDialog::refreshModel()
 {    
-    employeeModel->refreshModel(ui->radioButtonFired->isChecked());
+    employeeModel->refreshModel(ui->radioButtonFired->isChecked(),true);
 
     for (int i = 0; i < employeeModel->columnCount(); ++i)
         ui->treeViewUsers->resizeColumnToContents(i);
@@ -85,53 +124,36 @@ void UserManagementDialog::refreshModel()
 void UserManagementDialog::onChangeLoginpass()
 {
     UserLoginPassManager ulpm;
-    ulpm.setUserLogin(employeeModel->item(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()).row(),6)->data(Qt::DisplayRole).toString());
-    if (ulpm.exec())
-    {
-        QSqlQuery q;
-        if (!getSqlQuery(q))
-            return;
-        q.prepare("update employee set login = ?, password = ? where employee_id = ?");
-        q.addBindValue(ulpm.getUserLogin());
-        q.addBindValue(QCryptographicHash::hash(ulpm.getUserPassword().toUtf8(), QCryptographicHash::Sha1));
-        q.addBindValue(employeeModel->getCurrentId(ui->treeViewUsers->currentIndex()));
-        if (!q.exec())
-            qDebug() << q.lastError() << q.lastQuery();
-        refreshModel();
-    }
+    ulpm.setUserLogin(ui->widgetUserInfo->getUserLogin());
+    ulpm.setUserId(ui->widgetUserInfo->getUserId());
+    if (ulpm.exec())    
+        refreshModel();    
 }
 
-CalendarDelegate::CalendarDelegate(QObject *parent) :
-    QStyledItemDelegate(parent)
+void UserManagementDialog::onUserNameChanged(QString name)
 {
+    if (ui->treeViewUsers->currentIndex().isValid())
+        employeeModel->itemFromIndex(employeeProxyModel->mapToSource(ui->treeViewUsers->currentIndex()))->setText(name);
 }
 
-QWidget *CalendarDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void UserManagementDialog::onUserInfoChangesSaved()
 {
-    Q_UNUSED(option);
-    Q_UNUSED(index);
-    QDateTimeEdit* date = new QDateTimeEdit(parent);
-    return date;
+    if (!ui->treeViewUsers->currentIndex().isValid())
+        return;
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserId(),IDrole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserName(),NameRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserPhone(), PhoneRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserRate(), RateRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserPercent(), PercentRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserSalePercent(), SalePercentRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserSalaryPerDay(), SalaryPerDayRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserLogin(), LoginRole);
 }
 
-void CalendarDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+QStandardItem *UserManagementDialog::getItemFromIndex(QModelIndex index)
 {
-    qDebug() << index.model()->data(index,Qt::DisplayRole);
-    QDateTime date;
-    date.fromString(index.model()->data(index,Qt::DisplayRole).toString(),"dd-MM-yyyy_hh-mm-ss");
-    qDebug() << date;
-    QDateTimeEdit *dateEdit = qobject_cast<QDateTimeEdit*>(editor);
-    dateEdit->setDateTime(date);
-}
-
-void CalendarDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{
-    QDateTimeEdit *dateEdit = qobject_cast<QDateTimeEdit*>(editor);
-    model->setData(index, dateEdit->dateTime().toString(), Qt::DisplayRole);
-}
-
-void CalendarDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    Q_UNUSED(index);
-    editor->setGeometry(option.rect);
+    if (index.model() == employeeModel)
+        return employeeModel->itemFromIndex(index);
+    else if (index.model() == employeeProxyModel)
+        return employeeModel->itemFromIndex(employeeProxyModel->mapToSource(index));
 }

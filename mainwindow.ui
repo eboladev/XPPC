@@ -989,6 +989,9 @@
    <property name="text">
     <string>Сменить пользователя...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="actionUserControl">
    <property name="icon">

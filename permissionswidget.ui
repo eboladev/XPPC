@@ -14,31 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidgetPermissions">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="Tickets">
-      <attribute name="icon">
-       <iconset resource="Resources.qrc">
-        <normaloff>:/icons/icons/ticket-icon.png</normaloff>:/icons/icons/ticket-icon.png</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>Квитанции</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="Products">
-      <attribute name="icon">
-       <iconset resource="Resources.qrc">
-        <normaloff>:/icons/icons/inventory-maintenance-icon.png</normaloff>:/icons/icons/inventory-maintenance-icon.png</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>Товары</string>
-      </attribute>
-     </widget>
-    </widget>
-   </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
@@ -69,6 +44,141 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidgetPermissions">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="Tickets">
+      <attribute name="icon">
+       <iconset resource="Resources.qrc">
+        <normaloff>:/icons/icons/ticket-icon.png</normaloff>:/icons/icons/ticket-icon.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Квитанции</string>
+      </attribute>
+      <widget class="QGroupBox" name="groupBoxTicketFlowControl">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>162</width>
+         <height>129</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="checkBoxAddTicket">
+          <property name="text">
+           <string>Добавление квитанций</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="checkBoxCloseTicket">
+          <property name="text">
+           <string>Закрыть квитанцию</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="checkBoxMoveFromReady">
+          <property name="text">
+           <string>Вернуть в работу</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="checkBoxMoveBackToReady">
+          <property name="text">
+           <string>Вернуть в готовые</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="checkBoxMarkTicketAsGuarantee">
+          <property name="text">
+           <string>Вернуть по гарантии</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QCheckBox" name="checkBoxJobList">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>250</y>
+         <width>191</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Полный доступ к списку работ</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="Products">
+      <attribute name="icon">
+       <iconset resource="Resources.qrc">
+        <normaloff>:/icons/icons/inventory-maintenance-icon.png</normaloff>:/icons/icons/inventory-maintenance-icon.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Товары</string>
+      </attribute>
+      <widget class="QCheckBox" name="checkBoxProductCategoryEdit">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>211</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Управление категориями товаров</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tabBase">
+      <attribute name="title">
+       <string>Основные</string>
+      </attribute>
+      <widget class="QCheckBox" name="checkBoxBranchEdit">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>211</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Редактирование настроек филиалов</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBoxUsersEdit">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>281</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Полный доступ к редактированию пользователей</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>
