@@ -13,8 +13,18 @@ class PermissionsWidget : public QWidget
     
 public:
     explicit PermissionsWidget(QWidget *parent = 0);
-    ~PermissionsWidget();
-    
+    ~PermissionsWidget();    
+    int getCurrentPermissions() const;
+
+public slots:
+    void onSetPermissions(const int& value);
+
+private slots:
+    void onSaveChangesClicked();
+
+signals:
+    void setPermissions(const int& value);
+
 private:
     Ui::PermissionsWidget *ui;
 };

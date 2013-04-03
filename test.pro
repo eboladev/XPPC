@@ -63,7 +63,8 @@ SOURCES += main.cpp\
     jobitemmodel.cpp \
     joblistitemmodel.cpp \
     permissionswidget.cpp \
-    userinfowidget.cpp
+    userinfowidget.cpp \
+    usersandpermissionsmanager.cpp
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -107,7 +108,8 @@ HEADERS  += mainwindow.h \
     jobitemmodel.h \
     joblistitemmodel.h \
     permissionswidget.h \
-    userinfowidget.h
+    userinfowidget.h \
+    usersandpermissionsmanager.h
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }

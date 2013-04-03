@@ -13,24 +13,26 @@
 #include "guaranteeonticketreasonwidget.h"
 #include "reportshandler.h"
 #include "reportssettings.h"
+#include "usersandpermissionsmanager.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
-#include <QMessageBox>
 #include <QWidgetAction>
 #include <QStandardItem>
+#include <QMessageBox>
 
 const QString CONNECTIONNAME = "XP";
 const int DEFAULTPERIOD = 5000;
 const int STATUSBARTIMEOUT = 10000;
-const int USERTIMEOUT = 600000;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    initAccessManager();
+
     connectEstablished = false;
     qApp->installEventFilter(this);
     jobModel = new QStandardItemModel(this);
@@ -66,21 +68,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
     ui->actionCloseTicket->setEnabled(false);
-    ui->actionConnect->setEnabled(checkDbSettings());
-
-    connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(onTabChanged(int)));
-
-    cud = new ChangeUserDialog(this);
-    connect(cud, SIGNAL(userLogOut()), SLOT(onUserLogOut()));
+    ui->actionConnect->setEnabled(checkDbSettings());  
 
     on_actionConnect_triggered();
 
     changePermissions();
 
-    userActivityTimer = new QTimer(this);
-    connect(userActivityTimer, SIGNAL(timeout()), cud, SLOT(onLogout()));
-    connect(userActivityTimer, SIGNAL(timeout()), this, SLOT(onActionChangeUserClicked()));
-    //do NOT delete it... yet.
+        //do NOT delete it... yet.
     //connect(updateTableViewTicket,SIGNAL(timeout()),this,SLOT(refreshTicketModel()));
     ticketComments = new QStandardItemModel(this);
     ui->treeViewTicketComments->setModel(ticketComments);
@@ -93,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButtonAddComment, SIGNAL(clicked()), SLOT(onAddCommentToTicketClicked()));
 
 #ifdef DEBUG    
-    changeUser(cud->getUser(),cud->getPassword());
+    //changeUser(cud->getUser(),cud->getPassword());
 #endif
 
     productModel = new QSqlQueryModel(this);
@@ -220,7 +214,7 @@ void MainWindow::sb(QString text)
 
 void MainWindow::changePermissions()
 {    
-    if (SetupManager::instance()->getCurrentUser().isEmpty())
+    if (accessManager->getCurrentUser().isEmpty())
     {
         ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
         ui->menuCurrentUser->setTitle(trUtf8("Вход не выполнен"));
@@ -228,84 +222,58 @@ void MainWindow::changePermissions()
     else        
         ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png"));
 
-    bool permissions = SetupManager::instance()->getPermissions();    
-    qDebug() << SetupManager::instance()->getCurrentUser() << Q_FUNC_INFO << permissions << SetupManager::instance()->getPermissions();
+    bool permissions = accessManager->isUserLoggedIn();// || accessManager->getPermissions();
+    qDebug() << accessManager->getCurrentUser() << Q_FUNC_INFO << permissions << accessManager->getPermissions();
     ui->tabTickets->setEnabled(permissions);
     ui->tabShowcase->setEnabled(permissions);
     ui->menuTicket->setEnabled(permissions);
     ui->menuShowcase->setEnabled(permissions);
     ui->menuSettings->setEnabled(permissions);
-    ui->tabWidget->setEnabled(permissions);
+    ui->tabWidget->setEnabled(permissions);    
     ui->tabWidgetFastTicketInfo->setEnabled(permissions);
     ui->treeViewJobsOnTicket->setEnabled(permissions);
     foreach (QAction* act,ui->menuTicket->actions())
         act->setEnabled(permissions);
     foreach (QAction* act,ui->menuShowcase->actions())
         act->setEnabled(permissions);
-}
-
-void MainWindow::onTabChanged(int tab)
-{
-    switch(tab)
-    {
-    case 0:
-    {
-        ui->menuTicket->setEnabled(true);
-        foreach (QAction* act,ui->menuTicket->actions())
-            act->setEnabled(true);
-        ui->menuShowcase->setEnabled(false);
-        foreach (QAction* act,ui->menuShowcase->actions())
-            act->setEnabled(false);
-        break;
-    };
-    case 1:
-    {
-        ui->menuTicket->setEnabled(false);
-        foreach (QAction* act,ui->menuTicket->actions())
-            act->setEnabled(false);
-        ui->menuShowcase->setEnabled(true);
-        foreach (QAction* act,ui->menuShowcase->actions())
-            act->setEnabled((true));
-        ui->groupBoxSale->setVisible(false);
-        break;
-    };
-    }
+    ui->actionOnAddReceiptClicked->setEnabled(accessManager->isCanAddTicket());
+    ui->actionCloseTicket->setEnabled(accessManager->isCanCloseTicket());
+    ui->actionOnJobListClicked->setEnabled((currentStatus == InWork && accessManager->isUserLoggedIn()) || accessManager->isCanEditJobList());
 }
 
 void MainWindow::onUserLogOut()
 {
-    SetupManager::instance()->setCurrentUser("");
-    SetupManager::instance()->setCurrentUserId(-1);
-    SetupManager::instance()->setPermissons(0);
-    userActivityTimer->stop();
+    ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
     changePermissions();
 }
 
 void MainWindow::onUserLogIn()
 {
-    qDebug() << Q_FUNC_INFO << SetupManager::instance()->getCurrentUser();
-    startUserActivityTimer();
-    cud->onSuccesfullLogin();
+    qDebug() << Q_FUNC_INFO;
+    ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png"));
     changePermissions();
-    qDebug() << cud->getUser();
-    SetupManager::instance()->setLastUserLogin(cud->getUser());
     if (ui->tabWidget->currentIndex() == 0)
         refreshTicketModel(generateTicketQuery());
+}
+
+void MainWindow::onFailedToLogin(const QString & error)
+{
+    QMessageBox::information(this, trUtf8("Ошибка!"), error);
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);    
-    if (SetupManager::instance()->getCurrentUser().isEmpty()&&
+    if (accessManager->getCurrentUser().isEmpty()&&
             (event->type() == QEvent::MouseMove ||
              event->type() == QEvent::KeyPress))
-        startUserActivityTimer();
+        accessManager->startUserActivityTimer();
     return false;
 }
 
-void MainWindow::startUserActivityTimer()
+void MainWindow::serUserDisplayName()
 {
-    userActivityTimer->start(USERTIMEOUT);
+    ui->menuCurrentUser->setTitle(accessManager->getCurrentUserDisplayName());
 }
 
 void MainWindow::onRefreshCategoryModel()
@@ -427,45 +395,6 @@ QString MainWindow::generateTicketQuery()
             .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
 
-bool MainWindow::changeUser(const QString &login, const QString &password)
-{
-    QString passwordHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
-
-    QSqlQuery q;
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return false;    //permissions
-    q.prepare("select password, employee_fio, employee_id from employee where login = ? and fired = FALSE");
-    q.addBindValue(login);
-    q.exec();
-    if (!q.next())
-    {
-        QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Ошибка входа!"));
-        qDebug() << q.lastQuery() << login;        
-        return false;
-    }
-
-    int permissions = -1;//q.value(3).toInt();
-    QString fio = q.value(1).toString();
-    QString passwordB = q.value(0).toString().remove(0,2); //remove the \x escape character(thanks for postgress for adding it >_>)
-    QVariant currentUserId = q.value(2);
-    if (passwordHash != passwordB)
-    {
-        QMessageBox::information(this, trUtf8("Ошибка!"), trUtf8("Пароль не православный!"));
-        return false;
-    }
-
-    currentEmployeeId = q.value(2).toInt();
-    SetupManager::instance()->setCurrentUser(login);
-    SetupManager::instance()->setPermissons(permissions);
-    SetupManager::instance()->setCurrentUserId(currentUserId);    
-    currentEmployeeName = fio;
-    ui->menuCurrentUser->setTitle(fio);
-
-    onUserLogIn();
-
-    return true;
-}
-
 bool MainWindow::executeDialog(QDialog *dlg)
 {
     bool ok = false;
@@ -505,6 +434,15 @@ bool MainWindow::executeDialog(QDialog *dlg)
 QString MainWindow::genUUID()
 {
     return QUuid::createUuid().toString();
+}
+
+void MainWindow::initAccessManager()
+{
+    connect(accessManager, SIGNAL(userLogIn()), this, SLOT(onUserLogIn()));
+    connect(accessManager, SIGNAL(userLogOut()), this, SLOT(onUserLogOut()));
+    connect(accessManager, SIGNAL(changeUserDisplayName()),this, SLOT(serUserDisplayName()));
+    connect(accessManager, SIGNAL(failedToLogin(QString)),this, SLOT(onFailedToLogin(QString)));
+    connect(this, SIGNAL(disconnectedFromDb()), accessManager, SLOT(onUserLogOut()));
 }
 
 void MainWindow::refreshTicketModel(const QString &query)
@@ -610,8 +548,7 @@ bool MainWindow::checkDbSettings()
     return (!SetupManager::instance()->getDbHostName().isEmpty() &&
             !SetupManager::instance()->getDbName().isEmpty() &&
             !QString::number(SetupManager::instance()->getDbPort()).isEmpty() &&
-            !SetupManager::instance()->getDbUserName().isEmpty() &&
-            SetupManager::instance()->getDbSQLStatus() == SetupManager::FBCorrect);
+            !SetupManager::instance()->getDbUserName().isEmpty());
 }
 
 bool MainWindow::connectToDb(QString dbConnectionName)
@@ -634,7 +571,7 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
         qDebug() << "trying to remove db" << dbConnectionName;
 
         ticketModel->clear();
-        cud->onLogout();
+        emit disconnectedFromDb();
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
         ui->actionChangeUser->setEnabled(false);
@@ -748,6 +685,7 @@ void MainWindow::on_radioButtonReady_pressed()
 {
     ui->lineEditSearch->clear();
     currentStatus = Ready;
+    ui->actionOnJobListClicked->setEnabled(accessManager->isCanEditJobList());
     qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
@@ -756,6 +694,7 @@ void MainWindow::on_radioButtonWorking_pressed()
 {
     ui->lineEditSearch->clear();
     currentStatus = InWork;
+    ui->actionOnJobListClicked->setEnabled(accessManager->isUserLoggedIn());
     qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
@@ -764,6 +703,7 @@ void MainWindow::on_radioButtonClosed_pressed()
 {
     ui->lineEditSearch->clear();
     currentStatus = Closed;
+    ui->actionOnJobListClicked->setEnabled(accessManager->isCanEditJobList());
     qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
@@ -827,15 +767,15 @@ void MainWindow::onAddCommentToTicketClicked()
     q.prepare("insert into ticket_comments(comment, tdc_relation_id, employee_id) VALUES(?,?,?) returning id,date");
     q.addBindValue(ui->plainTextEditComment->toPlainText());
     q.addBindValue(getCurrentTDCRId());
-    q.addBindValue(currentEmployeeId);
+    q.addBindValue(accessManager->getCurrentUserId());
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();
     q.next();
     QStandardItem* comment = new QStandardItem(ui->plainTextEditComment->toPlainText());
     comment->setToolTip(ui->plainTextEditComment->toPlainText());
     comment->setData(q.value(0));//comment id
-    comment->setData(currentEmployeeId,Qt::UserRole + 2);
-    QStandardItem* fio = new QStandardItem(currentEmployeeName);
+    comment->setData(accessManager->getCurrentUserId(),Qt::UserRole + 2);
+    QStandardItem* fio = new QStandardItem(accessManager->getCurrentUserDisplayName());
     QStandardItem* date = new QStandardItem(q.value(1).toDateTime().toString("dd-MM-yyyy hh:mm:ss"));
     ticketComments->insertRow(0, QList<QStandardItem*>() << comment << fio << date);
     ui->plainTextEditComment->clear();
@@ -934,8 +874,13 @@ void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIndex previous)
 {
     Q_UNUSED(previous);
-    ui->actionOnJobListClicked->setEnabled(current.isValid());
-    ui->actionCloseTicket->setEnabled(current.isValid());
+    if (currentStatus != InWork)
+        ui->actionOnJobListClicked->setEnabled(current.isValid() && accessManager->isCanEditJobList());
+    else
+        ui->actionOnJobListClicked->setEnabled(current.isValid());
+
+    ui->actionCloseTicket->setEnabled(current.isValid() && accessManager->isCanCloseTicket());
+
     jobModel->clear();
     jobModel->setHorizontalHeaderLabels(QStringList() << trUtf8("Мастер") << trUtf8("Наименование")
                                      << trUtf8("Количество") << trUtf8("Цена") << trUtf8("Дата"));
@@ -1025,21 +970,29 @@ void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
     connect(menu, SIGNAL(aboutToHide()), menu, SLOT(deleteLater()));
     QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedRows(TicketNumber);
     QModelIndex ind = ui->tableViewTicket->indexAt(pos);
-    menu->addAction(trUtf8("Добавить квитанцию"), this, SLOT(onAddTicketClicked()));
+    if (accessManager->isCanAddTicket())
+        menu->addAction(trUtf8("Добавить квитанцию"), this, SLOT(onAddTicketClicked()));
     if (ind.isValid())
     {
         if (qmil.count() == 1)
         {
-            menu->addAction(trUtf8("Список работ"), this, SLOT(onJobListClicked()));
+            if ((currentStatus == InWork && accessManager->isUserLoggedIn()) || accessManager->isCanEditJobList())
+                menu->addAction(trUtf8("Список работ"), this, SLOT(onJobListClicked()));
             menu->addAction(trUtf8("Посмотреть комментарии"), this, SLOT(onShowCommentsTabClicked()));
         }
-        if (currentStatus != Closed)        
+        if (currentStatus != Closed && accessManager->isCanCloseTicket())
             menu->addAction(trUtf8("Закрыть квитанцию"), this, SLOT(onCloseTicketClicked()));
-        if (currentStatus != InWork)
+        if (currentStatus == Closed && accessManager->isCanEditClosedTickets())
+        {
             menu->addAction(trUtf8("Вернуть в работу"), this, SLOT(onMoveBackToWork()));
-        if (currentStatus != Ready)
-            menu->addAction(trUtf8("Поместить в готовые"), this, SLOT(onMoveBackToReady()));        
-        if (currentStatus == Closed)
+            menu->addAction(trUtf8("Поместить в готовые"), this, SLOT(onMoveBackToReady()));
+        } else if (currentStatus != Closed) {
+            if (currentStatus != InWork && accessManager->isCanMoveToWork())
+                menu->addAction(trUtf8("Вернуть в работу"), this, SLOT(onMoveBackToWork()));
+            if (currentStatus != Ready && accessManager->isCanMoveToReady())
+                menu->addAction(trUtf8("Поместить в готовые"), this, SLOT(onMoveBackToReady()));
+        }
+        if (currentStatus == Closed && accessManager->isCanGuaranteeReturn())
             menu->addAction(trUtf8("Гарантия, вернуть в работу"), this, SLOT(submitGuaranteeTicket()));
     }
     menu->exec(QCursor::pos());
@@ -1052,7 +1005,7 @@ void MainWindow::onCommentsCustomContextMenuRequested(const QPoint &pos)
     QModelIndex ind = ui->treeViewTicketComments->indexAt(pos);
     if (ind.isValid())
     {
-        if (ticketComments->item(ind.row(),0)->data(Qt::UserRole + 2).toInt() == currentEmployeeId)
+        if (ticketComments->item(ind.row(),0)->data(Qt::UserRole + 2).toInt() == accessManager->getCurrentUserId())
             menu->addAction(trUtf8("Удалить комментарий"), this, SLOT(onRemoveCommentClicked()));
     }
     menu->exec(QCursor::pos());
@@ -1202,11 +1155,7 @@ void MainWindow::onCloseTicketClicked()
 
 void MainWindow::onActionChangeUserClicked()
 {
-    cud->setUser(SetupManager::instance()->getLastUserLogin());
-    if (cud->exec())
-        changeUser(cud->getUser(),cud->getPassword()) ?
-                    ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Accept-Male-User24.png")) :
-                    ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
+    accessManager->showChangeUserDialog();
 }
 
 void MainWindow::onActionUserManagementClicked()

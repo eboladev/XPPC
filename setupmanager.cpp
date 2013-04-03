@@ -1,11 +1,11 @@
 #include "setupmanager.h"
 
+#include <QSettings>
+#include <QDebug>
 
 SetupManager::SetupManager(QObject *parent) :
     QObject(parent),
-    dbStatus(FBCantOpen),
-    permission(0),
-    currentUserId(QVariant())
+    dbStatus(FBCantOpen)
 {
 }
 
@@ -17,58 +17,6 @@ Q_GLOBAL_STATIC(SetupManager, singlton_instance)
 SetupManager * SetupManager::instance()
 {
     return singlton_instance();
-}
-
-QString SetupManager::getLastUserLogin() const
-{
-    QSettings settings;
-    return settings.value("user/lastLogin","").toString();
-}
-
-void SetupManager::setLastUserLogin(const QString &value)
-{
-    QSettings settings;
-    settings.setValue("user/lastLogin", value);
-}
-
-int SetupManager::getPermissions()
-{
-    return permission;
-}
-
-QString SetupManager::getCurrentUser()
-{
-    return currentUser;
-}
-
-QVariant SetupManager::getCurrentUserId() const
-{
-    return currentUserId;
-}
-
-void SetupManager::setPermissons(int p)
-{
-    permission = p;
-}
-
-void SetupManager::setCurrentUser(QString user)
-{
-    currentUser = user;
-}
-
-void SetupManager::setCurrentUserId(const QVariant &id)
-{
-    currentUserId = id;
-}
-
-QString SetupManager::getDisplayName()
-{
-    return displayName;
-}
-
-void SetupManager::setDisplayName(QString name)
-{
-    displayName = name;
 }
 
 void SetupManager::setCurrentBranch(const QVariant &id)

@@ -8,6 +8,7 @@
 class EmployeeItemModel;
 class QStandardItem;
 class QSortFilterProxyModel;
+class QStandardItemModel;
 
 namespace Ui {
 class UserManagementDialog;
@@ -31,13 +32,25 @@ private slots:
     void onUserNameChanged(QString);
     void onUserInfoChangesSaved();
 
+    void onEditGroupPermissions(const int& permissions);
+    void onAddGroup();
+    void onDeleteGroup();
+    void onCurrentGroupChanged(QModelIndex, QModelIndex);
+    void onCustomGroupsContextMenuRequested(const QPoint&);
+
 private:
     QStandardItem* getItemFromIndex(QModelIndex);
+    void refreshGroups();
+
+signals:
+    void permissons(const int& value);
 
 private:
     Ui::UserManagementDialog *ui;
     EmployeeItemModel* employeeModel;
+    QVariant currentGroupId;
     QSortFilterProxyModel* employeeProxyModel;
+    QStandardItemModel* groupsModel;
 };
 
 #endif // USERMANAGEMENTDIALOG_H

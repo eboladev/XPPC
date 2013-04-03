@@ -8,6 +8,8 @@ namespace Ui {
 class UserInfoWidget;
 }
 
+class QStandardItemModel;
+
 class UserInfoWidget : public QWidget
 {
     Q_OBJECT
@@ -23,6 +25,8 @@ public:
     void setUserPercent(const int& percent);
     void setUserSalePercent(const int& sale_percent);
     void setUserSalaryPerDay(const int& spDay);
+    void setCurrentUserGroup(const QVariant& group_id);
+    void setGroupsEditable(const bool& isEditable);
 
     QVariant getUserId() const;
     QString getUserName() const;
@@ -32,9 +36,11 @@ public:
     int getUserPercent() const;
     int getUserSalePercent() const;
     int getUserSalaryPerDay() const;
+    QVariant getCurrentGroupId() const;
 
-private slots:
-    void onSaveChanges();
+    void setItemModelForGroupsComboBox(QStandardItemModel* model);
+
+private slots:    
     void onChangeLoginpass();
 
 signals:

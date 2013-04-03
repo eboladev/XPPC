@@ -4,6 +4,9 @@
 
 #include <QTemporaryFile>
 #include <QDir>
+#include <QDebug>
+#include <QSettings>
+#include <QDateTime>
 
 ReportsHandler::ReportsHandler(QObject *parent) :
     QObject(parent)

@@ -15,7 +15,8 @@ enum EmployeeItemRoles
     SalePercentRole = Qt::UserRole + 6,
     SalaryPerDayRole = Qt::UserRole + 7,
     LoginRole = Qt::UserRole + 8,
-    NameRole = Qt::DisplayRole
+    NameRole = Qt::DisplayRole,
+    GroupIdRole = Qt::UserRole + 9
 };
 
 class EmployeeItemModel : public QStandardItemModel, SqlExtension
@@ -37,7 +38,8 @@ public:
                            const int& salary_per_day = 0,
                            const QString& login = "",
                            const QString& password = "",
-                           const QString& phone = "");
+                           const QString& phone = "",
+                           const QString& groupId = "0");
 
 public slots:
     bool addEmployee(const bool& isGetOnlyNames = false);

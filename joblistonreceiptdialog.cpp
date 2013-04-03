@@ -1,6 +1,7 @@
 #include "joblistonreceiptdialog.h"
 #include "ui_joblistonreceiptdialog.h"
 #include "setupmanager.h"
+#include "usersandpermissionsmanager.h"
 #include "globals.h"
 #include "employeewidget.h"
 #include "jobitemmodel.h"
@@ -33,7 +34,7 @@ JobListOnReceiptDialog::JobListOnReceiptDialog(const QString dbConnectionsString
     ui->employeeWidget->setMinimumHeight(employeeWidget->geometry().height());
     ui->employeeWidget->setMinimumWidth(employeeWidget->geometry().width());
     adjustSize();
-    employeeWidget->setEnabled(false); //temp
+    employeeWidget->setEnabled(accessManager->isCanEditJobList());
 
     //TODO: create completer_with_treeview class
     jobListModel = new JobListItemModel(dbConnectionsString,this);
@@ -77,7 +78,8 @@ void JobListOnReceiptDialog::getJobs(const QVariant &id)
 
 bool JobListOnReceiptDialog::checkPermissions(const QVariant &selectedEmployeeId) const
 {
-    return SetupManager::instance()->getCurrentUserId() == selectedEmployeeId;
+    if (!accessManager->isCanEditJobList())
+        return accessManager->getCurrentUserId() == selectedEmployeeId;
 }
 
 QCompleter *JobListOnReceiptDialog::getCompleter()
@@ -98,7 +100,7 @@ void JobListOnReceiptDialog::onPushButtonAddJobClicked()
         return;
 
     jobsModel->addJob(m_id,
-                      SetupManager::instance()->getCurrentUserId(),
+                      accessManager->getCurrentUserId(),
                       ui->lineEditJobName->text().trimmed(),
                       ui->spinBoxQuantity->value(),
                       ui->spinBoxPrice->value());
@@ -123,7 +125,7 @@ void JobListOnReceiptDialog::onUpdateClicked()
     if (!ui->tableViewJobs->currentIndex().isValid())
         return;
     jobsModel->updateJob(ui->tableViewJobs->currentIndex(),
-                         SetupManager::instance()->getCurrentUserId(),
+                         accessManager->getCurrentUserId(),
                          ui->lineEditJobName->text().trimmed(),
                          ui->spinBoxQuantity->value(),
                          ui->spinBoxPrice->value());

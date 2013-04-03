@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>597</width>
-    <height>461</height>
+    <width>322</width>
+    <height>249</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,13 +36,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonCancelChanges">
-       <property name="text">
-        <string>Отменить</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="0" column="0">
@@ -58,72 +51,69 @@
       <attribute name="title">
        <string>Квитанции</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBoxTicketFlowControl">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>162</width>
-         <height>129</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="checkBoxAddTicket">
-          <property name="text">
-           <string>Добавление квитанций</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="checkBoxCloseTicket">
-          <property name="text">
-           <string>Закрыть квитанцию</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QCheckBox" name="checkBoxMoveFromReady">
-          <property name="text">
-           <string>Вернуть в работу</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QCheckBox" name="checkBoxMoveBackToReady">
-          <property name="text">
-           <string>Вернуть в готовые</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QCheckBox" name="checkBoxMarkTicketAsGuarantee">
-          <property name="text">
-           <string>Вернуть по гарантии</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QCheckBox" name="checkBoxJobList">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>250</y>
-         <width>191</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Полный доступ к списку работ</string>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBoxTicketFlowControl">
+         <property name="title">
+          <string/>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="checkBoxMoveToReady">
+            <property name="text">
+             <string>Вернуть в готовые</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkBoxMoveToWork">
+            <property name="text">
+             <string>Вернуть в работу</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="checkBoxMarkTicketAsGuarantee">
+            <property name="text">
+             <string>Вернуть по гарантии</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkBoxAddTicket">
+            <property name="text">
+             <string>Добавление квитанций</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkBoxCloseTicket">
+            <property name="text">
+             <string>Закрыть квитанцию</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="checkBoxEditClosed">
+            <property name="text">
+             <string>Вернуть из готовых</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkBoxJobList">
+         <property name="text">
+          <string>Редактирование списка работ</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="Products">
       <attribute name="icon">
@@ -133,50 +123,43 @@
       <attribute name="title">
        <string>Товары</string>
       </attribute>
-      <widget class="QCheckBox" name="checkBoxProductCategoryEdit">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>211</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Управление категориями товаров</string>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkBoxProductCategoryEdit">
+         <property name="text">
+          <string>Управление категориями товаров</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabBase">
       <attribute name="title">
        <string>Основные</string>
       </attribute>
-      <widget class="QCheckBox" name="checkBoxBranchEdit">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>211</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Редактирование настроек филиалов</string>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="checkBoxUsersEdit">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>60</y>
-         <width>281</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Полный доступ к редактированию пользователей</string>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkBoxBranchEdit">
+         <property name="text">
+          <string>Редактирование настроек филиалов</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkBoxUsersEdit">
+         <property name="text">
+          <string>Полный доступ к редактированию пользователей</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="checkBoxPermissionsEdit">
+         <property name="text">
+          <string>Доступ к настройкам прав</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

@@ -2,10 +2,6 @@
 #define SETUPMANAGER_H
 
 #include <QObject>
-#include <QSettings>
-#include <QDir>
-#include <QDateTime>
-#include <QDebug>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
@@ -31,24 +27,12 @@ public:
     explicit SetupManager(QObject *parent = 0);
     ~SetupManager();
     static SetupManager* instance();
-    int getPermissions();
-    QString getCurrentUser();
-    QVariant getCurrentUserId() const;
-    QString getDisplayName();
-    void setPermissons(int permisson);
-    void setCurrentUser(QString user);
-    void setCurrentUserId(const QVariant& id);
-    void setDisplayName(QString name);
-    QString getLastUserLogin() const;
-    void setLastUserLogin(const QString &value);
 
     void setCurrentBranch(const QVariant &id);
     int getCurrentBranch() const;
 
     void setClientNameCompleterEnabled(const bool &enabled);
     bool getClientNameCompleterEnabled();
-
-    int getDbSQLStatus() {return dbStatus;}
 
     QSqlDatabase getDatabase(const QString &connectionName = "XP");
     QString getDBDefaultConnectionName() const {return QString("XP");}
@@ -59,7 +43,6 @@ public:
     static QString getFBFileLocation();
     static void setFBFileLocation(QString location);
 
-    //локальная база
     static QString getDbHostName();
     static QString getDbPassword();
     static QString getDbName();
@@ -75,12 +58,8 @@ public:
 public:
     static void encryptDecrypt(QByteArray &ba);
 
-private:
-    QString currentUser;
-    QString displayName;
+private:    
     int currentBranch;
-    QVariant currentUserId;
-    int permission;
     int fbStatus;
     int dbStatus;
 };

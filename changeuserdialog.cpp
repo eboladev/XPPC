@@ -14,6 +14,11 @@ ChangeUserDialog::ChangeUserDialog(QWidget *parent) :
     ui->lineEditPassword->clear();
 #endif
 }
+Q_GLOBAL_STATIC(ChangeUserDialog, singlton_instance)
+ChangeUserDialog *ChangeUserDialog::instance()
+{
+    return singlton_instance();
+}
 
 ChangeUserDialog::~ChangeUserDialog()
 {    

@@ -2,6 +2,7 @@
 #include "ui_userloginpassmanager.h"
 #include "setupmanager.h"
 
+#include <QDebug>
 #include <QMessageBox>
 #include <QCryptographicHash>
 

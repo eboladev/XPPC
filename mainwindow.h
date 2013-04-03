@@ -35,6 +35,11 @@ public:
     };
 
     /*base begin*/
+public slots:
+    void onUserLogOut();
+    void onUserLogIn();
+    void onFailedToLogin(const QString&);
+
 private slots:
     void onActionChangeUserClicked();
     void onActionBranchesTriggered();
@@ -42,11 +47,9 @@ private slots:
     void onActionReportSettignsClicked();
     void changePermissions();
     void on_actionDisconnect_triggered();
-    void on_actionConnect_triggered();
-    void onTabChanged(int);    
-    void onUserLogOut();
-    void onUserLogIn();
-    bool eventFilter(QObject *, QEvent *);    
+    void on_actionConnect_triggered();    
+    bool eventFilter(QObject *, QEvent *);
+    void serUserDisplayName();
 
 private:
     bool checkDbConnection();
@@ -54,11 +57,11 @@ private:
     bool connectToDb(QString dbConnectionName);
     bool disconnectFromDb(QString dbConnectionName);
     bool settingsIsNotEmpty();
-    void sb(QString text);    
-    bool changeUser(const QString& login, const QString& password);
-    bool executeDialog(QDialog *);
-    void startUserActivityTimer();
+    void sb(QString text);        
+    bool executeDialog(QDialog *);    
     QString genUUID();
+
+    void initAccessManager();
 
     /*base end*/
 
@@ -124,6 +127,7 @@ private slots:
 
 signals:
     void refreshProductModelByCategory(int);
+    void disconnectedFromDb();
     /* Merchandise manager end */
 
 private:
@@ -133,10 +137,8 @@ private:
     QStandardItemModel* ticketComments;
     QStandardItemModel* jobModel;
     QTimer* updateTableViewTicket;
-    QTimer* userActivityTimer;
+
     int currentStatus;
-    int currentEmployeeId;
-    QString currentEmployeeName;
 
     bool connectEstablished;
 
@@ -144,7 +146,6 @@ private:
     QSqlQueryModel* productModel;
     QSortFilterProxyModel* proxyProduct;
 
-    ChangeUserDialog* cud;
     QString defaultConfName;            
 };
 

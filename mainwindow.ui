@@ -340,6 +340,9 @@
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
+                  <property name="editTriggers">
+                   <set>QAbstractItemView::NoEditTriggers</set>
+                  </property>
                   <property name="indentation">
                    <number>7</number>
                   </property>
@@ -405,7 +408,11 @@
                     </layout>
                    </item>
                    <item row="3" column="0">
-                    <widget class="QPlainTextEdit" name="plainTextEditTicketGuaranteeProblem"/>
+                    <widget class="QPlainTextEdit" name="plainTextEditTicketGuaranteeProblem">
+                     <property name="readOnly">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>

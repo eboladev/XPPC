@@ -1,6 +1,7 @@
 #include "branchwidget.h"
 #include "ui_branchwidget.h"
 #include "setupmanager.h"
+#include "usersandpermissionsmanager.h"
 
 #include <QStandardItemModel>
 BranchWidget::BranchWidget(const QString &dbConnectionString, QWidget *parent) :
@@ -11,6 +12,7 @@ BranchWidget::BranchWidget(const QString &dbConnectionString, QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle(trUtf8("Управление филиалами"));
     model =  new QStandardItemModel(this);
+    ui->groupBoxBranchManager->setEnabled(accessManager->isCanEditBranches());
     connect(ui->pushButtonOk,SIGNAL(clicked()),this,SLOT(accept()));
     connect(ui->pushButtonCancel,SIGNAL(clicked()),this,SLOT(reject()));
     connect(ui->pushButtonAddBranch,SIGNAL(clicked()),this,SLOT(onAddBranchClicked()));

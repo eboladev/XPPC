@@ -1,9 +1,9 @@
 #include "userinfowidget.h"
 #include "ui_userinfowidget.h"
 
-#include "setupmanager.h"
 #include "userloginpassmanager.h"
 
+#include <QStandardItemModel>
 #include <QMessageBox>
 #include <QDebug>
 
@@ -13,7 +13,7 @@ UserInfoWidget::UserInfoWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->lineEditName, SIGNAL(textChanged(QString)), this, SIGNAL(userNameChanged(QString)));
-    connect(ui->pushButtonSave, SIGNAL(clicked()), this, SLOT(onSaveChanges()));
+    connect(ui->pushButtonSave, SIGNAL(clicked()), this, SIGNAL(changesSaved()));
     connect(ui->pushButtonPassowrdRecovery, SIGNAL(clicked()), this, SLOT(onChangeLoginpass()));
 }
 
@@ -64,6 +64,16 @@ void UserInfoWidget::setUserSalaryPerDay(const int &spDay)
     ui->spinBoxSPday->setValue(spDay);
 }
 
+void UserInfoWidget::setCurrentUserGroup(const QVariant &group_id)
+{
+    ui->comboBoxUserGroup->setCurrentIndex(ui->comboBoxUserGroup->findData(group_id, Qt::UserRole + 2));
+}
+
+void UserInfoWidget::setGroupsEditable(const bool &isEditable)
+{
+    ui->comboBoxUserGroup->setEnabled(isEditable);
+}
+
 QVariant UserInfoWidget::getUserId() const
 {
     return userId;
@@ -104,24 +114,16 @@ int UserInfoWidget::getUserSalaryPerDay() const
     return ui->spinBoxSPday->value();
 }
 
-void UserInfoWidget::onSaveChanges()
+QVariant UserInfoWidget::getCurrentGroupId() const
 {
-    QSqlQuery q;
-    if (!setupManager->getSqlQueryForDB(q))
-        return;
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << ui->comboBoxUserGroup->itemData(ui->comboBoxUserGroup->currentIndex(),Qt::UserRole + 2);;
+    return ui->comboBoxUserGroup->itemData(ui->comboBoxUserGroup->currentIndex(),Qt::UserRole + 2);
+}
 
-    q.prepare("update employee set employee_fio = ?, phone = ?, "
-              "employee_rate = ?, employee_percent = ?, employee_sale_percent = ?, "
-              "employee_salaryperday = ? where employee_id = ?");
-    q.addBindValue(getUserName());
-    q.addBindValue(getUserPhone());
-    q.addBindValue(getUserRate());
-    q.addBindValue(getUserPercent());
-    q.addBindValue(getUserSalePercent());
-    q.addBindValue(getUserSalaryPerDay());
-    q.addBindValue(getUserId());
-    q.exec();
-    emit changesSaved();
+void UserInfoWidget::setItemModelForGroupsComboBox(QStandardItemModel *model)
+{
+    ui->comboBoxUserGroup->setModel(model);
 }
 
 void UserInfoWidget::onChangeLoginpass()
@@ -132,6 +134,6 @@ void UserInfoWidget::onChangeLoginpass()
     if (ulpm.exec())
     {
         setUserLogin(ulpm.getUserLogin());
-        emit changesSaved();
+        //emit changesSaved();
     }
 }

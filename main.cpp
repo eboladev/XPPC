@@ -2,6 +2,9 @@
 #include <QSettings>
 #include <QTextCodec>
 #include <QMessageBox>
+#include <QDir>
+#include <QDateTime>
+#include <QTextStream>
 
 #include "mainwindow.h"
 #include "connectdialog.h"

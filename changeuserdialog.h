@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#define changeUserDialog (static_cast<ChangeUserDialog *>(ChangeUserDialog::instance()))
+
 namespace Ui {
 class ChangeUserDialog;
 }
@@ -13,6 +15,7 @@ class ChangeUserDialog : public QDialog
     
 public:
     explicit ChangeUserDialog(QWidget *parent = 0);
+    static ChangeUserDialog* instance();
     ~ChangeUserDialog();
     QString getUser();
     void setUser(const QString& userLogin);

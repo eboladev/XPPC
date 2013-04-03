@@ -1,5 +1,6 @@
 #include "employeeitemmodel.h"
 #include "setupmanager.h"
+#include "usersandpermissionsmanager.h"
 
 EmployeeItemModel::EmployeeItemModel(const QString &dbConnectionString, QObject *parent) :
     QStandardItemModel(parent),
@@ -35,7 +36,8 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
     q.prepare("select employee_id, employee_fio, employee_rate, "
               "employee_percent, employee_sale_percent, "
               "employee_last_salary_date, employee_salaryperday, "
-              "login, password, phone from employee where fired = ? ORDER BY employee_id ASC");
+              "login, password, phone, group_id from employee where fired = ? "
+              "ORDER BY employee_id ASC");
     q.addBindValue(isListFired);
     q.exec();
 
@@ -51,7 +53,8 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
                           q.value(6).toInt(),
                           q.value(7).toString(),
                           q.value(8).toString(),
-                          q.value(9).toString()
+                          q.value(9).toString(),
+                          q.value(10).toString()
                           );
     }
 }
@@ -61,8 +64,9 @@ bool EmployeeItemModel::addEmployee(const bool &isGetOnlyNames)
     QSqlQuery q;
     if (!getSqlQuery(q))
         return false;
-    q.prepare("insert into employee(employee_fio) VALUES(?) returning employee_id");
+    q.prepare("insert into employee(employee_fio,group_id) VALUES(?,?) returning employee_id");
     q.addBindValue(trUtf8("ФИО"));
+    q.addBindValue(1);
     if (!q.exec())
     {
         qDebug() << q.lastError() << q.lastQuery();
@@ -93,7 +97,7 @@ QVariant EmployeeItemModel::getCurrentId(const QModelIndex &index)
 
 QVariant EmployeeItemModel::getCurrentId()
 {
-    return SetupManager::instance()->getCurrentUserId();
+    return accessManager->getCurrentUserId();
 }
 
 bool EmployeeItemModel::appendEmployeeRow(const bool &isGetOnlyNames,
@@ -106,8 +110,9 @@ bool EmployeeItemModel::appendEmployeeRow(const bool &isGetOnlyNames,
                                           const int &salary_per_day,
                                           const QString &login,
                                           const QString &password,
-                                          const QString &phone
-                                          )
+                                          const QString &phone,
+                                          const QString &group_id)
+
 {
     QStandardItem* fio = new QStandardItem(name);
     fio->setData(id, IDrole);
@@ -143,6 +148,7 @@ bool EmployeeItemModel::appendEmployeeRow(const bool &isGetOnlyNames,
         fio->setData(login, LoginRole);
         fio->setData(phone, PhoneRole);
         fio->setData(password.isEmpty() ? false : true, isPasswordSetRole);
+        fio->setData(group_id, GroupIdRole);
         appendRow(fio);        
         return true;
     }
