@@ -50,6 +50,7 @@ private slots:
     void on_actionConnect_triggered();    
     bool eventFilter(QObject *, QEvent *);
     void serUserDisplayName();
+    void onActionDeveloperContactClicked();
 
 private:
     bool checkDbConnection();

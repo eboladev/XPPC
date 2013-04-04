@@ -14,6 +14,7 @@
 #include "reportshandler.h"
 #include "reportssettings.h"
 #include "usersandpermissionsmanager.h"
+#include "contactdeveloperdialog.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -64,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
     connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()), SLOT(onGenerateJobListReport()));
     connect(ui->action_Qt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(ui->actionDeveloperContact, SIGNAL(triggered()), this, SLOT(onActionDeveloperContactClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     ui->actionOnJobListClicked->setEnabled(false);
@@ -274,6 +276,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::serUserDisplayName()
 {
     ui->menuCurrentUser->setTitle(accessManager->getCurrentUserDisplayName());
+}
+
+void MainWindow::onActionDeveloperContactClicked()
+{
+    ContactDeveloperDialog* cdd = new ContactDeveloperDialog(this);
+    cdd->exec();
 }
 
 void MainWindow::onRefreshCategoryModel()

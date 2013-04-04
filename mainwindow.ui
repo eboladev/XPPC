@@ -851,6 +851,7 @@
      <string>Справка</string>
     </property>
     <addaction name="action_Qt"/>
+    <addaction name="actionDeveloperContact"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTicket"/>
@@ -1093,6 +1094,11 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionDeveloperContact">
+   <property name="text">
+    <string>Связь с разработчиком</string>
    </property>
   </action>
  </widget>
