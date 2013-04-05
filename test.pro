@@ -57,7 +57,6 @@ SOURCES += main.cpp\
     guaranteeonticketreasonwidget.cpp \
     reportshandler.cpp \
     reportssettings.cpp \
-    reportselectionwidget.cpp \
     employeewidget.cpp \
     employeeitemmodel.cpp \
     jobitemmodel.cpp \
@@ -78,7 +77,8 @@ SOURCES += main.cpp\
     SmtpClient/src/mimecontentformatter.cpp \
     SmtpClient/src/mimeattachment.cpp \
     SmtpClient/src/emailaddress.cpp \
-    smtpsettingsdialog.cpp
+    smtpsettingsdialog.cpp \
+    reportselectionwidget.cpp
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -116,7 +116,6 @@ HEADERS  += mainwindow.h \
     guaranteeonticketreasonwidget.h \
     reportshandler.h \
     reportssettings.h \
-    reportselectionwidget.h \
     employeewidget.h \
     employeeitemmodel.h \
     jobitemmodel.h \
@@ -137,7 +136,8 @@ HEADERS  += mainwindow.h \
     SmtpClient/src/mimecontentformatter.h \
     SmtpClient/src/mimeattachment.h \
     SmtpClient/src/emailaddress.h \
-    smtpsettingsdialog.h
+    smtpsettingsdialog.h \
+    reportselectionwidget.h
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }
@@ -159,12 +159,12 @@ FORMS    += mainwindow.ui \
     ticketcommentswidget.ui \
     guaranteeonticketreasonwidget.ui \
     reportssettings.ui \
-    reportselectionwidget.ui \
     employeewidget.ui \
     permissionswidget.ui \
     userinfowidget.ui \
     contactdeveloperdialog.ui \
-    smtpsettingsdialog.ui
+    smtpsettingsdialog.ui \
+    reportselectionwidget.ui
 
 RESOURCES += \
     Resources.qrc

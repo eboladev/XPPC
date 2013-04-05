@@ -8,7 +8,6 @@ ReportSelectionWidget::ReportSelectionWidget(QWidget *parent) :
     ui(new Ui::ReportSelectionWidget)
 {
     ui->setupUi(this);
-    //ui->setupUi(this);
     connect(ui->pushButtonSelect, SIGNAL(clicked()), this, SLOT(onSelectReportClicked()));
     //setGroupBoxTitle(parent->windowTitle());
 }

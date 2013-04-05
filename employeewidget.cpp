@@ -5,6 +5,7 @@
 #include "employeeitemmodel.h"
 
 #include <QSortFilterProxyModel>
+#include <QDebug>
 
 EmployeeWidget::EmployeeWidget(const QString &dbConnectionString, QWidget *parent) :
     QWidget(parent),
@@ -28,7 +29,7 @@ EmployeeWidget::~EmployeeWidget()
 
 QVariant EmployeeWidget::getCurrentEmployeeId() const
 {
-    return ui->comboBoxEmployee->itemData(ui->comboBoxEmployee->currentIndex());
+    return ui->comboBoxEmployee->itemData(ui->comboBoxEmployee->currentIndex(), IDrole);
 }
 
 void EmployeeWidget::setEmployeeCurrentId(const int &id)

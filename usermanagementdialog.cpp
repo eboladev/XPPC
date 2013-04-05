@@ -207,8 +207,7 @@ void UserManagementDialog::onEditGroupPermissions(const int &permissions)
 }
 
 QStandardItem *UserManagementDialog::getItemFromIndex(QModelIndex index)
-{
-    qDebug() << Q_FUNC_INFO;
+{    
     if (!index.isValid())
         return new QStandardItem();
     if (index.model() == employeeModel)
