@@ -78,7 +78,8 @@ SOURCES += main.cpp\
     SmtpClient/src/mimecontentformatter.cpp \
     SmtpClient/src/mimeattachment.cpp \
     SmtpClient/src/emailaddress.cpp \
-    smtpsettingsdialog.cpp
+    smtpsettingsdialog.cpp \
+    applicationupdatedialog.cpp
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -137,7 +138,8 @@ HEADERS  += mainwindow.h \
     SmtpClient/src/mimecontentformatter.h \
     SmtpClient/src/mimeattachment.h \
     SmtpClient/src/emailaddress.h \
-    smtpsettingsdialog.h
+    smtpsettingsdialog.h \
+    applicationupdatedialog.h
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }
@@ -164,7 +166,8 @@ FORMS    += mainwindow.ui \
     permissionswidget.ui \
     userinfowidget.ui \
     contactdeveloperdialog.ui \
-    smtpsettingsdialog.ui
+    smtpsettingsdialog.ui \
+    applicationupdatedialog.ui
 
 RESOURCES += \
     Resources.qrc

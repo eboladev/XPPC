@@ -63,7 +63,7 @@ void ContactDeveloperDialog::onSettingsClicked()
         setupManager->encryptDecrypt(temp);
         ssd.setSMTPPass(QString::fromUtf8(temp.data(), temp.count()));
         ssd.setSMTPSenderAddress(q.value(4).toString());
-        ssd.setSMTPSenderName(q.value(5).toString());
+        ssd.setSMTPSenderName(accessManager->getCurrentUserDisplayName());
         ssd.setMailToAddress(q.value(6).toString());
     }
     else
@@ -120,14 +120,12 @@ void ContactDeveloperDialog::onAccept()
     pass = QString::fromUtf8(temp.data(), temp.count());
     qDebug() << Q_FUNC_INFO << pass;
     senderAddress = q.value(4).toString();
-    senderName = q.value(5).toString();
+    senderName = accessManager->getCurrentUserDisplayName();
     mailToAddress = q.value(6).toString();
     port = q.value(1).toInt();
 
     EMailToSend currentEMail;
-    QString mailSubject = QString("%0 : %1")
-            .arg(accessManager->getCurrentUserDisplayName())
-            .arg(ui->lineEditEmailTheme->text());
+    QString mailSubject = ui->lineEditEmailTheme->text();
     currentEMail.mailSubject.append(mailSubject);
     currentEMail.mailBody.append(ui->textEditEmailBody->toHtml());
     currentEMail.recipientsList.append(new EmailAddress(mailToAddress));

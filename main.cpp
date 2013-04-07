@@ -10,6 +10,7 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 
+const QString appVersion = "0.58";
 //#include <stdio.h>
 //#include <stdlib.h>
 
@@ -73,6 +74,8 @@ int main(int argc, char *argv[])
             return 2;
         }
     }
+
+    a.setApplicationVersion(appVersion);
 
     MainWindow w;
 #ifdef DEBUG

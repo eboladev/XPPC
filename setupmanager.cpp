@@ -2,6 +2,9 @@
 
 #include <QSettings>
 #include <QDebug>
+#include <QApplication>
+
+#include "applicationupdatedialog.h"
 
 SetupManager::SetupManager(QObject *parent) :
     QObject(parent),
@@ -191,7 +194,26 @@ int SetupManager::openSQLDatabase(QString connectionName)
     else
         dbStatus = FBCorrect;
     
-    qDebug() << fireBirdSQLDatabase.driver()->hasFeature(QSqlDriver::EventNotifications);
+    QSqlQuery q(fireBirdSQLDatabase);
+
+    q.exec("select version, changelog, link from application_updates order by id desc limit 1");
+
+    if (q.next())
+    {
+        if (q.value(0).toString() != qApp->applicationVersion())
+        {
+            ApplicationUpdateDialog aud;
+            aud.setDownloadLink(q.value(2).toString());
+            aud.setVersion(q.value(0).toString());
+            aud.setChangelogtext(q.value(1).toString());
+            if (aud.exec())
+                qApp->closingDown();
+            //if (!aud.exec())
+               // exit(0);
+        }
+    }
+
+    qDebug() << Q_FUNC_INFO << fireBirdSQLDatabase.driver()->hasFeature(QSqlDriver::EventNotifications);
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
     return dbStatus;
 }
