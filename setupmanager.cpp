@@ -206,7 +206,9 @@ int SetupManager::openSQLDatabase(QString connectionName)
             aud.setDownloadLink(q.value(2).toString());
             aud.setVersion(q.value(0).toString());
             aud.setChangelogtext(q.value(1).toString());
-            if (aud.exec())
+            //if (aud.exec())
+
+            aud.exec();
                 exit(0);//qApp->closingDown();
             //if (!aud.exec())
                // exit(0);

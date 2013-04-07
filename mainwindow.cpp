@@ -35,7 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
     initAccessManager();
 
     connectEstablished = false;
-    qApp->installEventFilter(this);
     jobModel = new QStandardItemModel(this);
     ui->treeViewJobsOnTicket->setModel(jobModel);       
     ui->groupBoxFastTicketInfo->setVisible(false);
@@ -115,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setTabEnabled(1,false);
 #endif
    // updateTableViewTicket->start(DEFAULTPERIOD);        
+    qApp->installEventFilter(this);
 }
 
 MainWindow::~MainWindow()
