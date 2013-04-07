@@ -3,17 +3,18 @@
 
 #include <QDialog>
 #include <QVariant>
+#include "sqlextension.h"
 
 namespace Ui {
 class UserLoginPassManager;
 }
 
-class UserLoginPassManager : public QDialog
+class UserLoginPassManager : public QDialog, SqlExtension
 {
     Q_OBJECT
     
 public:
-    explicit UserLoginPassManager(QWidget *parent = 0);
+    explicit UserLoginPassManager(const QString& dbConnectionString, QWidget *parent = 0);
     ~UserLoginPassManager();
     QString getUserLogin();
     QString getUserPassword();

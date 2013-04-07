@@ -9,6 +9,7 @@ class EmployeeItemModel;
 class QStandardItem;
 class QSortFilterProxyModel;
 class QStandardItemModel;
+class UserInfoWidget;
 
 namespace Ui {
 class UserManagementDialog;
@@ -50,6 +51,8 @@ private:
     EmployeeItemModel* employeeModel;
     QVariant currentGroupId;
     QSortFilterProxyModel* employeeProxyModel;
+    QString m_dbConnectionString;
+    UserInfoWidget* uiw;
     QStandardItemModel* groupsModel;
 };
 

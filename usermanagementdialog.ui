@@ -170,8 +170,14 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
+          <property name="margin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
-           <widget class="UserInfoWidget" name="widgetUserInfo" native="true">
+           <widget class="QWidget" name="widgetUserInfo" native="true">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -272,12 +278,6 @@
    <class>FilterLineEdit</class>
    <extends>QLineEdit</extends>
    <header>filterlineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UserInfoWidget</class>
-   <extends>QWidget</extends>
-   <header>userinfowidget.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

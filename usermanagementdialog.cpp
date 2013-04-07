@@ -4,6 +4,7 @@
 #include "setupmanager.h"
 #include "employeeitemmodel.h"
 #include "usersandpermissionsmanager.h"
+#include "userinfowidget.h"
 
 #include <QStandardItemModel>
 #include <QMenu>
@@ -13,14 +14,17 @@
 UserManagementDialog::UserManagementDialog(const QString &dbConnectionString, QWidget *parent) :
     QDialog(parent),
     SqlExtension(dbConnectionString),
+    m_dbConnectionString(dbConnectionString),
     ui(new Ui::UserManagementDialog)
 {
     ui->setupUi(this);
+    uiw = new UserInfoWidget(dbConnectionString,ui->widgetUserInfo);
+    ui->widgetUserInfo->setMinimumSize(uiw->minimumSize());
     employeeModel = new EmployeeItemModel(dbConnectionString,this);
     groupsModel = new QStandardItemModel(this);
     employeeProxyModel = new QSortFilterProxyModel(this);
     employeeProxyModel->setSourceModel(employeeModel);
-    ui->widgetUserInfo->setItemModelForGroupsComboBox(groupsModel);
+    uiw->setItemModelForGroupsComboBox(groupsModel);
     ui->listViewGroups->setModel(groupsModel);
     ui->treeViewUsers->setModel(employeeProxyModel);
     ui->treeViewUsers->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -33,8 +37,8 @@ UserManagementDialog::UserManagementDialog(const QString &dbConnectionString, QW
     connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddEmployee()));
     connect(ui->pushButtonFire, SIGNAL(clicked()), this, SLOT(onFireEmployee()));
     connect(ui->treeViewUsers->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentEmployeeChanges(QModelIndex,QModelIndex)));
-    connect(ui->widgetUserInfo, SIGNAL(userNameChanged(QString)), this, SLOT(onUserNameChanged(QString)));
-    connect(ui->widgetUserInfo, SIGNAL(changesSaved()), this, SLOT(onUserInfoChangesSaved()));
+    connect(uiw, SIGNAL(userNameChanged(QString)), this, SLOT(onUserNameChanged(QString)));
+    connect(uiw, SIGNAL(changesSaved()), this, SLOT(onUserInfoChangesSaved()));
     ui->treeViewUsers->setContextMenuPolicy(Qt::CustomContextMenu);   
     connect(ui->treeViewUsers, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCustomContextMenuRequested(QPoint)));
 
@@ -90,7 +94,7 @@ void UserManagementDialog::onCustomContextMenuRequested(const QPoint &pos)
 void UserManagementDialog::onCurrentEmployeeChanges(QModelIndex current, QModelIndex)
 {
     ui->widgetUserInfo->setEnabled(false);
-    ui->widgetUserInfo->setGroupsEditable(accessManager->isCanEditPermissions());
+    uiw->setGroupsEditable(accessManager->isCanEditPermissions());
     if (!current.isValid())
         return;
     else
@@ -107,15 +111,15 @@ void UserManagementDialog::onCurrentEmployeeChanges(QModelIndex current, QModelI
 #endif
          ui->widgetUserInfo->setEnabled(true);
     }
-    ui->widgetUserInfo->setUserId(getItemFromIndex(current)->data(IDrole));
-    ui->widgetUserInfo->setUserName(getItemFromIndex(current)->text());
-    ui->widgetUserInfo->setUserPhone(getItemFromIndex(current)->data(PhoneRole).toString());
-    ui->widgetUserInfo->setUserLogin(getItemFromIndex(current)->data(LoginRole).toString());
-    ui->widgetUserInfo->setUserRate(getItemFromIndex(current)->data(RateRole).toInt());
-    ui->widgetUserInfo->setUserPercent(getItemFromIndex(current)->data(PercentRole).toInt());
-    ui->widgetUserInfo->setUserSalePercent(getItemFromIndex(current)->data(SalePercentRole).toInt());
-    ui->widgetUserInfo->setUserSalaryPerDay(getItemFromIndex(current)->data(SalaryPerDayRole).toInt());    
-    ui->widgetUserInfo->setCurrentUserGroup(getItemFromIndex(current)->data(GroupIdRole));
+    uiw->setUserId(getItemFromIndex(current)->data(IDrole));
+    uiw->setUserName(getItemFromIndex(current)->text());
+    uiw->setUserPhone(getItemFromIndex(current)->data(PhoneRole).toString());
+    uiw->setUserLogin(getItemFromIndex(current)->data(LoginRole).toString());
+    uiw->setUserRate(getItemFromIndex(current)->data(RateRole).toInt());
+    uiw->setUserPercent(getItemFromIndex(current)->data(PercentRole).toInt());
+    uiw->setUserSalePercent(getItemFromIndex(current)->data(SalePercentRole).toInt());
+    uiw->setUserSalaryPerDay(getItemFromIndex(current)->data(SalaryPerDayRole).toInt());
+    uiw->setCurrentUserGroup(getItemFromIndex(current)->data(GroupIdRole));
 }
 
 void UserManagementDialog::onAddEmployee()
@@ -147,11 +151,12 @@ void UserManagementDialog::refreshModel()
 
 void UserManagementDialog::onChangeLoginpass()
 {
-    UserLoginPassManager ulpm;
-    ulpm.setUserLogin(ui->widgetUserInfo->getUserLogin());
-    ulpm.setUserId(ui->widgetUserInfo->getUserId());
-    if (ulpm.exec())    
-        refreshModel();    
+    UserLoginPassManager* ulpm = new UserLoginPassManager(m_dbConnectionString,this);
+    ulpm->setUserLogin(uiw->getUserLogin());
+    ulpm->setUserId(uiw->getUserId());
+    ulpm->exec();
+    //if (ulpm.exec())
+      //  refreshModel();
 }
 
 void UserManagementDialog::onUserNameChanged(QString name)
@@ -163,15 +168,17 @@ void UserManagementDialog::onUserInfoChangesSaved()
 {
     if (!ui->treeViewUsers->currentIndex().isValid())
         return;    
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserId(),IDrole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserName(),NameRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserPhone(), PhoneRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserRate(), RateRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserPercent(), PercentRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserSalePercent(), SalePercentRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserSalaryPerDay(), SalaryPerDayRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getUserLogin(), LoginRole);
-    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(ui->widgetUserInfo->getCurrentGroupId(), GroupIdRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserId(),IDrole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserName(),NameRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserPhone(), PhoneRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserRate(), RateRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserPercent(), PercentRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserSalePercent(), SalePercentRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserSalaryPerDay(), SalaryPerDayRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserLogin(), LoginRole);
+    getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getCurrentGroupId(), GroupIdRole);
+
+    qDebug() << uiw->getUserLogin() << Q_FUNC_INFO;
 
     QSqlQuery q;
     if (!setupManager->getSqlQueryForDB(q))
@@ -179,14 +186,14 @@ void UserManagementDialog::onUserInfoChangesSaved()
     q.prepare("update employee set employee_fio = ?, phone = ?, "
               "employee_rate = ?, employee_percent = ?, employee_sale_percent = ?, "
               "employee_salaryperday = ?, group_id = ? where employee_id = ?");
-    q.addBindValue(ui->widgetUserInfo->getUserName());
-    q.addBindValue(ui->widgetUserInfo->getUserPhone());
-    q.addBindValue(ui->widgetUserInfo->getUserRate());
-    q.addBindValue(ui->widgetUserInfo->getUserPercent());
-    q.addBindValue(ui->widgetUserInfo->getUserSalePercent());
-    q.addBindValue(ui->widgetUserInfo->getUserSalaryPerDay());
-    q.addBindValue(ui->widgetUserInfo->getCurrentGroupId());
-    q.addBindValue(ui->widgetUserInfo->getUserId());
+    q.addBindValue(uiw->getUserName());
+    q.addBindValue(uiw->getUserPhone());
+    q.addBindValue(uiw->getUserRate());
+    q.addBindValue(uiw->getUserPercent());
+    q.addBindValue(uiw->getUserSalePercent());
+    q.addBindValue(uiw->getUserSalaryPerDay());
+    q.addBindValue(uiw->getCurrentGroupId());
+    q.addBindValue(uiw->getUserId());
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();
 }

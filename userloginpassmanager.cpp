@@ -1,13 +1,13 @@
 #include "userloginpassmanager.h"
 #include "ui_userloginpassmanager.h"
-#include "setupmanager.h"
 
 #include <QDebug>
 #include <QMessageBox>
 #include <QCryptographicHash>
 
-UserLoginPassManager::UserLoginPassManager(QWidget *parent) :
+UserLoginPassManager::UserLoginPassManager(const QString &dbConnectionString, QWidget *parent) :
     QDialog(parent),
+    SqlExtension(dbConnectionString),
     ui(new Ui::UserLoginPassManager)
 {
     ui->setupUi(this);
@@ -47,12 +47,12 @@ void UserLoginPassManager::onAccept()
             && !ui->lineEditLogin->text().isEmpty())
     {
         QSqlQuery q;
-        if (!setupManager->getSqlQueryForDB(q))
+        if (!getSqlQuery(q))
             return;
         q.prepare("select employee_id from employee where login = ?");
         q.addBindValue(ui->lineEditLogin->text());
         q.exec();
-        qDebug() << userId;
+        qDebug() << userId << Q_FUNC_INFO;
         while (q.next())
         {
             if (q.value(0) != userId)
@@ -61,7 +61,6 @@ void UserLoginPassManager::onAccept()
                 return;
             }
         }
-
         q.prepare("update employee set login = ?, password = ? where employee_id = ?");
         q.addBindValue(getUserLogin());
         q.addBindValue(QCryptographicHash::hash(getUserPassword().toUtf8(), QCryptographicHash::Sha1));

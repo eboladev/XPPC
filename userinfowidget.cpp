@@ -7,8 +7,10 @@
 #include <QMessageBox>
 #include <QDebug>
 
-UserInfoWidget::UserInfoWidget(QWidget *parent) :
+UserInfoWidget::UserInfoWidget(const QString &dbConnectionString, QWidget *parent) :
     QWidget(parent),
+    SqlExtension(dbConnectionString),
+    m_dbConnectionString(dbConnectionString),
     ui(new Ui::UserInfoWidget)
 {
     ui->setupUi(this);
@@ -128,12 +130,12 @@ void UserInfoWidget::setItemModelForGroupsComboBox(QStandardItemModel *model)
 
 void UserInfoWidget::onChangeLoginpass()
 {
-    UserLoginPassManager ulpm;
-    ulpm.setUserLogin(getUserLogin());
-    ulpm.setUserId(getUserId());
-    if (ulpm.exec())
+    UserLoginPassManager* ulpm = new UserLoginPassManager(m_dbConnectionString, this);
+    ulpm->setUserLogin(getUserLogin());
+    ulpm->setUserId(getUserId());
+    if (ulpm->exec())
     {
-        setUserLogin(ulpm.getUserLogin());
+        setUserLogin(ulpm->getUserLogin());
         //emit changesSaved();
     }
 }

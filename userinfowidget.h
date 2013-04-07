@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QVariant>
+#include "sqlextension.h"
 
 namespace Ui {
 class UserInfoWidget;
@@ -10,12 +11,12 @@ class UserInfoWidget;
 
 class QStandardItemModel;
 
-class UserInfoWidget : public QWidget
+class UserInfoWidget : public QWidget, SqlExtension
 {
     Q_OBJECT
     
 public:
-    explicit UserInfoWidget(QWidget *parent = 0);
+    explicit UserInfoWidget(const QString &dbConnectionString, QWidget *parent = 0);
     ~UserInfoWidget();
     void setUserId(const QVariant& id);
     void setUserName(const QString& name);
@@ -49,6 +50,7 @@ signals:
 
 private:
     Ui::UserInfoWidget *ui;
+    QString m_dbConnectionString;
     QVariant userId;
 };
 
