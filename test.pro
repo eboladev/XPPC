@@ -78,11 +78,9 @@ SOURCES += main.cpp\
     SmtpClient/src/mimeattachment.cpp \
     SmtpClient/src/emailaddress.cpp \
     smtpsettingsdialog.cpp \
-<<<<<<< HEAD
-    applicationupdatedialog.cpp
-=======
+    applicationupdatedialog.cpp \
     reportselectionwidget.cpp
->>>>>>> dab446c3c719c9714234da6e5bb7e4e494057d45
+
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
 #}
@@ -141,11 +139,9 @@ HEADERS  += mainwindow.h \
     SmtpClient/src/mimeattachment.h \
     SmtpClient/src/emailaddress.h \
     smtpsettingsdialog.h \
-<<<<<<< HEAD
-    applicationupdatedialog.h
-=======
+    applicationupdatedialog.h \
     reportselectionwidget.h
->>>>>>> dab446c3c719c9714234da6e5bb7e4e494057d45
+
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
 #    }
@@ -172,11 +168,8 @@ FORMS    += mainwindow.ui \
     userinfowidget.ui \
     contactdeveloperdialog.ui \
     smtpsettingsdialog.ui \
-<<<<<<< HEAD
-    applicationupdatedialog.ui
-=======
+    applicationupdatedialog.ui \
     reportselectionwidget.ui
->>>>>>> dab446c3c719c9714234da6e5bb7e4e494057d45
 
 RESOURCES += \
     Resources.qrc
