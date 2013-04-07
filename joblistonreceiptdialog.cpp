@@ -100,7 +100,7 @@ void JobListOnReceiptDialog::onPushButtonAddJobClicked()
         return;
 
     jobsModel->addJob(m_id,
-                      accessManager->getCurrentUserId(),
+                      employeeWidget->getCurrentEmployeeId(),
                       ui->lineEditJobName->text().trimmed(),
                       ui->spinBoxQuantity->value(),
                       ui->spinBoxPrice->value());
@@ -125,7 +125,7 @@ void JobListOnReceiptDialog::onUpdateClicked()
     if (!ui->tableViewJobs->currentIndex().isValid())
         return;
     jobsModel->updateJob(ui->tableViewJobs->currentIndex(),
-                         accessManager->getCurrentUserId(),
+                         employeeWidget->getCurrentEmployeeId(),
                          ui->lineEditJobName->text().trimmed(),
                          ui->spinBoxQuantity->value(),
                          ui->spinBoxPrice->value());

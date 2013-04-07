@@ -10,7 +10,7 @@ class ReportSelectionWidget;
 class ReportSelectionWidget : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     explicit ReportSelectionWidget(QWidget *parent = 0);
     ~ReportSelectionWidget();
