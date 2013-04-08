@@ -10,7 +10,7 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 
-const QString appVersion = "0.58";
+const QString appVersion = "0.61";
 //#include <stdio.h>
 //#include <stdlib.h>
 

@@ -15,14 +15,14 @@ enum TicketRoles
 enum TicketHeader
 {
     TicketNumber = 0,
-    TicketDate, //1
-    TicketBranch, //2
-    TicketClientName, //3
-    TicketClientPhone, //4
+    TicketDate = 1, //1
+    TicketBranch = 2, //2
+    TicketClientName = 3, //3
+    TicketClientPhone = 4, //4
     TicketDeviceName, //5
     TicketDeviceSerial, //6
     TicketProblem, //7
-    TicketPrice, //8
+    TicketPrice = 8, //8
     TicketGivenOut //9
 };
 enum ProductHeader

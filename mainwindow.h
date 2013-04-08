@@ -88,6 +88,7 @@ private slots:
 
     void onGenerateTicketReport();
     void onGenerateJobListReport();
+    void onGenerateCashReceiptReport();
 
     void onNotAGuaranteeClicked();
     void onAcceptAGuaranteeClicked();
@@ -115,6 +116,7 @@ private:
     int getCurrentTicketId();
     int getCurrentTicketId(const QModelIndex& index);
     QString getCurrentTicketDeviceName(const QModelIndex& index);
+    QString getCurrentTicketDevicePrice();
     QString getCurrentTicketDeviceSerial(const QModelIndex& index);
     QVariant getCurrentTicketGuaranteeId(const QModelIndex& index);
     /*ticket manager stop*/

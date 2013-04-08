@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
     connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
     connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()), SLOT(onGenerateJobListReport()));
+    connect(ui->actionCashReceiptPrint, SIGNAL(triggered()), SLOT(onGenerateCashReceiptReport()));
     connect(ui->action_Qt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(ui->actionDeveloperContact, SIGNAL(triggered()), this, SLOT(onActionDeveloperContactClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
@@ -149,22 +150,33 @@ void MainWindow::changeTicketStatus(const int &status)
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-
-    QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
-    for (int i = 0 ; i < qmil.count(); ++i)
+    if (status != Closed)
     {
-        if (qmil.at(i).column() != TicketNumber)
-            continue;
-        q.prepare(QString("update device set status = ? %0 "
-                          "where device.id = (select device_id from ticket where id = ?)")
-                  .arg(status == Closed ? ", date_givenout = ?" : ""));
-        q.addBindValue(status);
-        if (status == Closed)
-            q.addBindValue(QDate::currentDate().toString("dd.MM.yyyy"));
-        q.addBindValue(getCurrentTDCRId(qmil.at(i)));
-        if (!q.exec())
-            qDebug() << q.lastError() << q.lastQuery();
+        QModelIndexList qmil = ui->tableViewTicket->selectionModel()->selectedIndexes();
+        for (int i = 0 ; i < qmil.count(); ++i)
+        {
+            if (qmil.at(i).column() != TicketNumber)
+                continue;
+            q.prepare(QString("update device set status = ? "
+                              "where device.id = (select device_id from ticket where id = ?)"));
+            q.addBindValue(status);
+            q.addBindValue(getCurrentTDCRId(qmil.at(i)));
+            if (!q.exec())
+                qDebug() << q.lastError() << q.lastQuery();
+        }
     }
+    else
+    {
+        q.prepare(QString("update device set status = ? , date_givenout = ?, price = ? "
+                          "where device.id = (select device_id from ticket where id = ?)"));
+        q.addBindValue(status);
+        q.addBindValue(QDate::currentDate().toString("dd.MM.yyyy"));
+        q.addBindValue(getCurrentTicketDevicePrice());
+        q.addBindValue(getCurrentTDCRId(ui->tableViewTicket->currentIndex()));
+                if (!q.exec())
+                qDebug() << q.lastError() << q.lastQuery();
+    }
+
     qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
@@ -191,6 +203,11 @@ QString MainWindow::getCurrentTicketDeviceName(const QModelIndex &index)
         return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketDeviceName)->text();
     else
         return "";
+}
+
+QString MainWindow::getCurrentTicketDevicePrice()
+{
+    return ui->lineEditTicketPrice->text();
 }
 
 QString MainWindow::getCurrentTicketDeviceSerial(const QModelIndex &index)
@@ -814,6 +831,11 @@ void MainWindow::onGenerateJobListReport()
     qDebug() << "report generated" << ReportsHandler::openReport(getCurrentTDCRId().toInt(),JobListReport);
 }
 
+void MainWindow::onGenerateCashReceiptReport()
+{
+    qDebug() << "report generated" << ReportsHandler::openReport(getCurrentTDCRId().toInt(),CashReceiptReport);
+}
+
 void MainWindow::onNotAGuaranteeClicked()
 {
     QSqlQuery q;
@@ -1002,6 +1024,12 @@ void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
         }
         if (currentStatus == Closed && accessManager->isCanGuaranteeReturn())
             menu->addAction(trUtf8("Гарантия, вернуть в работу"), this, SLOT(submitGuaranteeTicket()));
+        QMenu *menuPrint = new QMenu(trUtf8("Печать"),menu);
+        menu->addMenu(menuPrint);
+        menuPrint->addAction(trUtf8("Квитанция"), this, SLOT(onGenerateTicketReport()));
+        menuPrint->addAction(trUtf8("Список работ"), this, SLOT(onGenerateJobListReport()));
+        if (currentStatus == Closed)
+            menuPrint->addAction(trUtf8("ПКО"), this, SLOT(onGenerateCashReceiptReport()));
     }
     menu->exec(QCursor::pos());
 }

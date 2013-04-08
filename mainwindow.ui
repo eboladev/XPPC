@@ -794,7 +794,7 @@
      </property>
      <addaction name="actionPrintTicket"/>
      <addaction name="actionJobOnTicketPrint"/>
-     <addaction name="action_13"/>
+     <addaction name="actionCashReceiptPrint"/>
     </widget>
     <addaction name="actionOnAddReceiptClicked"/>
     <addaction name="actionOnJobListClicked"/>
@@ -975,7 +975,7 @@
     <string>Акт выполненных работ...</string>
    </property>
   </action>
-  <action name="action_13">
+  <action name="actionCashReceiptPrint">
    <property name="text">
     <string>Приходный кассовый ордер...</string>
    </property>

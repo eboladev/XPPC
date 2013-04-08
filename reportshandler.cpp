@@ -62,7 +62,14 @@ bool ReportsHandler::openReport(const int &ticket_id, const int &report_type)
                 break;
             case CashReceiptReport:
             {
-
+                if (generateCashReceiptReport(wa, ticket_id))
+                {
+                    wa.setQuitFromWordAutomaticaly(false);
+                    wa.setVisible(true);
+                    res = true;
+                }
+                else
+                    wa.setQuitFromWordAutomaticaly(true);
             }
                 break;
             case PricetTagReport:
@@ -513,86 +520,73 @@ bool ReportsHandler::generateJobObTicketReport(WordAutomation &wa, const int &ti
 }
 
 bool ReportsHandler::generateCashReceiptReport(WordAutomation &wa, const int &ticket_id)
-{   QSqlQuery q;
+{
+    QSqlQuery q;
 
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return false;
 
+    qDebug() << "db connect ok" << Q_FUNC_INFO;
+
     wa.setQuitFromWordAutomaticaly(true);
+
+    qDebug() << wa.isWordPresent() << "word present" << Q_FUNC_INFO;
 
     if (!wa.isWordPresent())
         return false;
 
-    if (!loadTemplate(wa,JobListReport))
+    q.prepare("SELECT "
+              "client.name, "
+              "device.price, "
+              "ticket.ticket_id "
+              "FROM "
+              "client_ticket "
+              "INNER JOIN client ON (client_ticket.client_id = client.id) "
+              "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+              "INNER JOIN device ON (device.id = ticket.device_id) "
+              "where ticket.id = ?");
+    q.addBindValue(ticket_id);
+
+    if (!q.exec())
+    {
+        qDebug() << q.lastError() << q.lastQuery();
+        return false;
+    }
+    qDebug() << "query ok";
+    if (!q.next())
+        return false;
+    qDebug() << "query have data";
+    QString clientName(q.value(0).toString());
+    int devicePrice(q.value(1).toInt());
+    QString ticketId(q.value(2).toString());
+
+    if (!loadTemplate(wa,CashReceiptReport))
         return false;
 
-    if (wa.findTableByName("jobTable"))
-    {
-        q.prepare("select job_name,job_quantity,job_price from JobOnTicket "
-                  " where tdc_r_id=?");
-        q.addBindValue(ticket_id);
-        if (!q.exec())
-        {
-            qDebug() << q.lastError() << q.lastQuery();
-            return false;
-        }
+    qDebug() << "template loaded";
 
-        int row = 1;
-        int currentRow = 2;
-        int totalPrice = 0;
-        while (q.next())
-        {
-            wa.insertRows(1);
-            if (wa.selectCellInTableByPos(1,currentRow))
-                wa.insertText(QString::number(row));
-            if (wa.selectCellInTableByPos(2,currentRow))
-                wa.insertText(q.value(0).toString());
-            if (wa.selectCellInTableByPos(3,currentRow))
-                wa.insertText(trUtf8("шт."));
-            if (wa.selectCellInTableByPos(4,currentRow))
-                wa.insertText(q.value(1).toString());
-            if (wa.selectCellInTableByPos(5,currentRow))
-                wa.insertText(q.value(2).toString());
-            if (wa.selectCellInTableByPos(6,currentRow))
-                wa.insertText(QString::number(q.value(1).toInt()*q.value(2).toInt()));
-            totalPrice += q.value(1).toInt()*q.value(2).toInt();
-            ++row;
-            ++currentRow;
-        }
-        wa.insertRows(1);
-        if (wa.selectCellInTableByPos(2,currentRow))
-            wa.insertText(trUtf8("Итого:"));
-        if (wa.selectCellInTableByPos(6,currentRow))
-            wa.insertText(QString::number(totalPrice));
-        if (wa.findBookmarkByName("jobs_total"))
-            wa.insertText(QString::number(row-1));
-        if (wa.findBookmarkByName("current_date"))
-            wa.insertText(QDate::currentDate().toString("dd.MM.yyyy"));
-        if (wa.findBookmarkByName("current_date2"))
-            wa.insertText(QDate::currentDate().toString("dd.MM.yyyy"));
-
-        q.prepare("select client.name, client_ticket.id "
-                  "FROM "
-                  "client_ticket "
-                  "INNER JOIN client ON (client_ticket.client_id = client.id) "
-                  "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) where ticket.id = ?");
-        q.addBindValue(ticket_id);
-        q.exec();
-        if (q.next())
-        {
-            if (wa.findBookmarkByName("client_name"))
-                wa.insertText(q.value(0).toString());
-            if (wa.findBookmarkByName("client_name2"))
-                wa.insertText(q.value(0).toString());
-            if (wa.findBookmarkByName("ticket_id"))
-                wa.insertText(q.value(1).toString());
-            if (wa.findBookmarkByName("ticket_id2"))
-                wa.insertText(q.value(1).toString());
-        }
-        if (wa.findBookmarkByName("total_price"))
-            wa.insertText(money(totalPrice));
-        return true;
-    }
-
+    if (wa.findBookmarkByName("client_name"))
+        wa.insertText(clientName);
+    if (wa.findBookmarkByName("client_name2"))
+        wa.insertText(clientName);
+    if (wa.findBookmarkByName("price"))
+        wa.insertText(QString::number(devicePrice));
+    if (wa.findBookmarkByName("price2"))
+        wa.insertText(QString::number(devicePrice));
+    if (wa.findBookmarkByName("ticket_number"))
+        wa.insertText(ticketId);
+    if (wa.findBookmarkByName("ticket_number2"))
+        wa.insertText(ticketId);
+    if (wa.findBookmarkByName("date"))
+        wa.insertText(QDateTime::currentDateTime().toString("dd.MM.yyyy"));
+    if (wa.findBookmarkByName("date2"))
+        wa.insertText(QDateTime::currentDateTime().toString("\"dd\" MMMM yyyy г."));
+    if (wa.findBookmarkByName("date3"))
+        wa.insertText(QDateTime::currentDateTime().toString("\"dd\" MMMM yyyy г."));
+    if (wa.findBookmarkByName("price_in_words"))
+        wa.insertText(money(devicePrice));
+    if (wa.findBookmarkByName("price_in_words2"))
+        wa.insertText(money(devicePrice));
+    return true;
 }
 #endif
