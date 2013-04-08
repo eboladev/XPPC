@@ -24,6 +24,7 @@ private:
     static bool loadTemplate(WordAutomation &wa, const int& report_type);
     static bool generateTicketReport(WordAutomation &wa, const int& ticket_id);
     static bool generateJobObTicketReport(WordAutomation &wa, const int& ticket_id);
+    static bool generateCashReceiptReport(WordAutomation &wa, const int& ticket_id);
     //static bool generateTicketReport(WriterAutomation &wa, const QString &scenarioLogId);
 #endif
     

@@ -511,4 +511,88 @@ bool ReportsHandler::generateJobObTicketReport(WordAutomation &wa, const int &ti
         return true;
     }
 }
+
+bool ReportsHandler::generateCashReceiptReport(WordAutomation &wa, const int &ticket_id)
+{   QSqlQuery q;
+
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return false;
+
+    wa.setQuitFromWordAutomaticaly(true);
+
+    if (!wa.isWordPresent())
+        return false;
+
+    if (!loadTemplate(wa,JobListReport))
+        return false;
+
+    if (wa.findTableByName("jobTable"))
+    {
+        q.prepare("select job_name,job_quantity,job_price from JobOnTicket "
+                  " where tdc_r_id=?");
+        q.addBindValue(ticket_id);
+        if (!q.exec())
+        {
+            qDebug() << q.lastError() << q.lastQuery();
+            return false;
+        }
+
+        int row = 1;
+        int currentRow = 2;
+        int totalPrice = 0;
+        while (q.next())
+        {
+            wa.insertRows(1);
+            if (wa.selectCellInTableByPos(1,currentRow))
+                wa.insertText(QString::number(row));
+            if (wa.selectCellInTableByPos(2,currentRow))
+                wa.insertText(q.value(0).toString());
+            if (wa.selectCellInTableByPos(3,currentRow))
+                wa.insertText(trUtf8("шт."));
+            if (wa.selectCellInTableByPos(4,currentRow))
+                wa.insertText(q.value(1).toString());
+            if (wa.selectCellInTableByPos(5,currentRow))
+                wa.insertText(q.value(2).toString());
+            if (wa.selectCellInTableByPos(6,currentRow))
+                wa.insertText(QString::number(q.value(1).toInt()*q.value(2).toInt()));
+            totalPrice += q.value(1).toInt()*q.value(2).toInt();
+            ++row;
+            ++currentRow;
+        }
+        wa.insertRows(1);
+        if (wa.selectCellInTableByPos(2,currentRow))
+            wa.insertText(trUtf8("Итого:"));
+        if (wa.selectCellInTableByPos(6,currentRow))
+            wa.insertText(QString::number(totalPrice));
+        if (wa.findBookmarkByName("jobs_total"))
+            wa.insertText(QString::number(row-1));
+        if (wa.findBookmarkByName("current_date"))
+            wa.insertText(QDate::currentDate().toString("dd.MM.yyyy"));
+        if (wa.findBookmarkByName("current_date2"))
+            wa.insertText(QDate::currentDate().toString("dd.MM.yyyy"));
+
+        q.prepare("select client.name, client_ticket.id "
+                  "FROM "
+                  "client_ticket "
+                  "INNER JOIN client ON (client_ticket.client_id = client.id) "
+                  "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) where ticket.id = ?");
+        q.addBindValue(ticket_id);
+        q.exec();
+        if (q.next())
+        {
+            if (wa.findBookmarkByName("client_name"))
+                wa.insertText(q.value(0).toString());
+            if (wa.findBookmarkByName("client_name2"))
+                wa.insertText(q.value(0).toString());
+            if (wa.findBookmarkByName("ticket_id"))
+                wa.insertText(q.value(1).toString());
+            if (wa.findBookmarkByName("ticket_id2"))
+                wa.insertText(q.value(1).toString());
+        }
+        if (wa.findBookmarkByName("total_price"))
+            wa.insertText(money(totalPrice));
+        return true;
+    }
+
+}
 #endif
