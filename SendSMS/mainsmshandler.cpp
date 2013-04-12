@@ -2,131 +2,72 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QDebug>
-#include <QStringList>
 #include <QCryptographicHash>
-#include <QUrl>
 #include <QNetworkReply>
 
-MainSMSHandler::MainSMSHandler(const QString &projectName, const QString &senderName, const QString &apiKey, QObject *parent) :
-    QObject(parent),
-    projectName(projectName),
-    senderName(senderName),
-    apiKey(apiKey)
+MainSMSHandler::MainSMSHandler(QObject *parent) :
+    AbstractSMSGateway(parent)
 {
     qnam = new QNetworkAccessManager(this);
 }
 
 void MainSMSHandler::send(const QString &smsText, const QStringList &recipientsList)
-{
+{        
     QStringList params;
-
-    //http://mainsms.ru/api/mainsms/message/send?project=mainsms&sender=mainsms.ru&message=test&recipients=89121231234&sign=12cb0a07a49b60222158b504bee88f57
-    //http://mainsms.ru/api/mainsms/message/send?project=gradosh&sender=gradosh&message=hooe&recipinets=89657376072&sign=c4b32ddc6c70c82e2e3406892b2e5861"
-    QString project = QString("project=%0").arg(projectName);
-    QString sender = QString("sender=%0").arg(senderName);
-    QString message = QString("message=%0").arg(smsText);
 
     QStringList temp = recipientsList;
     temp.sort();
+    params << formParam("project",getLogin())
+           << formParam("sender",getSenderName())
+           << formParam("message",smsText)
+           << formParam("recipients",temp.join(","));
+    if(testMode)
+        params  << formParam("test","1")
+                << formParam("sign",formSignature(QStringList() << smsText << temp.join(",") << "1" <<  getSenderName()));
+    else
+        params << formParam("sign",formSignature(QStringList() << smsText << temp.join(",") <<  getSenderName()));
 
-    QString recipients = QString("recipients=%0").arg(temp.join(","));
-    QString test = QString("test=%0").arg(1);// QString();//
 
-    params << smsText << temp.join(",") << projectName << senderName << "1";
-    params.sort();
-
-    QString sign = QString("sign=%0").arg(formSignature(params.join(";")));
-    temp = QStringList() << project << sender << message << recipients << test << sign;
-    qDebug() << temp.join("&");
-    QString req = temp.join("&");
-    req.prepend("http://mainsms.ru/api/mainsms/message/send?");
-    QUrl url = QUrl(req);
-    qDebug() << url;
-    QNetworkReply* reply = qnam->get(QNetworkRequest(url));
-    connect(reply, SIGNAL(finished()),
-            this, SLOT(httpFinished()));
-    connect(reply, SIGNAL(readyRead()),
-            this, SLOT(httpReadyRead()));
+    request(formUrl("http://mainsms.ru/api/mainsms/message/send?",params.join("&")));
 }
 
 void MainSMSHandler::status(const QStringList &messageIds)
 {
-    //http://mainsms.ru/api/mainsms/message/status?project=mainsms&messages_id=1567,1568&sign=a2271659a8b05d318b4b53c644ba8b99
+    QStringList params;
+
     QStringList temp = messageIds;
     temp.sort();
-    QString project = QString("project=%0").arg(projectName);
-    QString messages_id = QString("messages_id=%0").arg(temp.join(","));
-    QStringList params;
-    params << projectName << temp.join(",");
-    QString sign = QString("sign=%0").arg(formSignature(params.join(";")));
 
-    params = QStringList() << project << messages_id << sign;
+    params << formParam("project",getLogin())
+           << formParam("messages_id",temp.join(","))
+           << formParam("sign",formSignature(QStringList() << temp.join(",")));
 
-    QString req = params.join("&");
-
-    req.prepend("http://mainsms.ru/api/mainsms/message/status?");
-    QUrl url = QUrl(req);
-    qDebug() << url;
-    QNetworkReply* reply = qnam->get(QNetworkRequest(url));
-    connect(reply, SIGNAL(finished()),
-            this, SLOT(httpFinished()));
-    connect(reply, SIGNAL(readyRead()),
-            this, SLOT(httpReadyRead()));
+    request(formUrl("http://mainsms.ru/api/mainsms/message/status?",params.join("&")));
 }
 
 void MainSMSHandler::price(const QString &smsText, const QStringList &recipientsList)
 {
-    //http://mainsms.ru/api/mainsms/message/price?project=mainsms&message=test&recipients=89121231234,9121231235&sign=k2271659a8b05d318b4b53c644ba8b42
-    QStringList temp = recipientsList;
-    temp.sort();
-    QString project = QString("project=%0").arg(projectName);
-    QString message = QString("message=%0").arg(smsText);
-    QString recipients = QString("recipients=%0").arg(temp.join(","));
-
     QStringList params;
 
-    params << projectName << temp.join(",") << smsText;
-    params.sort();
+    QStringList temp = recipientsList;
+    temp.sort();
 
-    qDebug() << params;
+    params << formParam("project",getLogin())
+           << formParam("message",smsText)
+           << formParam("recipients",temp.join(","))
+           << formParam("sign",formSignature(QStringList() << smsText << temp.join(",")));
 
-    QString sign = QString("sign=%0").arg(formSignature(params.join(";")));
-
-    params = QStringList() << project << message << recipients << sign;
-
-    QString req = params.join("&");
-
-    req.prepend("http://mainsms.ru/api/mainsms/message/price?");
-    QUrl url = QUrl(req);
-    qDebug() << url;
-    QNetworkReply* reply = qnam->get(QNetworkRequest(url));
-    connect(reply, SIGNAL(finished()),
-            this, SLOT(httpFinished()));
-    connect(reply, SIGNAL(readyRead()),
-            this, SLOT(httpReadyRead()));
+    request(formUrl("http://mainsms.ru/api/mainsms/message/price?",params.join("&")));
 }
 
 void MainSMSHandler::balance()
 {
-    //http://mainsms.ru/api/mainsms/message/balance?project=mainsms&sign=y2271659a8b05d318b4b53c644ba8b0
-    QStringList params = QStringList() << projectName;
+    QStringList params;
 
-    QString project = QString("project=%0").arg(projectName);
-    QString sign = QString("sign=%0").arg(formSignature(params.join(";")));
+    params << formParam("project",getLogin())
+           << formParam("sign",formSignature());
 
-    params = QStringList() << project << sign;
-
-    QString req = params.join("&");
-
-    req.prepend("http://mainsms.ru/api/mainsms/message/balance?");
-
-    QUrl url = QUrl(req);
-    qDebug() << url;
-    QNetworkReply* reply = qnam->get(QNetworkRequest(url));
-    connect(reply, SIGNAL(finished()),
-            this, SLOT(httpFinished()));
-    connect(reply, SIGNAL(readyRead()),
-            this, SLOT(httpReadyRead()));
+    request(formUrl("http://mainsms.ru/api/mainsms/message/balance?",params.join("&")));
 }
 
 void MainSMSHandler::httpFinished()
@@ -139,27 +80,58 @@ void MainSMSHandler::httpReadyRead()
     parseAnswer(qobject_cast<QNetworkReply*>(sender())->readAll());
 }
 
-QString MainSMSHandler::formSignature(const QString params)
+bool MainSMSHandler::getTestMode() const
 {
-    QString temp = params;
-    temp.append(";").append(apiKey);
-    qDebug() << params << temp;
+    return testMode;
+}
+
+void MainSMSHandler::setTestMode(bool value)
+{
+    testMode = value;
+}
+
+QString MainSMSHandler::formSignature(QStringList params)
+{
+    QStringList temp;
+    temp << params << getLogin();
+    temp.sort();
     return QCryptographicHash::hash(
                 QCryptographicHash::hash(
-                    QString(temp).toUtf8(),
+                    QString(temp.join(";").append(";").append(getPassword())).toUtf8(),
                     QCryptographicHash::Sha1)
                 .toHex(),QCryptographicHash::Md5).toHex();
 }
 
-void MainSMSHandler::parseAnswer(const QString &answer)
+QString MainSMSHandler::formParam(const QString &key, const QString &value)
 {
-    qDebug() << answer;
+    return QString("%0=%1").arg(key).arg(value);
+}
+
+QUrl MainSMSHandler::formUrl(const QString &path, const QString &params)
+{
+    return QUrl(QString().append(path).append(params));
+}
+
+void MainSMSHandler::request(const QUrl &url)
+{
+    qDebug() << url;
+    QNetworkReply* reply = qnam->get(QNetworkRequest(url));
+    connect(reply, SIGNAL(finished()),
+            this, SLOT(httpFinished()));
+    connect(reply, SIGNAL(readyRead()),
+            this, SLOT(httpReadyRead()));
+}
+
+void MainSMSHandler::parseAnswer(const QString &answerReply)
+{
+    emit answer(answerReply);
+    qDebug() << answerReply;
     //qDebug() << answer.indexOf(",");
-    QString temp = answer;
+    QString temp = answerReply;
     temp.remove(0,1);
     temp.remove(temp.length()-1,1);
     temp.remove("\"");
-    qDebug() << temp;
+    // qDebug() << temp;
     //QMap<QString,QString> parsedAnswer;
     /*QStringList tempList = temp.split(QRegExp("(\\w+:.+,)+"));
 
@@ -170,5 +142,5 @@ void MainSMSHandler::parseAnswer(const QString &answer)
         qDebug() << key << value << parsedString << parsedString.indexOf(":");
         parsedAnswer[key] = value;
     }*/
-   // qDebug() << parsedAnswer;
+    // qDebug() << parsedAnswer;
 }

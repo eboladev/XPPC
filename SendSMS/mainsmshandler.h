@@ -1,66 +1,51 @@
 #ifndef MAINSMSHANDLER_H
 #define MAINSMSHANDLER_H
 
-#include <QObject>
-#include <QMap>
+#include <abstractsmsgateway.h>
+#include <QUrl>
+#include <QStringList>
 
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class MainSMSHandler : public QObject
+class MainSMSHandler : public AbstractSMSGateway
 {
     Q_OBJECT
 public:
-    explicit MainSMSHandler(const QString& projectName,
-                            const QString& senderName,
-                            const QString& apiKey,
-                            QObject *parent = 0);
+    explicit MainSMSHandler(QObject *parent = 0);
 
     void send(const QString& smsText,
               const QStringList& recipientsList);
     void status(const QStringList& messageIds);
+    void balance();
+/*mainsms metohds*/
     void price(const QString& smsText,
                const QStringList& recipientsList);
-    void balance();
 
-    void setProjectName(const QString& projectName);
-    void setSenderName(const QString& senderName);
-    void setApiKey(const QString& apiKey);
+
+    bool getTestMode() const;
+    void setTestMode(bool value);
 
 signals:
-    void sendAnswer(const QMap<QString,QString> messageIdToRecepientMap,
-                    const int& partsCount,
-                    const double& sendPrice,
-                    const double& currency);
-
-    void statusAnswer(const QMap<QString,QString> messageIdToStatusMap);
-
-    void priceAnswer(const QStringList& recipientsList,
-                     const int& partsCount,
-                     const double& sendPrice,
-                     const double& currency);
-
-    void error(const QString& status,
-               const int& errorCode,
-               const QString& errorMessage);
-
-    void balance(const double& currency);
+    void answer(const QString& text);
 
 private slots:
     void httpFinished();
     void httpReadyRead();
 
 private:
-    QString formSignature(const QString params);
+    QString formSignature(QStringList params = QStringList());
+    QString formParam(const QString& key,
+                      const QString& value);
+    QUrl formUrl(const QString& path,
+                 const QString& params);
+    void request(const QUrl& url);
 
-    void parseAnswer(const QString& answer);
+    void parseAnswer(const QString& answerReply);
 
 private:
-    QString projectName;
-    QString senderName;
-    QString apiKey;
     QNetworkAccessManager* qnam;
-
+    bool testMode;
 };
 
 #endif // MAINSMSHANDLER_H

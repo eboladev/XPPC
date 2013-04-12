@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    mainsmshandler.cpp
+    mainsmshandler.cpp \
+    abstractsmsgateway.cpp
 
 HEADERS  += mainwindow.h \
-    mainsmshandler.h
+    mainsmshandler.h \
+    abstractsmsgateway.h
 
 FORMS    += mainwindow.ui

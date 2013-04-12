@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
-    <height>289</height>
+    <width>560</width>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,15 +20,61 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLineEdit" name="lineEdit"/>
+         <widget class="QLineEdit" name="lineEditRecipients">
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="plainTextEdit"/>
+         <widget class="QPlainTextEdit" name="plainTextEditMessage">
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QCheckBox" name="checkBoxTest">
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Test mode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonSend">
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Send</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonPrice">
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Price</string>
           </property>
          </widget>
         </item>
@@ -39,10 +85,23 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLineEdit" name="lineEdit_2"/>
+           <widget class="QLineEdit" name="lineEditStatus">
+            <property name="maximumSize">
+             <size>
+              <width>254</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="pushButtonStatus">
+            <property name="maximumSize">
+             <size>
+              <width>254</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
              <string>Status</string>
             </property>
@@ -51,7 +110,13 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="pushButtonBalance">
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
            <string>Balance</string>
           </property>
@@ -67,8 +132,8 @@
        <string>Answer</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QPlainTextEdit" name="plainTextEdit_2"/>
+       <item row="1" column="0">
+        <widget class="QPlainTextEdit" name="plainTextEditAnswer"/>
        </item>
       </layout>
      </widget>
@@ -80,7 +145,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>484</width>
+     <width>560</width>
      <height>21</height>
     </rect>
    </property>
