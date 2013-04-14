@@ -16,6 +16,7 @@
 #include "usersandpermissionsmanager.h"
 #include "contactdeveloperdialog.h"
 #include "smsgatewaysettings.h"
+#include "dialogtemplate.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -360,32 +361,7 @@ void MainWindow::onCurrentCategoryChanged(QModelIndex current, QModelIndex)
 
 void MainWindow::onActionCategoryProductsClicked()
 {
-    QString dbConnectionString = "PRODUCTCATEGORYMANAGER";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();
-
-        ProductCategoryManager pcm(dbConnectionString,this);
-        if (pcm.exec())
-            db.commit();
-        else
-            db.rollback();
-
-        db.close();
-    }
-    QSqlDatabase::removeDatabase(dbConnectionString);
+    DialogTemplate::executeDialogWithDbCheck<ProductCategoryManager>(this);
     onRefreshCategoryModel();
 }
 
@@ -420,47 +396,6 @@ QString MainWindow::generateTicketQuery()
             .arg(currentStatus == Closed ? "device.price, device.date_givenout, " : "")
             .arg(QString::number(currentStatus))
             .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
-}
-
-bool MainWindow::executeDialog(QDialog *dlg)
-{
-    bool ok = false;
-
-    QString dbConnectionString = dlg->property("db").toString();
-
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return false;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return false;
-        }
-
-        db.transaction();
-
-        if (dlg->exec())
-        {
-            db.commit();
-            ok = true;
-        }
-        else
-            db.rollback();
-
-        db.close();
-    }
-    QSqlDatabase::removeDatabase(dbConnectionString);
-    return ok;
-}
-
-QString MainWindow::genUUID()
-{
-    return QUuid::createUuid().toString();
 }
 
 void MainWindow::initAccessManager()
@@ -630,81 +565,21 @@ void MainWindow::onDBSettingsClicked()
 
 void MainWindow::onAddTicketClicked()
 {
-    updateTableViewTicket->stop();
+    updateTableViewTicket->stop();   
 
-    QString dbConnectionString = genUUID();
-
-    ReceiptManager* rc = new ReceiptManager(dbConnectionString,-1,this);
-    rc->setProperty("db",dbConnectionString);
-    if (executeDialog(rc))
+    if (DialogTemplate::executeDialogWithDbCheck<ReceiptManager>(-1,this))
     {
         refreshTicketModel(generateTicketQuery());
         ui->radioButtonWorking->setChecked(true);
     }
-
-
-    /*
-    QString dbConnectionString = "MSADDRECEIPT";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            qDebug() << "Error! database not open";
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();
-        ReceiptManager rm(dbConnectionString,-1,this);
-        if (rm.exec())
-        {
-            db.commit();
-            refreshTicketModel(generateTicketQuery());
-            ui->radioButtonWorking->setChecked(true);
-        }
-        else        
-            db.rollback();       
-        db.close();
-    }*/
-    updateTableViewTicket->start(DEFAULTPERIOD);
-    //QSqlDatabase::removeDatabase(dbConnectionString);
+    updateTableViewTicket->start(DEFAULTPERIOD);    
 }
 
 void MainWindow::onJobListClicked()
 {
-    updateTableViewTicket->stop();
-    QString dbConnectionString = "MSJOBLIST";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();
-
-        JobListOnReceiptDialog jlord(dbConnectionString, getCurrentTDCRId().toInt(), getCurrentTicketId(), this);
-        if (jlord.exec())        
-            db.commit();        
-        else        
-            db.rollback();                
-        db.close();
-    }
+    updateTableViewTicket->stop();    
+    DialogTemplate::executeDialogWithDbCheck<JobListOnReceiptDialog>(getCurrentTDCRId().toInt(),getCurrentTicketId(),this);
     updateTableViewTicket->start(DEFAULTPERIOD);
-    QSqlDatabase::removeDatabase(dbConnectionString);
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -870,37 +745,10 @@ void MainWindow::onAcceptAGuaranteeClicked()
 void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 {    
     Q_UNUSED(index);
-    updateTableViewTicket->stop();
-    QString dbConnectionString = "MSTICKETVIEW";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            qDebug() << "removedb on view ticket";
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            qDebug() << "Error! database not open";
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();        
-        ReceiptManager rm(dbConnectionString,getCurrentTDCRId().toInt(),this);
-        if (rm.exec())
-        {
-            db.commit();
-            refreshTicketModel(generateTicketQuery());
-        }
-        else
-            db.rollback();        
-        db.close();
-    }
-    updateTableViewTicket->start(DEFAULTPERIOD);
-    QSqlDatabase::removeDatabase(dbConnectionString);
+    updateTableViewTicket->stop();    
+    if (DialogTemplate::executeDialogWithDbCheck<ReceiptManager>(getCurrentTDCRId().toInt(),this))
+        refreshTicketModel(generateTicketQuery());
+    updateTableViewTicket->start(DEFAULTPERIOD);    
 }
 
 void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIndex previous)
@@ -1150,38 +998,8 @@ void MainWindow::on_actionDisconnect_triggered()
 void MainWindow::onActionBranchesTriggered()
 {
     updateTableViewTicket->stop();
-
-    QString dbConnectionString = "MSBRANCHESVIEW";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            qDebug() << "removedb on branches";
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            qDebug() << "Error! database not open";
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();
-
-        BranchWidget bw(dbConnectionString,this);
-        if (bw.exec())
-        {
-            db.commit();
-        }
-        else
-            db.rollback();
-
-        db.close();
-    }
-    updateTableViewTicket->start(DEFAULTPERIOD);
-    QSqlDatabase::removeDatabase(dbConnectionString);
+    DialogTemplate::executeDialogWithDbCheck<BranchWidget>(this);
+    updateTableViewTicket->start(DEFAULTPERIOD);    
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -1198,30 +1016,7 @@ void MainWindow::onActionChangeUserClicked()
 
 void MainWindow::onActionUserManagementClicked()
 {
-    QString dbConnectionString = "USERMANAMEGENT";
-    {
-        if (SetupManager::instance()->openSQLDatabase(dbConnectionString) != SetupManager::FBCorrect)
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        QSqlDatabase db = QSqlDatabase::database(dbConnectionString, false);
-        if (!db.isOpen())
-        {
-            QSqlDatabase::removeDatabase(dbConnectionString);
-            return;
-        }
-
-        db.transaction();
-        UserManagementDialog umd(dbConnectionString, this);
-        if (umd.exec())
-            db.commit();
-        else
-            db.rollback();
-        db.close();
-    }
-    QSqlDatabase::removeDatabase(dbConnectionString);
+    DialogTemplate::executeDialogWithDbCheck<UserManagementDialog>(this);
 }
 
 void MainWindow::onActionReportSettignsClicked()

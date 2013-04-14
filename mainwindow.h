@@ -59,9 +59,7 @@ private:
     bool connectToDb(QString dbConnectionName);
     bool disconnectFromDb(QString dbConnectionName);
     bool settingsIsNotEmpty();
-    void sb(QString text);        
-    bool executeDialog(QDialog *);    
-    QString genUUID();
+    void sb(QString text);
 
     void initAccessManager();
 

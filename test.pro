@@ -142,7 +142,8 @@ HEADERS  += mainwindow.h \
     smtpsettingsdialog.h \
     applicationupdatedialog.h \
     reportselectionwidget.h \
-    smsgatewaysettings.h
+    smsgatewaysettings.h \
+    dialogtemplate.h
 
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
