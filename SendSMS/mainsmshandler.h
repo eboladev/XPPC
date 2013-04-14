@@ -39,10 +39,10 @@ private:
                       const QString& value);
     QUrl formUrl(const QString& path,
                  const QString& params);
-    void request(const QUrl& url);
+    void request(const QUrl& url,const int& type);
 
     void parseAnswer(const QString& answerReply);
-
+    void putAnswerIntoHash(QMap<QString, QString> &answerHash, QString nonparsedString);
 private:
     QNetworkAccessManager* qnam;
     bool testMode;

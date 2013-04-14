@@ -27,8 +27,9 @@ public:
 signals:
     void sendedIds(const QHash<QString,QString> idToRecepientHash);
     void smsStatus(const QHash<QString,QString> idToStatusHash);
-    void balance(const double& currency);
-    void error(const QString& error);
+    void balanceCash(const double& currency);
+    void smsPrice(const int& count, const int& parts, const double& price, const double& currency);
+    void error(const int& errorCode, const QString& error);
 
 private:
     QString login;

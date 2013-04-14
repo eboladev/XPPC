@@ -21,7 +21,7 @@ void DrawWidget::draw(QPainter *painter)
 {
     painter->fillRect(painter->window(), Qt::lightGray);
 
-    EAN13 code("411234512345");
+    EAN13 code("4607036044365");
 
     painter->drawText(50,40,"Arbitrary size (400x200pix)");
 

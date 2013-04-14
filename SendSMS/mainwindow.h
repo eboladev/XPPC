@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QHash>
 namespace Ui {
 class MainWindow;
 }
@@ -19,6 +19,8 @@ public:
 
 public slots:
     void onAnswer(const QString& answer);
+    void onRecHash(const QHash<QString,QString> recId);
+    void onError(const int& id, const QString& message);
 
 private slots:
     void onSend();
