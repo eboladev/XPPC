@@ -45,6 +45,7 @@ private slots:
     void onActionBranchesTriggered();
     void onActionUserManagementClicked();
     void onActionReportSettignsClicked();
+    void onActionSMSGatewaysSettingsClicked();
     void changePermissions();
     void on_actionDisconnect_triggered();
     void on_actionConnect_triggered();    

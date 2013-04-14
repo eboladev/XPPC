@@ -809,6 +809,7 @@
     <addaction name="actionAddProductCategory"/>
     <addaction name="actionUserControl"/>
     <addaction name="actionReportSettings"/>
+    <addaction name="actionSMSGatewaysSettings"/>
    </widget>
    <widget class="QMenu" name="menuCurrentUser">
     <property name="enabled">
@@ -1099,6 +1100,11 @@
   <action name="actionDeveloperContact">
    <property name="text">
     <string>Связь с разработчиком</string>
+   </property>
+  </action>
+  <action name="actionSMSGatewaysSettings">
+   <property name="text">
+    <string>Настройки смс шлюза</string>
    </property>
   </action>
  </widget>

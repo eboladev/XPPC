@@ -79,7 +79,8 @@ SOURCES += main.cpp\
     SmtpClient/src/emailaddress.cpp \
     smtpsettingsdialog.cpp \
     applicationupdatedialog.cpp \
-    reportselectionwidget.cpp
+    reportselectionwidget.cpp \
+    smsgatewaysettings.cpp
 
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
@@ -140,7 +141,8 @@ HEADERS  += mainwindow.h \
     SmtpClient/src/emailaddress.h \
     smtpsettingsdialog.h \
     applicationupdatedialog.h \
-    reportselectionwidget.h
+    reportselectionwidget.h \
+    smsgatewaysettings.h
 
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
@@ -169,7 +171,8 @@ FORMS    += mainwindow.ui \
     contactdeveloperdialog.ui \
     smtpsettingsdialog.ui \
     applicationupdatedialog.ui \
-    reportselectionwidget.ui
+    reportselectionwidget.ui \
+    smsgatewaysettings.ui
 
 RESOURCES += \
     Resources.qrc

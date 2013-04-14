@@ -15,6 +15,7 @@
 #include "reportssettings.h"
 #include "usersandpermissionsmanager.h"
 #include "contactdeveloperdialog.h"
+#include "smsgatewaysettings.h"
 
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
@@ -64,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
     connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()), SLOT(onGenerateJobListReport()));
     connect(ui->actionCashReceiptPrint, SIGNAL(triggered()), SLOT(onGenerateCashReceiptReport()));
+    connect(ui->actionSMSGatewaysSettings, SIGNAL(triggered()), SLOT(onActionSMSGatewaysSettingsClicked()));
     connect(ui->action_Qt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(ui->actionDeveloperContact, SIGNAL(triggered()), this, SLOT(onActionDeveloperContactClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
@@ -1226,4 +1228,10 @@ void MainWindow::onActionReportSettignsClicked()
 {
     ReportsSettings rs;
     rs.exec();
+}
+
+void MainWindow::onActionSMSGatewaysSettingsClicked()
+{
+    SmsGatewaySettings* sgs = new SmsGatewaySettings(this);
+    sgs->exec();
 }
