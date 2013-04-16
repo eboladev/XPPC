@@ -11,7 +11,7 @@ class AbstractSMSGateway : public QObject
 public:
     explicit AbstractSMSGateway(QObject* parent);
     virtual void send(const QString& smsText,
-              const QStringList& recipientsList) = 0;
+              const QStringList& recipientsList, const QString& sendId) = 0;
     virtual void status(const QStringList& messageIds) = 0;
     virtual void balance() = 0;
 
@@ -24,8 +24,14 @@ public:
     QString getSenderName() const;
     void setSenderName(const QString &value);
 
+    bool getEnabled() const;
+    void setEnabled(bool value);
+
+    QString getClassId() const;
+    void setClassId(const QString &value);
+
 signals:
-    void sendedIds(const QHash<QString,QString> idToRecepientHash);
+    void sendedIds(const QHash<QString,QString> idToRecepientHash, const QString& sendId);
     void smsStatus(const QHash<QString,QString> idToStatusHash);
     void balanceCash(const double& currency);
     void smsPrice(const int& count, const int& parts, const double& price, const double& currency);
@@ -35,5 +41,7 @@ private:
     QString login;
     QString password;
     QString senderName;
+    bool enabled;
+    QString classId;
 };
 #endif // ABSTRACTSMSGATEWAY_H

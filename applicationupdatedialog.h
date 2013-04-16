@@ -23,7 +23,7 @@ public:
     void setVersion(const QString& version);
     void setChangelogtext(const QString& text);
     
-private slots:
+private Q_SLOTS:
     void onDownload();
     void httpFinished();
     void httpReadyRead();

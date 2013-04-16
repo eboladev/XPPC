@@ -11,25 +11,28 @@ MainSMSHandler::MainSMSHandler(QObject *parent) :
     qnam = new QNetworkAccessManager(this);
 }
 
-void MainSMSHandler::send(const QString &smsText, const QStringList &recipientsList)
-{        
-    testMode = true;
+void MainSMSHandler::send(const QString &smsText,
+                          const QStringList &recipientsList,
+                          const QString &sendId)
+{
     QStringList params;
 
     QStringList temp = recipientsList;
     temp.sort();
+
     params << formParam("project",getLogin())
            << formParam("sender",getSenderName())
            << formParam("message",smsText)
            << formParam("recipients",temp.join(","));
+
     if(testMode)
-        params  << formParam("test","1")
-                << formParam("sign",formSignature(QStringList() << smsText << temp.join(",") << "1" <<  getSenderName()));
+        params << formParam("test","1")
+                << formParam("sign",formSignature(QStringList() << smsText << temp.join(",") << "1" << getSenderName()));
     else
-        params << formParam("sign",formSignature(QStringList() << smsText << temp.join(",") <<  getSenderName()));
+        params << formParam("sign",formSignature(QStringList() << smsText << temp.join(",") << getSenderName()));
 
 
-    request(formUrl("http://mainsms.ru/api/mainsms/message/send?",params.join("&")),1);
+    request(formUrl("http://mainsms.ru/api/mainsms/message/send?",params.join("&")),Send,sendId);
 }
 
 void MainSMSHandler::status(const QStringList &messageIds)
@@ -43,7 +46,7 @@ void MainSMSHandler::status(const QStringList &messageIds)
            << formParam("messages_id",temp.join(","))
            << formParam("sign",formSignature(QStringList() << temp.join(",")));
 
-    request(formUrl("http://mainsms.ru/api/mainsms/message/status?",params.join("&")),2);
+    request(formUrl("http://mainsms.ru/api/mainsms/message/status?",params.join("&")),Status);
 }
 
 void MainSMSHandler::price(const QString &smsText, const QStringList &recipientsList)
@@ -58,7 +61,7 @@ void MainSMSHandler::price(const QString &smsText, const QStringList &recipients
            << formParam("recipients",temp.join(","))
            << formParam("sign",formSignature(QStringList() << smsText << temp.join(",")));
 
-    request(formUrl("http://mainsms.ru/api/mainsms/message/price?",params.join("&")),3);
+    request(formUrl("http://mainsms.ru/api/mainsms/message/price?",params.join("&")),Price);
 }
 
 void MainSMSHandler::balance()
@@ -68,7 +71,7 @@ void MainSMSHandler::balance()
     params << formParam("project",getLogin())
            << formParam("sign",formSignature());
 
-    request(formUrl("http://mainsms.ru/api/mainsms/message/balance?",params.join("&")),4);
+    request(formUrl("http://mainsms.ru/api/mainsms/message/balance?",params.join("&")),Balance);
 }
 
 void MainSMSHandler::httpFinished()
@@ -78,7 +81,12 @@ void MainSMSHandler::httpFinished()
 
 void MainSMSHandler::httpReadyRead()
 {
-    parseAnswer(qobject_cast<QNetworkReply*>(sender())->readAll());
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    qDebug() << reply->error() << Q_FUNC_INFO;
+    if (reply->error() == QNetworkReply::NoError)
+        parseAnswer(reply->readAll());
+    else
+        emit error(-1,trUtf8("невозможно отправить смс через шлюз"));
 }
 
 bool MainSMSHandler::getTestMode() const
@@ -113,11 +121,12 @@ QUrl MainSMSHandler::formUrl(const QString &path, const QString &params)
     return QUrl(QString().append(path).append(params));
 }
 
-void MainSMSHandler::request(const QUrl &url, const int &type)
+void MainSMSHandler::request(const QUrl &url, const int &type, const QString &sendId)
 {
     qDebug() << url;
     QNetworkReply* reply = qnam->get(QNetworkRequest(url));
     reply->setProperty("type",type);
+    reply->setProperty("sendId",sendId);
     connect(reply, SIGNAL(finished()),
             this, SLOT(httpFinished()));
     connect(reply, SIGNAL(readyRead()),
@@ -125,7 +134,7 @@ void MainSMSHandler::request(const QUrl &url, const int &type)
 }
 
 void MainSMSHandler::parseAnswer(const QString &answerReply)
-{    
+{
     emit answer(answerReply);
     QString tempAnswer = answerReply;
     if (tempAnswer.contains("\"status\":\"error\""))
@@ -148,7 +157,7 @@ void MainSMSHandler::parseAnswer(const QString &answerReply)
     }
     switch( sender()->property("type").toInt())
     {
-    case 1:
+    case Send:
     {
         //status:success,recipients:[79657376072],messages_id:[0],count:1,parts:1,price:0.15,balance:2.7,test:1
 
@@ -200,10 +209,10 @@ void MainSMSHandler::parseAnswer(const QString &answerReply)
         while (!recipients.isEmpty())
             idToRecepientHash[recipients.takeFirst()] = messagesIds.takeFirst();
 
-        emit sendedIds(idToRecepientHash);
+        emit sendedIds(idToRecepientHash,sender()->property("sendId").toString());
     }
         break;
-    case 2:
+    case Status:
     {
         //{"status":"success","messages":{"54646":"not found","65654":"not found","79543":"not found"}}
         tempAnswer.remove("\"");
@@ -221,7 +230,7 @@ void MainSMSHandler::parseAnswer(const QString &answerReply)
         emit smsStatus(idToStatusHash);
     }
         break;
-    case 3:
+    case Price:
     {
         //{"status":"success","recipients":["79657376072"],"count":1,"parts":1,"price":"0.0","balance":"1.65"}
         tempAnswer.remove("{");
@@ -246,15 +255,18 @@ void MainSMSHandler::parseAnswer(const QString &answerReply)
         emit smsPrice(count,parts,price,balance);
     }
         break;
-    case 4:
+    case Balance:
     {
         //{"status":"success","balance":"1.65"}
         tempAnswer.remove("{");
         tempAnswer.remove("}");
         tempAnswer.remove("\"");
-        tempAnswer = tempAnswer.right(tempAnswer.indexOf(",")-2);
-        tempAnswer = tempAnswer.right(tempAnswer.indexOf(":")-3);
-        emit balanceCash(tempAnswer.toDouble());
+        QRegExp re;
+        double balance = 0;
+        re.setPattern("(?:(balance):(\\d+\\.*\\d*),*)");
+        if (re.indexIn(tempAnswer) > -1)
+            balance = re.cap(2).toDouble();
+        emit balanceCash(balance);
     }
         break;
     default:

@@ -41,10 +41,10 @@ public:
 
     void setItemModelForGroupsComboBox(QStandardItemModel* model);
 
-private slots:    
+private Q_SLOTS:    
     void onChangeLoginpass();
 
-signals:
+Q_SIGNALS:
     void userNameChanged(QString userName);
     void changesSaved();
 

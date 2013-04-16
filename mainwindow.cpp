@@ -18,6 +18,8 @@
 #include "smsgatewaysettings.h"
 #include "dialogtemplate.h"
 
+#include "smsmanager.h"
+
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
@@ -37,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initAccessManager();
 
     connectEstablished = false;
-    jobModel = new QStandardItemModel(this);
+    jobModel = new QStandardItemModel(this);    
     ui->treeViewJobsOnTicket->setModel(jobModel);       
     ui->groupBoxFastTicketInfo->setVisible(false);
 #ifdef RELEASE
@@ -71,6 +73,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionDeveloperContact, SIGNAL(triggered()), this, SLOT(onActionDeveloperContactClicked()));
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
+    connect(ui->pushButtonSendSms, SIGNAL(clicked()), this, SLOT(onSendTicketNotifySmsClicked()));
+
+    connect(smsManager, SIGNAL(gwBalance(double)),
+            this, SLOT(onBalance(double)));
+    connect(smsManager, SIGNAL(smsDelivered(int)),
+            this, SLOT(onSmsDelivered(int)));
+    connect(smsManager, SIGNAL(smsSended(int)),
+            this, SLOT(onSmsSended(int)));
+    connect(smsManager, SIGNAL(smsInProcess(int)),
+            this, SLOT(onSmsInProcess(int)));
+    connect(smsManager, SIGNAL(smsNonDelivered(int)),
+            this, SLOT(onSmsNonDelivered(int)));
+
     ui->actionOnJobListClicked->setEnabled(false);
     ui->actionCloseTicket->setEnabled(false);
     ui->actionConnect->setEnabled(checkDbSettings());  
@@ -221,12 +236,78 @@ QString MainWindow::getCurrentTicketDeviceSerial(const QModelIndex &index)
         return "";
 }
 
+QString MainWindow::getCurrentTicketPhones(const QModelIndex &index)
+{
+    if (index.isValid())
+        return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketClientPhone)->text();
+    else
+        return "";
+}
+
 QVariant MainWindow::getCurrentTicketGuaranteeId(const QModelIndex &index)
 {
     if (index.isValid())
         return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data(GuaranteeId);
     else
         return QVariant();
+}
+
+void MainWindow::updateSmsWidget(const int &id, const int &ticket_id)
+{
+  //  if (getCurrentTicketId() == ticket_id)
+    {
+        QSqlQuery q;
+        if (!setupManager->getSqlQueryForDB(q))
+            return;
+        QString query = QString("select status, last_status_time from sended_sms where %0 = ? order by id desc")
+                .arg(ticket_id > 0 ? "ticket_id" : "id");
+        q.prepare(query);
+        q.addBindValue(ticket_id > 0 ? ticket_id : id);
+        q.exec();
+        if (q.next())
+        {            
+            QString text;
+            switch(q.value(0).toInt())
+            {
+            case XPPC::InProcess:
+                text = trUtf8("Обрабатывается");
+                break;
+            case XPPC::Sended:
+                text = trUtf8("Отправлено");
+                break;
+            case XPPC::Delivered:
+                text = trUtf8("Доставлено");
+                break;
+            case XPPC::InQueue:
+                text = trUtf8("В очереди");
+                break;
+            case XPPC::Aborted:
+                text = trUtf8("Отменено");
+                break;
+            case XPPC::NonDelivered:
+                text = trUtf8("Не доставлено");
+                break;
+            case XPPC::NonSended:
+                text = trUtf8("Не отправлено");
+                break;
+            case XPPC::NotFound:
+                text = trUtf8("Не найдено");
+                break;
+            default:
+                text = trUtf8("Статус");
+                break;
+            }
+            ui->labelStatus->setText(text);
+            ui->dateTimeEditLastStatusTime->setDateTime(q.value(1).toDateTime());
+            ui->labelStatus->setVisible(true);
+            ui->dateTimeEditLastStatusTime->setVisible(true);
+        }
+        else
+        {
+            ui->labelStatus->setVisible(false);
+            ui->dateTimeEditLastStatusTime->setVisible(false);
+        }
+    }
 }
 
 void MainWindow::sb(QString text)
@@ -838,10 +919,18 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
     }
     ui->groupBoxGuarantee->setVisible(showGuarantee);
     qDebug() << Q_FUNC_INFO;
+
+    QString phones = getCurrentTicketPhones(ui->tableViewTicket->currentIndex());
+    qDebug() << phones << Q_FUNC_INFO;
+    ui->lineEditPhones->setText(phones);
+
+    updateSmsWidget(-1,getCurrentTicketId());
+
     ui->tabWidgetFastTicketInfo->setTabEnabled(TicketJobs,jobModel->rowCount() != 0 || showGuarantee);
     ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
     ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
     ui->groupBoxFastTicketInfo->setEnabled(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
+    ui->lineEditBalance->setEnabled(false);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
@@ -904,7 +993,7 @@ void MainWindow::onIsClientNotifiedClicked(const QModelIndex &index)
     QSqlQuery q;
     if (!SetupManager::instance()->getSqlQueryForDB(q))
         return;
-    q.prepare("update ticket set client_notified = ? where id = ?");
+    q.prepare("update ticket set client_notified = ? where ticket_id = ?");
     q.addBindValue(ticketModel->itemFromIndex(ticketProxy->mapToSource(index))->checkState() == Qt::Checked ? "TRUE" : "FALSE");
     q.addBindValue(ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data());
     q.exec();
@@ -961,6 +1050,13 @@ void MainWindow::submitGuaranteeTicket()
     }
 }
 
+void MainWindow::onSendTicketNotifySmsClicked()
+{
+    smsManager->sendSms(ui->plainTextEditSmsText->toPlainText(),QStringList() << ui->lineEditPhones->text().split(";"),getCurrentTicketId());
+   /* ui->labelStatus->setText(trUtf8("Обрабатывается"));
+    ui->dateTimeEditLastStatusTime->setDateTime(QDateTime::currentDateTime());*/
+}
+
 void MainWindow::onSetGuaranteeDone()
 {
     if (!getCurrentTicketGuaranteeId(ui->tableViewTicket->currentIndex()).isNull())
@@ -979,6 +1075,51 @@ void MainWindow::onSetGuaranteeDone()
 void MainWindow::onQueryLimitComboBoxIndexChanged(int)
 {
     refreshTicketModel(generateTicketQuery());
+}
+
+void MainWindow::onSmsSended(const int &ticket_id)
+{
+    qDebug() << Q_FUNC_INFO << ticket_id;
+    updateSmsWidget(ticket_id);
+}
+
+void MainWindow::onSmsDelivered(const int &ticket_id)
+{
+    qDebug() << Q_FUNC_INFO << ticket_id;
+    updateSmsWidget(ticket_id);
+    {
+        QSqlQuery q;
+        if (!setupManager->getSqlQueryForDB(q))
+            return;
+        q.prepare("select ticket_id from sended_sms where id = ?");
+        q.addBindValue(ticket_id);
+        q.exec();
+        q.next();
+        int id = q.value(0).toInt();
+        qDebug() << id;
+        q.prepare("update ticket set client_notified = ? where ticket_id = ?");
+        q.addBindValue("TRUE");
+        q.addBindValue(id);
+        if (!q.exec())
+            qDebug() << q.lastError() << q.lastQuery();
+    }
+}
+
+void MainWindow::onSmsInProcess(const int &id)
+{
+    qDebug() << Q_FUNC_INFO << id;
+    updateSmsWidget(id);
+}
+
+void MainWindow::onSmsNonDelivered(const int &id)
+{
+    qDebug() << Q_FUNC_INFO << id;
+    updateSmsWidget(id);
+}
+
+void MainWindow::onBalance(const double &currency)
+{
+    ui->lineEditBalance->setText(QString::number(currency));
 }
 
 void MainWindow::on_actionConnect_triggered()

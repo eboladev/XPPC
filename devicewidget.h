@@ -28,7 +28,7 @@ public:
     void setDeviceControlVisible(const bool& visible = false);
     QStandardItemModel* deviceModel;
 
-private slots:
+private Q_SLOTS:
     void onAddDeviceClicked();
     void onRemoveDeviceClicked();
     void onCurrentChanged(QModelIndex, QModelIndex);

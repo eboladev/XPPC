@@ -21,7 +21,7 @@ public:
     explicit ProductCategoryManager(const QString& dbConnectionString, QWidget *parent = 0);
     ~ProductCategoryManager();
 
-private slots:
+private Q_SLOTS:
     void onAddCategoryClicked();
     void onRemoveCategoryClicked();
     void onCurrentItemChanged(QStandardItem*);

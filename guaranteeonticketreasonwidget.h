@@ -18,7 +18,7 @@ public:
     QHash<QString,QString> ticketGuaranteeText;
     void addDevice(const QVariant& id, const int& ticket_id, const QString& name, const QString& serial);
 
-private slots:
+private Q_SLOTS:
     void onCurrentTicketChanged(QModelIndex,QModelIndex);
     void onAccept();
 

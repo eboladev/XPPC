@@ -41,10 +41,10 @@ class FilterLineEdit : public FancyLineEdit
 public:
     explicit FilterLineEdit(QWidget *parent = 0);
 
-signals:
+Q_SIGNALS:
     void filterChanged(const QString &);
 
-private slots:
+private Q_SLOTS:
     void slotTextChanged();
 
 private:

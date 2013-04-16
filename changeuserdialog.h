@@ -21,12 +21,12 @@ public:
     void setUser(const QString& userLogin);
     QString getPassword();
 
-public slots:
+public Q_SLOTS:
     void onSuccesfullLogin();
     void onLogout();
     bool exec();
 
-signals:
+Q_SIGNALS:
     void userLogOut();
 
 private:

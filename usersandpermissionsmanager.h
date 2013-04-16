@@ -59,7 +59,7 @@ public:
     QString getCurrentUserDisplayName() const;
     void setCurrentUserDisplayName(const QString &value);
 
-public slots:
+public Q_SLOTS:
     void showChangeUserDialog();
     void onUserLogOut();
     void onUserLogIn();
@@ -67,7 +67,7 @@ public slots:
 private:
     void changeUser(const QString& login, const QString& password);
 
-signals:
+Q_SIGNALS:
     void userLogOut();
     void userLogIn();
     void changeUserDisplayName();

@@ -35,12 +35,12 @@ public:
     };
 
     /*base begin*/
-public slots:
+public Q_SLOTS:
     void onUserLogOut();
     void onUserLogIn();
     void onFailedToLogin(const QString&);
 
-private slots:
+private Q_SLOTS:
     void onActionChangeUserClicked();
     void onActionBranchesTriggered();
     void onActionUserManagementClicked();
@@ -66,7 +66,7 @@ private:
     /*base end*/
 
     /*ticket manager start*/
-private slots:    
+private Q_SLOTS:    
     void onAddTicketClicked();
     void onJobListClicked();
 
@@ -103,7 +103,15 @@ private slots:
     void onMoveBackToReady();
     void submitGuaranteeTicket();
 
+    void onSendTicketNotifySmsClicked();
+
     void onQueryLimitComboBoxIndexChanged(int);
+
+    void onSmsSended(const int& ticket_id);
+    void onSmsDelivered(const int& ticket_id);
+    void onSmsInProcess(const int& id);
+    void onSmsNonDelivered(const int& id);
+    void onBalance(const double& currency);
 
 private:
     void onSetGuaranteeDone();
@@ -117,17 +125,19 @@ private:
     QString getCurrentTicketDeviceName(const QModelIndex& index);
     QString getCurrentTicketDevicePrice();
     QString getCurrentTicketDeviceSerial(const QModelIndex& index);
+    QString getCurrentTicketPhones(const QModelIndex& index);
     QVariant getCurrentTicketGuaranteeId(const QModelIndex& index);
+    void updateSmsWidget(const int& id,const int& ticket_id = -1);
     /*ticket manager stop*/
 
     /* Merchandise manager begin */
-private slots:
+private Q_SLOTS:
     void onRefreshCategoryModel();
     void onRefreshProductByType(int type);
     void onCurrentCategoryChanged(QModelIndex, QModelIndex);
     void onActionCategoryProductsClicked();  
 
-signals:
+Q_SIGNALS:
     void refreshProductModelByCategory(int);
     void disconnectedFromDb();
     /* Merchandise manager end */

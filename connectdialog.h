@@ -14,9 +14,9 @@ class ConnectDialog : public QDialog
 public:
     explicit ConnectDialog(QWidget *parent = 0);
     ~ConnectDialog();
-public slots:
+public Q_SLOTS:
     void saveSettings();
-private slots:
+private Q_SLOTS:
     void on_pushButtonTestConnection_clicked();
 
     void on_pushButtonConnect_clicked();

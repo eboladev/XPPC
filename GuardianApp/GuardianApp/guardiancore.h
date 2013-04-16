@@ -44,7 +44,7 @@ private:
     void sendMail();
     void fillExampleConfig();
 
-private slots:
+private Q_SLOTS:
     void onStateChanges(QProcess::ProcessState);
 
 private:

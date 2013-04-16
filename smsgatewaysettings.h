@@ -24,7 +24,7 @@ private:
     void getCredentials(const SupportedGateways& type) const;
     void setCredentials(const SupportedGateways& type);
 
-private slots:
+private Q_SLOTS:
     void onAccept();
     
 private:

@@ -33,7 +33,7 @@ public:
 private:
     QCompleter* getCompleter();
 
-private slots:    
+private Q_SLOTS:    
     void onCompleteClientData(QModelIndex);
 
 private:

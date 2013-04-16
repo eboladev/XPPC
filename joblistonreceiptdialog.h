@@ -22,7 +22,7 @@ public:
     explicit JobListOnReceiptDialog(const QString dbConnectionsString, const int &id,const int& ticket_id, QWidget *parent = 0);
     ~JobListOnReceiptDialog();
     
-private slots:
+private Q_SLOTS:
     void clearField();
 
     void onPushButtonAddJobClicked();

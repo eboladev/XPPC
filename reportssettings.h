@@ -17,7 +17,7 @@ public:
     explicit ReportsSettings(QWidget *parent = 0);
     ~ReportsSettings();
 
-private slots:
+private Q_SLOTS:
     void onAccept();
 
 private:

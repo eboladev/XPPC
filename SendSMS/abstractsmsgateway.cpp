@@ -1,5 +1,25 @@
 #include "abstractsmsgateway.h"
 
+bool AbstractSMSGateway::getEnabled() const
+{
+    return enabled;
+}
+
+void AbstractSMSGateway::setEnabled(bool value)
+{
+    enabled = value;
+}
+
+QString AbstractSMSGateway::getClassId() const
+{
+    return classId;
+}
+
+void AbstractSMSGateway::setClassId(const QString &value)
+{
+    classId = value;
+}
+
 QString AbstractSMSGateway::getSenderName() const
 {
     return senderName;

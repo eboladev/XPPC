@@ -23,7 +23,7 @@ public:
     explicit UserManagementDialog(const QString& dbConnectionString, QWidget *parent = 0);
     ~UserManagementDialog();
 
-private slots:
+private Q_SLOTS:
     void onCustomContextMenuRequested(const QPoint&);
     void onCurrentEmployeeChanges(QModelIndex, QModelIndex);
     void onAddEmployee();
@@ -43,7 +43,7 @@ private:
     QStandardItem* getItemFromIndex(QModelIndex);
     void refreshGroups();
 
-signals:
+Q_SIGNALS:
     void permissons(const int& value);
 
 private:

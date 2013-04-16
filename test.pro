@@ -25,6 +25,7 @@ TARGET = xppc
 TEMPLATE = app
 
 INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/SendSMS
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 CONFIG(release, debug|release):DEFINES += RELEASE
@@ -80,7 +81,10 @@ SOURCES += main.cpp\
     smtpsettingsdialog.cpp \
     applicationupdatedialog.cpp \
     reportselectionwidget.cpp \
-    smsgatewaysettings.cpp
+    smsgatewaysettings.cpp \
+    smsmanager.cpp \
+    SendSMS/mainsmshandler.cpp \
+    SendSMS/abstractsmsgateway.cpp
 
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
@@ -143,7 +147,10 @@ HEADERS  += mainwindow.h \
     applicationupdatedialog.h \
     reportselectionwidget.h \
     smsgatewaysettings.h \
-    dialogtemplate.h
+    dialogtemplate.h \
+    smsmanager.h \
+    SendSMS/mainsmshandler.h \
+    SendSMS/abstractsmsgateway.h
 
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h

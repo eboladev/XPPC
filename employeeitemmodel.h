@@ -41,7 +41,7 @@ public:
                            const QString& phone = "",
                            const QString& groupId = "0");
 
-public slots:
+public Q_SLOTS:
     bool addEmployee(const bool& isGetOnlyNames = false);
     void onFireEmployee(const QModelIndex &index);    
 };

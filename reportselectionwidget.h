@@ -18,7 +18,7 @@ public:
     void setGroupBoxTitle(const QString& text);
     QString getReportPath() const;
 
-private slots:
+private Q_SLOTS:
     void onSelectReportClicked();
 
 private:

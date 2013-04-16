@@ -8,14 +8,23 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
+enum RequestTypes
+{
+    Send = 1,
+    Status = 2,
+    Price = 3,
+    Balance = 4
+};
+
 class MainSMSHandler : public AbstractSMSGateway
 {
     Q_OBJECT
 public:
     explicit MainSMSHandler(QObject *parent = 0);
 
-    void send(const QString& smsText,
-              const QStringList& recipientsList);
+    void send(const QString &smsText,
+              const QStringList &recipientsList,
+              const QString &sendId);
     void status(const QStringList& messageIds);
     void balance();
 /*mainsms metohds*/
@@ -39,10 +48,11 @@ private:
                       const QString& value);
     QUrl formUrl(const QString& path,
                  const QString& params);
-    void request(const QUrl& url,const int& type);
+    void request(const QUrl& url,const int& type,const QString& sendId = QString());
 
     void parseAnswer(const QString& answerReply);
     void putAnswerIntoHash(QMap<QString, QString> &answerHash, QString nonparsedString);
+
 private:
     QNetworkAccessManager* qnam;
     bool testMode;

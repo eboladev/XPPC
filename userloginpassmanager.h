@@ -21,7 +21,7 @@ public:
     void setUserLogin(QString login);
     void setUserId(const QVariant& id);
 
-private slots:
+private Q_SLOTS:
     void onAccept();
 
 private:

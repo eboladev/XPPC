@@ -92,12 +92,12 @@ public:
     void setAutoHideButton(Side side, bool h);
     bool hasAutoHideButton(Side side) const;
 
-signals:
+Q_SIGNALS:
     void buttonClicked(FancyLineEdit::Side side);
     void leftButtonClicked();
     void rightButtonClicked();
 
-private slots:
+private Q_SLOTS:
     void checkButtons(const QString &);
     void iconClicked();
 

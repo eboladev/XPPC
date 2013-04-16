@@ -15,7 +15,7 @@ public:
     explicit ContactDeveloperDialog(QWidget *parent = 0);
     ~ContactDeveloperDialog();
 
-private slots:    
+private Q_SLOTS:    
     void onSettingsClicked();
     void onAccept();
     

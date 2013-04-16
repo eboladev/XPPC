@@ -162,7 +162,7 @@ protected slots:
     /* [6] --- */
 
 
-signals:
+Q_SIGNALS:
 
     /* [7] Signals */
 

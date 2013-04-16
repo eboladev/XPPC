@@ -16,13 +16,13 @@ public:
     ~PermissionsWidget();    
     int getCurrentPermissions() const;
 
-public slots:
+public Q_SLOTS:
     void onSetPermissions(const int& value);
 
-private slots:
+private Q_SLOTS:
     void onSaveChangesClicked();
 
-signals:
+Q_SIGNALS:
     void setPermissions(const int& value);
 
 private:

@@ -53,5 +53,21 @@ enum ReportTypes
     PricetTagReport = 3,
     CashCheckReport = 4
 };
-
+namespace XPPC {
+enum SmsStatus
+{
+    InProcess = 0,
+    Sended = 1,
+    Delivered = 2,
+    InQueue = 3,
+    Aborted = 4,
+    NonDelivered = 5,
+    NonSended = 6,
+    NotFound = 7
+};
+enum SmsGateways
+{
+    MainSms = 0
+};
+}
 #endif // GLOBALS_H

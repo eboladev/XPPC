@@ -19,7 +19,7 @@ public:
     ~BranchWidget();
 private:
     void getBranches();
-private slots:
+private Q_SLOTS:
     void onCurrentBrancheChanged();
     void onBranchViewChanged(QStandardItem*);
     void onAddBranchClicked();

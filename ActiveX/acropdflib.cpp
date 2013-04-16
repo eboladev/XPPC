@@ -24,7 +24,7 @@ static const uint qt_meta_data_AcroPDFLib__AcroPDF[] = {
        20, 38, 
        60, 72, 
 
- // signals: signature, parameters, type, tag, flags
+ // Q_SIGNALS: signature, parameters, type, tag, flags
        87, 97, 98, 99, 5,
        100, 112, 113, 114, 5,
        115, 154, 176, 177, 5,
@@ -118,7 +118,7 @@ static const uint qt_meta_data_AcroPDFLib__IAcroAXDocShim[] = {
        3,    180, // properties
        0,    0, // enums/sets
 
- // signals: signature, parameters, type, tag, flags
+ // Q_SIGNALS: signature, parameters, type, tag, flags
        27, 66, 88, 89, 5,
        90, 115, 120, 121, 5,
        122, 148, 163, 164, 5,
@@ -213,7 +213,7 @@ static const uint qt_meta_data_AcroPDFLib__AdobeSPOpenDocuments[] = {
  // classinfo: key, value
        33, 45, 
 
- // signals: signature, parameters, type, tag, flags
+ // Q_SIGNALS: signature, parameters, type, tag, flags
        62, 101, 123, 124, 5,
        125, 150, 155, 156, 5,
        157, 183, 198, 199, 5,
@@ -296,7 +296,7 @@ static const uint qt_meta_data_AcroPDFLib__ISPOpenDocuments[] = {
        1,    140, // properties
        0,    0, // enums/sets
 
- // signals: signature, parameters, type, tag, flags
+ // Q_SIGNALS: signature, parameters, type, tag, flags
        29, 68, 90, 91, 5,
        92, 117, 122, 123, 5,
        124, 150, 165, 166, 5,

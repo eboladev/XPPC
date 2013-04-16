@@ -16,7 +16,7 @@ public:
     ~QueryLimitComboBoxWidget();
     int getLimit();
 
-signals:
+Q_SIGNALS:
     void limitChanged(int);
 
 private:

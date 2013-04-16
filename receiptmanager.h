@@ -31,7 +31,7 @@ public:
     explicit ReceiptManager(const QString dbConnectionsString, const int& id = -1, QWidget *parent = 0);
     ~ReceiptManager();
     
-private slots:
+private Q_SLOTS:
     void clearFields();
     void onAccept();
 

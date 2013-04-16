@@ -3,6 +3,9 @@
 
 #include <QSettings>
 #include <QDebug>
+
+#include "smsmanager.h"
+
 SmsGatewaySettings::SmsGatewaySettings(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SmsGatewaySettings)
@@ -41,4 +44,6 @@ void SmsGatewaySettings::setCredentials( const SupportedGateways &type)
 void SmsGatewaySettings::onAccept()
 {
     setCredentials(MainSMS);
+    smsManager->loadGsmGatewaySettings();
+    accept();
 }
