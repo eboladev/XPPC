@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
+#include "globals.h"
+
 class QSqlQueryModel;
 class QStatusBar;
 class QTimer;
@@ -52,6 +54,7 @@ private Q_SLOTS:
     bool eventFilter(QObject *, QEvent *);
     void serUserDisplayName();
     void onActionDeveloperContactClicked();
+    void onActionSmsTemplateSettingsClicked();
 
 private:
     bool checkDbConnection();
@@ -115,7 +118,7 @@ private Q_SLOTS:
 
 private:
     void onSetGuaranteeDone();
-    QString generateTicketQuery();
+    QString generateTicketQuery(const bool& search = false);
     //ticket device client relation id
     QVariant getCurrentTDCRId();
     QVariant getCurrentTDCRId(const QModelIndex& index);
@@ -126,8 +129,11 @@ private:
     QString getCurrentTicketDevicePrice();
     QString getCurrentTicketDeviceSerial(const QModelIndex& index);
     QString getCurrentTicketPhones(const QModelIndex& index);
+    QString getCurrentTicketData(const TicketColumns& column,
+                                 const TicketRoles& role = static_cast<TicketRoles>(Qt::DisplayRole));
     QVariant getCurrentTicketGuaranteeId(const QModelIndex& index);
     void updateSmsWidget(const int& id,const int& ticket_id = -1);
+    QString genTicketNotifySms();
     /*ticket manager stop*/
 
     /* Merchandise manager begin */
@@ -135,7 +141,9 @@ private Q_SLOTS:
     void onRefreshCategoryModel();
     void onRefreshProductByType(int type);
     void onCurrentCategoryChanged(QModelIndex, QModelIndex);
-    void onActionCategoryProductsClicked();  
+    void onActionCategoryProductsClicked();
+    void onTicketNotificationSmsTextChanged();
+    void onTicketPriceChanged(QString);
 
 Q_SIGNALS:
     void refreshProductModelByCategory(int);

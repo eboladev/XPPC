@@ -9,7 +9,6 @@
 #include "usermanagementdialog.h"
 #include "userstatisticwidget.h"
 #include "productcategorymanager.h"
-#include "globals.h"
 #include "guaranteeonticketreasonwidget.h"
 #include "reportshandler.h"
 #include "reportssettings.h"
@@ -17,6 +16,7 @@
 #include "contactdeveloperdialog.h"
 #include "smsgatewaysettings.h"
 #include "dialogtemplate.h"
+#include "smstemplatesettings.h"
 
 #include "smsmanager.h"
 
@@ -74,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
     connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
     connect(ui->pushButtonSendSms, SIGNAL(clicked()), this, SLOT(onSendTicketNotifySmsClicked()));
+    connect(ui->actionSmsTemplateSettings, SIGNAL(triggered()), this, SLOT(onActionSmsTemplateSettingsClicked()));
+    connect(ui->plainTextEditSmsText, SIGNAL(textChanged()), this, SLOT(onTicketNotificationSmsTextChanged()));
+    connect(ui->lineEditTicketPrice, SIGNAL(textChanged(QString)), this, SLOT(onTicketPriceChanged(QString)));
 
     connect(smsManager, SIGNAL(gwBalance(double)),
             this, SLOT(onBalance(double)));
@@ -244,6 +247,14 @@ QString MainWindow::getCurrentTicketPhones(const QModelIndex &index)
         return "";
 }
 
+QString MainWindow::getCurrentTicketData(const TicketColumns &column, const TicketRoles &role)
+{
+    if (ui->tableViewTicket->currentIndex().isValid())
+        return ticketModel->item(ticketProxy->mapToSource(ui->tableViewTicket->currentIndex()).row(),column)->data(role).toString();
+    else
+        return "";
+}
+
 QVariant MainWindow::getCurrentTicketGuaranteeId(const QModelIndex &index)
 {
     if (index.isValid())
@@ -310,6 +321,26 @@ void MainWindow::updateSmsWidget(const int &id, const int &ticket_id)
     }
 }
 
+QString MainWindow::genTicketNotifySms()
+{
+    QString templateText;
+    QSettings s;
+    templateText = s.value("smsTemplates/ticket").toString();
+    templateText.replace("%ticket_number%",QString::number(getCurrentTicketId()));
+    templateText.replace("%date_accepted%",getCurrentTicketData(TicketDate));
+    templateText.replace("%client_name%",getCurrentTicketData(TicketDate));
+    templateText.replace("%client_phone%",getCurrentTicketData(TicketClientPhone));
+    templateText.replace("%device_name%",getCurrentTicketData(TicketClientName));
+    templateText.replace("%device_serial%",getCurrentTicketData(TicketDeviceSerial));
+    templateText.replace("%device_malfunction%",getCurrentTicketData(TicketProblem));
+    templateText.replace("%device_malfunction%",getCurrentTicketData(TicketProblem));
+    templateText.replace("%branch_description%",getCurrentTicketData(TicketBranch,BranchDesc));
+    templateText.replace("%current_price%",ui->lineEditTicketPrice->text());
+    /*templateText.replace("%ticket_price%",getCurrentTicketData(TicketPrice));
+    templateText.replace("%ticket_givenout%",getCurrentTicketData(TicketGivenOut));*/
+    return templateText;
+}
+
 void MainWindow::sb(QString text)
 {
     ui->statusBar->showMessage(text, STATUSBARTIMEOUT);
@@ -347,7 +378,7 @@ void MainWindow::changePermissions()
 void MainWindow::onUserLogOut()
 {
     ui->actionChangeUser->setIcon(QIcon(":/icons/icons/Remove-Male-User24.png"));
-    changePermissions();
+    changePermissions();    
 }
 
 void MainWindow::onUserLogIn()
@@ -383,6 +414,12 @@ void MainWindow::onActionDeveloperContactClicked()
 {
     ContactDeveloperDialog* cdd = new ContactDeveloperDialog(this);
     cdd->exec();
+}
+
+void MainWindow::onActionSmsTemplateSettingsClicked()
+{
+    SmsTemplateSettings* sts = new SmsTemplateSettings(this);
+    sts->exec();
 }
 
 void MainWindow::onRefreshCategoryModel()
@@ -446,37 +483,76 @@ void MainWindow::onActionCategoryProductsClicked()
     onRefreshCategoryModel();
 }
 
-QString MainWindow::generateTicketQuery()
+void MainWindow::onTicketNotificationSmsTextChanged()
+{
+    ui->lineEditCharCount->setText(QString::number(ui->plainTextEditSmsText->toPlainText().count()));
+}
+
+void MainWindow::onTicketPriceChanged(QString)
+{
+    ui->plainTextEditSmsText->setPlainText(genTicketNotifySms());
+}
+
+QString MainWindow::generateTicketQuery(const bool &search)
 {   
-    return QString("SELECT "
-                   "ticket.id, " //0
-                   "ticket.ticket_id, "  //1
-                   "device.date_accepted, " //2
-                   "branch.branch_name, " //3
-                   "client.name, " //4
-                   "client.phone, " //5
-                   "device.name, " //6
-                   "device.serial, " //7
-                   "device.problem, " //8
-                   "ticket.client_notified, " //9
-                   "%0 " //10,11
-                   "ticket_guarantee.date_accepted, " //10,12
-                   "ticket_guarantee.id, " //11,13
-                   "ticket_guarantee.date_closed " //12,14
-                   "FROM "
-                   "client_ticket "
-                   "INNER JOIN client ON (client_ticket.client_id = client.id) "
-                   "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
-                   "left JOIN ticket_guarantee ON (ticket.id = ticket_guarantee.tdc_r_id) "
-                   "INNER JOIN device ON (device.id = ticket.device_id) "
-                   "INNER JOIN branch ON (device.branch_id = branch.id) "
-                   "WHERE "
-                   "device.status = %1 "
-            "ORDER BY "
-            "ticket.id DESC %2")
-            .arg(currentStatus == Closed ? "device.price, device.date_givenout, " : "")
-            .arg(QString::number(currentStatus))
-            .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
+    if (search)
+        return QString("SELECT "
+                       "ticket.id, " //0
+                       "ticket.ticket_id, "  //1
+                       "device.date_accepted, " //2
+                       "branch.branch_name, " //3
+                       "client.name, " //4
+                       "client.phone, " //5
+                       "device.name, " //6
+                       "device.serial, " //7
+                       "device.problem, " //8
+                       "ticket.client_notified, " //9
+                       "device.price, device.date_givenout, " //10,11
+                       "ticket_guarantee.date_accepted, " //10,12
+                       "ticket_guarantee.id, " //11,13
+                       "ticket_guarantee.date_closed, " //12,14
+                       "branch.branch_description " //13,15
+                       "FROM "
+                       "client_ticket "
+                       "INNER JOIN client ON (client_ticket.client_id = client.id) "
+                       "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+                       "left JOIN ticket_guarantee ON (ticket.id = ticket_guarantee.tdc_r_id) "
+                       "INNER JOIN device ON (device.id = ticket.device_id) "
+                       "INNER JOIN branch ON (device.branch_id = branch.id) "
+                       "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') "
+                       "or client.name LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
+                       );
+    else
+        return QString("SELECT "
+                       "ticket.id, " //0
+                       "ticket.ticket_id, "  //1
+                       "device.date_accepted, " //2
+                       "branch.branch_name, " //3
+                       "client.name, " //4
+                       "client.phone, " //5
+                       "device.name, " //6
+                       "device.serial, " //7
+                       "device.problem, " //8
+                       "ticket.client_notified, " //9
+                       "%0 " //10,11
+                       "ticket_guarantee.date_accepted, " //10,12
+                       "ticket_guarantee.id, " //11,13
+                       "ticket_guarantee.date_closed, " //12,14
+                       "branch.branch_description " //13,15
+                       "FROM "
+                       "client_ticket "
+                       "INNER JOIN client ON (client_ticket.client_id = client.id) "
+                       "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+                       "left JOIN ticket_guarantee ON (ticket.id = ticket_guarantee.tdc_r_id) "
+                       "INNER JOIN device ON (device.id = ticket.device_id) "
+                       "INNER JOIN branch ON (device.branch_id = branch.id) "
+                       "WHERE "
+                       "device.status = %1 "
+                       "ORDER BY "
+                       "ticket.id DESC %2")
+                .arg(currentStatus == Closed ? "device.price, device.date_givenout, " : "")
+                .arg(QString::number(currentStatus))
+                .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
 
 void MainWindow::initAccessManager()
@@ -515,7 +591,7 @@ void MainWindow::refreshTicketModel(const QString &query)
         QStandardItem* date_accepted = new QStandardItem(q.value(2).toDate().toString("dd-MM-yyyy"));
         date_accepted->setToolTip(date_accepted->text());
         QStandardItem* branch = new QStandardItem(q.value(3).toString());
-        branch->setToolTip(q.value(3).toString());
+        branch->setToolTip(q.value(3).toString());        
         QStandardItem* client_name = new QStandardItem(q.value(4).toString());
         client_name->setToolTip(q.value(4).toString());
         QStandardItem* client_phone = new QStandardItem(q.value(5).toString());
@@ -528,6 +604,7 @@ void MainWindow::refreshTicketModel(const QString &query)
         device_problem->setToolTip(QString("<table><tr><td>").append(q.value(8).toString()).append("</td></td></table>"));
         if (currentStatus==Closed)
         {
+            branch->setData(q.value(15),BranchDesc);
             QStandardItem* ticket_price = new QStandardItem(q.value(10).toString());
             ticket_price->setToolTip(q.value(9).toString());            
             QStandardItem* ticket_givenout = new QStandardItem(q.value(11).toDate().toString("dd-MM-yyyy"));
@@ -541,6 +618,7 @@ void MainWindow::refreshTicketModel(const QString &query)
         }
         else
         {
+            branch->setData(q.value(13),BranchDesc);
             if (!q.value(10).toString().isEmpty() && q.value(12).toString().isEmpty())
             {
                 ticket_id->setIcon(QIcon(":/icons/icons/emblem-important_9062.png"));
@@ -618,6 +696,7 @@ bool MainWindow::disconnectFromDb(QString dbConnectionName)
         QSqlDatabase::database(dbConnectionName).close();
         QSqlDatabase::removeDatabase(dbConnectionName);
         ui->actionChangeUser->setEnabled(false);
+        changeUserDialog->onLogout();
         qDebug() << QSqlDatabase::connectionNames();
         return true;
     }
@@ -705,32 +784,7 @@ void MainWindow::on_pushButtonSearch_clicked()
 {
     updateTableViewTicket->stop();
     currentStatus = Closed; //temp workaround
-    refreshTicketModel(
-                QString("SELECT "
-                        "ticket.id, " //0
-                        "ticket.ticket_id, "  //1
-                        "device.date_accepted, " //2
-                        "branch.branch_name, " //3
-                        "client.name, " //4
-                        "client.phone, " //5
-                        "device.name, " //6
-                        "device.serial, " //7
-                        "device.problem, " //8
-                        "ticket.client_notified, " //9
-                        "device.price, device.date_givenout, " //10,11
-                        "ticket_guarantee.date_accepted, " //10,12
-                        "ticket_guarantee.id, " //11,13
-                        "ticket_guarantee.date_closed " //12,14
-                        "FROM "
-                        "client_ticket "
-                        "INNER JOIN client ON (client_ticket.client_id = client.id) "
-                        "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
-                        "left JOIN ticket_guarantee ON (ticket.id = ticket_guarantee.tdc_r_id) "
-                        "INNER JOIN device ON (device.id = ticket.device_id) "
-                        "INNER JOIN branch ON (device.branch_id = branch.id) "
-                        "where cast(ticket.ticket_id AS Text) LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') "
-                        "or client.name LIKE ('%"+ui->lineEditSearch->text().trimmed()+"%') ORDER BY ticket.ticket_id DESC"
-                        ));
+    refreshTicketModel(generateTicketQuery(true));
 }
 
 void MainWindow::onShowCommentsTabClicked()
@@ -738,6 +792,8 @@ void MainWindow::onShowCommentsTabClicked()
     ui->groupBoxFastTicketInfo->setVisible(true);    
     ui->tabWidgetFastTicketInfo->setTabEnabled(1,true);
     ui->tabWidgetFastTicketInfo->setCurrentIndex(1);
+    ui->tabWidgetFastTicketInfo->setEnabled(true);
+    ui->groupBoxFastTicketInfo->setEnabled(true);
 }
 
 void MainWindow::onAddCommentToTicketClicked()
@@ -866,7 +922,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         jobModel->appendRow(QList<QStandardItem*>() << fio << jobName << jobQuant << jobPrice << jobDate);
     }
 
-    ui->tabWidgetFastTicketInfo->setMaximumHeight(height()*0.35);
+    //ui->tabWidgetFastTicketInfo->setMaximumHeight(height()*0.35);
     ui->lineEditTicketPrice->setText(QString::number(totalPrice));
     ui->groupBoxFastTicketInfo->setTitle(trUtf8("Квитанция № %0").arg(QString::number(getCurrentTicketId())));
     for (int i = 0 ; i < jobModel->columnCount(); ++i)
@@ -910,27 +966,34 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
             ui->dateTimeEditGuaranteeDateAcceptedToWork->setDateTime(q.value(2).toDateTime());
             ui->labelDateAcceptedToWorkGuarantee->setVisible(true);
             ui->dateTimeEditGuaranteeDateAcceptedToWork->setVisible(true);
+            ui->groupBoxGuaranteeOperations->setVisible(false);
         }
         else
         {
             ui->labelDateAcceptedToWorkGuarantee->setVisible(false);
             ui->dateTimeEditGuaranteeDateAcceptedToWork->setVisible(false);
+            ui->groupBoxGuaranteeOperations->setVisible(true);
         }
     }
     ui->groupBoxGuarantee->setVisible(showGuarantee);
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << currentStatus << Q_FUNC_INFO;
 
-    QString phones = getCurrentTicketPhones(ui->tableViewTicket->currentIndex());
-    qDebug() << phones << Q_FUNC_INFO;
-    ui->lineEditPhones->setText(phones);
+    ui->groupBoxSms->setVisible(currentStatus == Ready);
+    if (currentStatus == Ready)
+    {
+        QString phones = getCurrentTicketPhones(ui->tableViewTicket->currentIndex());
+        qDebug() << phones << Q_FUNC_INFO;
+        ui->lineEditPhones->setText(phones);
 
-    updateSmsWidget(-1,getCurrentTicketId());
+        updateSmsWidget(-1,getCurrentTicketId());
+        ui->pushButtonSendSms->setEnabled(ui->lineEditBalance->text().toDouble() <= 0.15);
+        ui->plainTextEditSmsText->setPlainText(genTicketNotifySms());
+    }
 
     ui->tabWidgetFastTicketInfo->setTabEnabled(TicketJobs,jobModel->rowCount() != 0 || showGuarantee);
-    ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
+//    ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
     ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
     ui->groupBoxFastTicketInfo->setEnabled(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
-    ui->lineEditBalance->setEnabled(false);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
@@ -947,7 +1010,7 @@ void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
         {
             if ((currentStatus == InWork && accessManager->isUserLoggedIn()) || accessManager->isCanEditJobList())
                 menu->addAction(trUtf8("Список работ"), this, SLOT(onJobListClicked()));
-            menu->addAction(trUtf8("Посмотреть комментарии"), this, SLOT(onShowCommentsTabClicked()));
+            menu->addAction(trUtf8("Комментарии"), this, SLOT(onShowCommentsTabClicked()));
         }
         if (currentStatus != Closed && accessManager->isCanCloseTicket())
             menu->addAction(trUtf8("Закрыть квитанцию"), this, SLOT(onCloseTicketClicked()));

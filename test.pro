@@ -84,7 +84,8 @@ SOURCES += main.cpp\
     smsgatewaysettings.cpp \
     smsmanager.cpp \
     SendSMS/mainsmshandler.cpp \
-    SendSMS/abstractsmsgateway.cpp
+    SendSMS/abstractsmsgateway.cpp \
+    smstemplatesettings.cpp
 
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
@@ -150,7 +151,8 @@ HEADERS  += mainwindow.h \
     dialogtemplate.h \
     smsmanager.h \
     SendSMS/mainsmshandler.h \
-    SendSMS/abstractsmsgateway.h
+    SendSMS/abstractsmsgateway.h \
+    smstemplatesettings.h
 
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
@@ -180,7 +182,8 @@ FORMS    += mainwindow.ui \
     smtpsettingsdialog.ui \
     applicationupdatedialog.ui \
     reportselectionwidget.ui \
-    smsgatewaysettings.ui
+    smsgatewaysettings.ui \
+    smstemplatesettings.ui
 
 RESOURCES += \
     Resources.qrc

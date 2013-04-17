@@ -7,12 +7,8 @@ enum TicketStatus
     Ready,
     Closed
 };
-enum TicketRoles
-{
-    TDC_Relation = Qt::UserRole + 1,
-    GuaranteeId
-};
-enum TicketHeader
+
+enum TicketColumns
 {
     TicketNumber = 0,
     TicketDate = 1, //1
@@ -25,6 +21,14 @@ enum TicketHeader
     TicketPrice = 8, //8
     TicketGivenOut //9
 };
+
+enum TicketRoles
+{
+    TDC_Relation = Qt::UserRole + 1,
+    GuaranteeId,
+    BranchDesc
+};
+
 enum ProductHeader
 {
     ProductName = 0,
