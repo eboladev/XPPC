@@ -17,6 +17,7 @@
 #include "smsgatewaysettings.h"
 #include "dialogtemplate.h"
 #include "smstemplatesettings.h"
+#include "barcodescannersettingsdialog.h"
 
 #include "smsmanager.h"
 
@@ -77,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSmsTemplateSettings, SIGNAL(triggered()), this, SLOT(onActionSmsTemplateSettingsClicked()));
     connect(ui->plainTextEditSmsText, SIGNAL(textChanged()), this, SLOT(onTicketNotificationSmsTextChanged()));
     connect(ui->lineEditTicketPrice, SIGNAL(textChanged(QString)), this, SLOT(onTicketPriceChanged(QString)));
+    connect(ui->actionBarcodeScannerSettings, SIGNAL(triggered()), this, SLOT(onBarcodeScannerSettingsClicked()));
 
     connect(smsManager, SIGNAL(gwBalance(double)),
             this, SLOT(onBalance(double)));
@@ -420,6 +422,12 @@ void MainWindow::onActionSmsTemplateSettingsClicked()
 {
     SmsTemplateSettings* sts = new SmsTemplateSettings(this);
     sts->exec();
+}
+
+void MainWindow::onBarcodeScannerSettingsClicked()
+{
+    BarcodeScannerSettingsDialog* bssd = new BarcodeScannerSettingsDialog(this);
+    bssd->exec();
 }
 
 void MainWindow::onRefreshCategoryModel()

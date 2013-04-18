@@ -33,6 +33,7 @@ private Q_SLOTS:
     void onRemoveDeviceClicked();
     void onCurrentChanged(QModelIndex, QModelIndex);
     void onEnableAddDeviceButton();
+    void onBarcodeRead(const QString& barcode);
 
 private:
     Ui::DeviceWidget *ui;    

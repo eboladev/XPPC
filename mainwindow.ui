@@ -1004,6 +1004,7 @@
     <addaction name="actionReportSettings"/>
     <addaction name="actionSMSGatewaysSettings"/>
     <addaction name="actionSmsTemplateSettings"/>
+    <addaction name="actionBarcodeScannerSettings"/>
    </widget>
    <widget class="QMenu" name="menuCurrentUser">
     <property name="enabled">
@@ -1274,7 +1275,7 @@
   </action>
   <action name="actionReportSettings">
    <property name="text">
-    <string>Настройки документов</string>
+    <string>Отчеты...</string>
    </property>
   </action>
   <action name="action_Qt">
@@ -1298,12 +1299,17 @@
   </action>
   <action name="actionSMSGatewaysSettings">
    <property name="text">
-    <string>Настройки смс шлюза</string>
+    <string>Смс шлюз...</string>
    </property>
   </action>
   <action name="actionSmsTemplateSettings">
    <property name="text">
-    <string>Настройки смс шаблонов</string>
+    <string>Шаблоны смс...</string>
+   </property>
+  </action>
+  <action name="actionBarcodeScannerSettings">
+   <property name="text">
+    <string>Сканер штрих кода...</string>
    </property>
   </action>
  </widget>

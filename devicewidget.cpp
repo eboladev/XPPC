@@ -3,6 +3,7 @@
 
 #include <QDebug>
 #include <QStandardItemModel>
+#include "barcodehandler.h"
 
 DeviceWidget::DeviceWidget(QWidget *parent) :
     QWidget(parent),
@@ -20,7 +21,10 @@ DeviceWidget::DeviceWidget(QWidget *parent) :
     connect(ui->textEditProblem, SIGNAL(textChanged()), SLOT(onEnableAddDeviceButton()));
     connect(ui->lineEditCondition, SIGNAL(textChanged(QString)), SLOT(onEnableAddDeviceButton()));
     connect(ui->lineEditName, SIGNAL(textChanged(QString)), SLOT(onEnableAddDeviceButton()));
-    connect(ui->lineEditSerial, SIGNAL(textChanged(QString)), SLOT(onEnableAddDeviceButton()));
+    connect(ui->lineEditSerial, SIGNAL(textChanged(QString)), SLOT(onEnableAddDeviceButton()));    
+    barcodeHandler->initBarcodeScanner();
+    connect(barcodeHandler, SIGNAL(barcodeRead(QString)),
+            this, SLOT(onBarcodeRead(QString)));
 }
 
 DeviceWidget::~DeviceWidget()
@@ -103,4 +107,9 @@ void DeviceWidget::onEnableAddDeviceButton()
     if (getDeviceName().isEmpty())
         return;
     ui->pushButtonAdd->setEnabled(true);
+}
+
+void DeviceWidget::onBarcodeRead(const QString &barcode)
+{
+    ui->lineEditSerial->setText(barcode);
 }

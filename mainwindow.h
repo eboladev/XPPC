@@ -28,8 +28,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-
-
     enum Tabs
     {
         Tickets = 0,
@@ -55,6 +53,7 @@ private Q_SLOTS:
     void serUserDisplayName();
     void onActionDeveloperContactClicked();
     void onActionSmsTemplateSettingsClicked();
+    void onBarcodeScannerSettingsClicked();
 
 private:
     bool checkDbConnection();

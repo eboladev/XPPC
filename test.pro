@@ -27,6 +27,25 @@ TEMPLATE = app
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/SendSMS
 
+CONFIG(debug, debug|release):{
+DEPENDPATH += $$PWD/../qtserialport/src/serialport/debug
+OBJECTS_DIR = $$PWD/build/debug/obj
+} else: {
+DEPENDPATH += $$PWD/../qtserialport/src/serialport/release
+OBJECTS_DIR = $$PWD/build/release/obj
+}
+
+### QtSerialPort
+greaterThan(QT_MAJOR_VERSION, 4) {QT += serialport}
+else:
+{
+    system("echo QTSERIALPORT_PROJECT_ROOT = $$PWD/../qtserialport > $$OUT_PWD/.qmake.cache")
+    system("echo QTSERIALPORT_BUILD_ROOT = $$PWD/../qtserialport >> $$OUT_PWD/.qmake.cache")
+    include($$QTSERIALPORT_PROJECT_ROOT/src/serialport/qt4support/serialport.prf)
+}
+
+INCLUDEPATH += $$PWD/../qtserialport
+
 CONFIG(debug, debug|release):DEFINES += DEBUG
 CONFIG(release, debug|release):DEFINES += RELEASE
 
@@ -85,7 +104,9 @@ SOURCES += main.cpp\
     smsmanager.cpp \
     SendSMS/mainsmshandler.cpp \
     SendSMS/abstractsmsgateway.cpp \
-    smstemplatesettings.cpp
+    smstemplatesettings.cpp \
+    barcodehandler.cpp \
+    barcodescannersettingsdialog.cpp
 
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
@@ -152,7 +173,9 @@ HEADERS  += mainwindow.h \
     smsmanager.h \
     SendSMS/mainsmshandler.h \
     SendSMS/abstractsmsgateway.h \
-    smstemplatesettings.h
+    smstemplatesettings.h \
+    barcodehandler.h \
+    barcodescannersettingsdialog.h
 
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
@@ -183,7 +206,8 @@ FORMS    += mainwindow.ui \
     applicationupdatedialog.ui \
     reportselectionwidget.ui \
     smsgatewaysettings.ui \
-    smstemplatesettings.ui
+    smstemplatesettings.ui \
+    barcodescannersettingsdialog.ui
 
 RESOURCES += \
     Resources.qrc
