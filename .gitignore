@@ -27,3 +27,4 @@ build/
 *.pro.user
 *.pro.user.*
 *.autosave
+.qmake.cache

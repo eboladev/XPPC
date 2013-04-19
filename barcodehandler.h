@@ -37,6 +37,11 @@ private Q_SLOTS:
     void onReadyRead();
 private:
     PortSettings loadSettings();
+    QSerialPort::DataBits getDataBits(const int& dataBits);
+    QSerialPort::BaudRate getBaudRate(const int& rate);
+    QSerialPort::FlowControl getFlowControl(const QString& value);
+    QSerialPort::Parity getParity(const QString& value);
+    QSerialPort::StopBits getStopBits(const double& bits);
 
 private:
     QSerialPort *serialPort;

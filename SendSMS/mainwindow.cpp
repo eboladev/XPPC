@@ -9,9 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     msmsh = new MainSMSHandler(this);
-    msmsh->setLogin("");
-    msmsh->setPassword("");
-    msmsh->setSenderName("");
+    msmsh->setLogin("gradosh");
+    msmsh->setPassword("8c3f0fd49ab9e");
+    msmsh->setSenderName("gradosh");
     connect(ui->pushButtonSend, SIGNAL(clicked()), this, SLOT(onSend()));
     connect(ui->pushButtonBalance, SIGNAL(clicked()), this, SLOT(onBalance()));
     connect(ui->pushButtonStatus, SIGNAL(clicked()), this, SLOT(onStatus()));

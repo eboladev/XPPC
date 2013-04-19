@@ -56,9 +56,9 @@ void BarcodeScannerSettingsDialog::onCheckSettings()
     {
         QSerialPortInfo qspi = QSerialPortInfo(barcodeHandler->getPort());
         ui->labelDescription->setText(qspi.description());
-        ui->labelManufacturer->setText(qspi.manufacturer());
-        ui->labelProductId->setText(QString::number(qspi.productIdentifier()));
-        ui->labelVendorId->setText(QString::number(qspi.vendorIdentifier()));
+        ui->labelManufacturer->setText(qspi.manufacturer());        
+        //ui->labelProductId->setText(QString::number(qspi.productIdentifier()));
+        //ui->labelVendorId->setText(QString::number(qspi.vendorIdentifier()));
     }
 }
 
