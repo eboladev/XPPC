@@ -53,6 +53,9 @@ int PermissionsWidget::getCurrentPermissions() const
     if (ui->checkBoxEditClosed->checkState() == Qt::Checked)
         permissions |= UsersAndPermissionsManager::PEditClosedTickets;
 
+    if (ui->checkBoxSalary->checkState() == Qt::Checked)
+        permissions |= UsersAndPermissionsManager::PEditSalary;
+
     return permissions;
 }
 
@@ -77,6 +80,8 @@ void PermissionsWidget::onSetPermissions(const int &value)
     ui->checkBoxPermissionsEdit->setChecked(value & UsersAndPermissionsManager::PEditPermissions);
 
     ui->checkBoxEditClosed->setChecked(value & UsersAndPermissionsManager::PEditClosedTickets);
+
+    ui->checkBoxSalary->setChecked(value & UsersAndPermissionsManager::PEditSalary);
 }
 
 void PermissionsWidget::onSaveChangesClicked()

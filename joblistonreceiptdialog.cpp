@@ -103,7 +103,8 @@ void JobListOnReceiptDialog::onPushButtonAddJobClicked()
                       employeeWidget->getCurrentEmployeeId(),
                       ui->lineEditJobName->text().trimmed(),
                       ui->spinBoxQuantity->value(),
-                      ui->spinBoxPrice->value());
+                      ui->spinBoxPrice->value(),
+                      ui->lineEditGuarantee->text());
     if (!jobListModel->isJobExist(ui->lineEditJobName->text().trimmed()))
         jobListModel->addJob(ui->lineEditJobName->text().trimmed(),
                              ui->spinBoxPrice->value(),

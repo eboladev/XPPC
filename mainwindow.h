@@ -15,6 +15,7 @@ class QStandardItemModel;
 class QAction;
 class ChangeUserDialog;
 class QStandardItem;
+class JobItemModel;
 
 namespace Ui {
 class MainWindow;
@@ -53,7 +54,9 @@ private Q_SLOTS:
     void serUserDisplayName();
     void onActionDeveloperContactClicked();
     void onActionSmsTemplateSettingsClicked();
+    void onActionPenaltyAndBonusesClicked();
     void onBarcodeScannerSettingsClicked();
+    void onEmployeeSalaryCalculationDialogClicked();
 
 private:
     bool checkDbConnection();
@@ -154,7 +157,7 @@ private:
     QStandardItemModel* ticketModel;
     QSortFilterProxyModel* ticketProxy;
     QStandardItemModel* ticketComments;
-    QStandardItemModel* jobModel;
+    JobItemModel* jobModel;
     QTimer* updateTableViewTicket;
 
     int currentStatus;

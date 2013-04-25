@@ -3,6 +3,7 @@
 
 #include "setupmanager.h"
 #include "employeeitemmodel.h"
+#include "usersandpermissionsmanager.h"
 
 #include <QSortFilterProxyModel>
 #include <QDebug>
@@ -20,6 +21,8 @@ EmployeeWidget::EmployeeWidget(const QString &dbConnectionString, QWidget *paren
     ui->comboBoxEmployee->setModel(employeeProxyModel);
     setMinimumWidth(parent->minimumWidth());
     connect(ui->lineEditEmployeeFilter, SIGNAL(textChanged(QString)), employeeProxyModel, SLOT(setFilterFixedString(QString)));
+    connect(ui->comboBoxEmployee, SIGNAL(currentIndexChanged(int)), SIGNAL(currentIndexChanged(int)));
+    setEnabled(accessManager->isCanEditJobList());
 }
 
 EmployeeWidget::~EmployeeWidget()
@@ -40,4 +43,9 @@ void EmployeeWidget::setEmployeeCurrentId(const int &id)
 void EmployeeWidget::setEmployeeCurrentId()
 {
     ui->comboBoxEmployee->setCurrentIndex(ui->comboBoxEmployee->findData(employeeModel->getCurrentId(),Qt::UserRole + 1));
+}
+
+QString EmployeeWidget::getCurrentEmployeeName()
+{
+    return ui->comboBoxEmployee->currentText();
 }

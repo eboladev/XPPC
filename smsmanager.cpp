@@ -152,14 +152,14 @@ non-delivered 	Отклонено
                     if (!ss.timer)
                     {
                         ss.timer = new QTimer(this);
+                        connect(ss.timer, SIGNAL(timeout()),
+                                this, SLOT(onTimeout()));
                         qDebug() << "created a timer object";
                         ss.timer->start(WAITTIME);
                     }
                     qDebug() << ss.trys << Q_FUNC_INFO;
                     ss.timer->setProperty("trys",--ss.trys);
                     ss.timer->setProperty("gwid",ss.gwId);
-                    connect(ss.timer, SIGNAL(timeout()),
-                            this, SLOT(onTimeout()));
                     smsList.replace(i,ss);
                 }
                 if (it.value() == QString("delivered"))

@@ -18,6 +18,9 @@
 #include "dialogtemplate.h"
 #include "smstemplatesettings.h"
 #include "barcodescannersettingsdialog.h"
+#include "jobitemmodel.h"
+#include "employeesalarycalculationdialog.h"
+#include "employeepenaltyandbonusesdialog.h"
 
 #include "smsmanager.h"
 
@@ -40,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initAccessManager();
 
     connectEstablished = false;
-    jobModel = new QStandardItemModel(this);    
+    jobModel = new JobItemModel("XP",this);
     ui->treeViewJobsOnTicket->setModel(jobModel);       
     ui->groupBoxFastTicketInfo->setVisible(false);
 #ifdef RELEASE
@@ -79,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->plainTextEditSmsText, SIGNAL(textChanged()), this, SLOT(onTicketNotificationSmsTextChanged()));
     connect(ui->lineEditTicketPrice, SIGNAL(textChanged(QString)), this, SLOT(onTicketPriceChanged(QString)));
     connect(ui->actionBarcodeScannerSettings, SIGNAL(triggered()), this, SLOT(onBarcodeScannerSettingsClicked()));
+    connect(ui->actionEmployeeSalaryCalculation, SIGNAL(triggered()), this, SLOT(onEmployeeSalaryCalculationDialogClicked()));
+    connect(ui->actionPenaltyAndBonuses, SIGNAL(triggered()), this, SLOT(onActionPenaltyAndBonusesClicked()));
 
     connect(smsManager, SIGNAL(gwBalance(double)),
             this, SLOT(onBalance(double)));
@@ -424,10 +429,20 @@ void MainWindow::onActionSmsTemplateSettingsClicked()
     sts->exec();
 }
 
+void MainWindow::onActionPenaltyAndBonusesClicked()
+{
+    DialogTemplate::executeDialogWithDbCheck<EmployeePenaltyAndBonusesDialog>(this);
+}
+
 void MainWindow::onBarcodeScannerSettingsClicked()
 {
     BarcodeScannerSettingsDialog* bssd = new BarcodeScannerSettingsDialog(this);
     bssd->exec();
+}
+
+void MainWindow::onEmployeeSalaryCalculationDialogClicked()
+{
+    DialogTemplate::executeDialogWithDbCheck<EmployeeSalaryCalculationDialog>(this);
 }
 
 void MainWindow::onRefreshCategoryModel()
@@ -765,7 +780,6 @@ void MainWindow::on_radioButtonWorking_pressed()
     ui->lineEditSearch->clear();
     currentStatus = InWork;
     ui->actionOnJobListClicked->setEnabled(accessManager->isUserLoggedIn());
-    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -774,7 +788,6 @@ void MainWindow::on_radioButtonClosed_pressed()
     ui->lineEditSearch->clear();
     currentStatus = Closed;
     ui->actionOnJobListClicked->setEnabled(accessManager->isCanEditJobList());
-    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
 }
 
@@ -783,16 +796,18 @@ void MainWindow::on_pushButtonSearchClear_clicked()
     ui->lineEditSearch->clear();
     ui->radioButtonWorking->setChecked(true);
     currentStatus = InWork;
-    qDebug() << Q_FUNC_INFO;
     refreshTicketModel(generateTicketQuery());
     //updateTableViewTicket->start(DEFAULTPERIOD);
 }
 
 void MainWindow::on_pushButtonSearch_clicked()
 {
-    updateTableViewTicket->stop();
-    currentStatus = Closed; //temp workaround
-    refreshTicketModel(generateTicketQuery(true));
+    if (!ui->lineEditSearch->text().isEmpty())
+    {
+        updateTableViewTicket->stop();
+        currentStatus = Closed; //temp workaround
+        refreshTicketModel(generateTicketQuery(true));
+    }
 }
 
 void MainWindow::onShowCommentsTabClicked()
@@ -906,29 +921,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
 
     ui->actionCloseTicket->setEnabled(current.isValid() && accessManager->isCanCloseTicket());
 
-    jobModel->clear();
-    jobModel->setHorizontalHeaderLabels(QStringList() << trUtf8("Мастер") << trUtf8("Наименование")
-                                     << trUtf8("Количество") << trUtf8("Цена") << trUtf8("Дата"));
-    int totalPrice = 0;
-    QSqlQuery q;
-    if (!SetupManager::instance()->getSqlQueryForDB(q))
-        return;
-
-    q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id from JobOnTicket "
-              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id=?");
-    q.addBindValue(ticketModel->item(current.row(),0)->data());
-    q.exec();    
-    while (q.next())
-    {
-        QStandardItem* fio = new QStandardItem(q.value(0).toString());
-        fio->setData(q.value(5));
-        QStandardItem* jobName = new QStandardItem(q.value(1).toString());
-        QStandardItem* jobQuant = new QStandardItem(q.value(2).toString());
-        QStandardItem* jobPrice = new QStandardItem(q.value(3).toString());
-        QStandardItem* jobDate = new QStandardItem(q.value(4).toString());
-        totalPrice += q.value(3).toInt();
-        jobModel->appendRow(QList<QStandardItem*>() << fio << jobName << jobQuant << jobPrice << jobDate);
-    }
+    int totalPrice = jobModel->getJobs(getCurrentTDCRId());
 
     //ui->tabWidgetFastTicketInfo->setMaximumHeight(height()*0.35);
     ui->lineEditTicketPrice->setText(QString::number(totalPrice));
@@ -938,6 +931,10 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
 
     ticketComments->clear();
     ticketComments->setHorizontalHeaderLabels(QStringList() << trUtf8("Комментарий") << trUtf8("Автор") << trUtf8("Дата"));
+
+    QSqlQuery q;
+    if (!SetupManager::instance()->getSqlQueryForDB(q))
+        return;
     q.prepare("select comment, employee_fio, date, id,ticket_comments.employee_id from ticket_comments "
               "join employee on (employee.employee_id = ticket_comments.employee_id) "
               "where tdc_relation_id = ?");
@@ -984,7 +981,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         }
     }
     ui->groupBoxGuarantee->setVisible(showGuarantee);
-    qDebug() << currentStatus << Q_FUNC_INFO;
+    //qDebug() << currentStatus << Q_FUNC_INFO;
 
     ui->groupBoxSms->setVisible(currentStatus == Ready);
     if (currentStatus == Ready)

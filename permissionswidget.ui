@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>322</width>
-    <height>249</height>
+    <height>272</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,7 +41,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidgetPermissions">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="Tickets">
       <attribute name="icon">
@@ -137,25 +137,32 @@
       <attribute name="title">
        <string>Основные</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
         <widget class="QCheckBox" name="checkBoxBranchEdit">
          <property name="text">
           <string>Редактирование настроек филиалов</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item>
         <widget class="QCheckBox" name="checkBoxUsersEdit">
          <property name="text">
           <string>Полный доступ к редактированию пользователей</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item>
         <widget class="QCheckBox" name="checkBoxPermissionsEdit">
          <property name="text">
           <string>Доступ к настройкам прав</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxSalary">
+         <property name="text">
+          <string>Управление зарплатой</string>
          </property>
         </widget>
        </item>

@@ -106,7 +106,11 @@ SOURCES += main.cpp\
     SendSMS/abstractsmsgateway.cpp \
     smstemplatesettings.cpp \
     barcodehandler.cpp \
-    barcodescannersettingsdialog.cpp
+    barcodescannersettingsdialog.cpp \
+    employeesalarycalculationdialog.cpp \
+    itemmodelforemployeepenaltyandbonuses.cpp \
+    employeepenaltyandbonusesdialog.cpp \
+    employeepabdialog.cpp
 
 #unix {
 #    SOURCES += DocumentGenerators/writerunixautomation.cpp
@@ -175,7 +179,11 @@ HEADERS  += mainwindow.h \
     SendSMS/abstractsmsgateway.h \
     smstemplatesettings.h \
     barcodehandler.h \
-    barcodescannersettingsdialog.h
+    barcodescannersettingsdialog.h \
+    employeesalarycalculationdialog.h \
+    itemmodelforemployeepenaltyandbonuses.h \
+    employeepenaltyandbonusesdialog.h \
+    employeepabdialog.h
 
 #unix {
 #    HEADERS  += DocumentGenerators/writerunixautomation.h
@@ -207,7 +215,10 @@ FORMS    += mainwindow.ui \
     reportselectionwidget.ui \
     smsgatewaysettings.ui \
     smstemplatesettings.ui \
-    barcodescannersettingsdialog.ui
+    barcodescannersettingsdialog.ui \
+    employeesalarycalculationdialog.ui \
+    employeepenaltyandbonusesdialog.ui \
+    employeepabdialog.ui
 
 RESOURCES += \
     Resources.qrc

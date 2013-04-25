@@ -1000,7 +1000,6 @@
     </property>
     <addaction name="actionBranchTriggered"/>
     <addaction name="actionAddProductCategory"/>
-    <addaction name="actionUserControl"/>
     <addaction name="actionReportSettings"/>
     <addaction name="actionSMSGatewaysSettings"/>
     <addaction name="actionSmsTemplateSettings"/>
@@ -1049,10 +1048,19 @@
     <addaction name="action_Qt"/>
     <addaction name="actionDeveloperContact"/>
    </widget>
+   <widget class="QMenu" name="menuEmployee">
+    <property name="title">
+     <string>Сотрудники</string>
+    </property>
+    <addaction name="actionUserControl"/>
+    <addaction name="actionEmployeeSalaryCalculation"/>
+    <addaction name="actionPenaltyAndBonuses"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTicket"/>
    <addaction name="menuShowcase"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuEmployee"/>
    <addaction name="menuHelp"/>
    <addaction name="menuCurrentUser"/>
   </widget>
@@ -1310,6 +1318,16 @@
   <action name="actionBarcodeScannerSettings">
    <property name="text">
     <string>Сканер штрих кода...</string>
+   </property>
+  </action>
+  <action name="actionEmployeeSalaryCalculation">
+   <property name="text">
+    <string>Расчет зарплаты...</string>
+   </property>
+  </action>
+  <action name="actionPenaltyAndBonuses">
+   <property name="text">
+    <string>Штрафы и премии...</string>
    </property>
   </action>
  </widget>

@@ -22,6 +22,10 @@ public:
     QVariant getCurrentEmployeeId() const;
     void setEmployeeCurrentId(const int& id);
     void setEmployeeCurrentId();
+    QString getCurrentEmployeeName();
+
+Q_SIGNALS:
+    void currentIndexChanged(const int& current);
 
 private:
     Ui::EmployeeWidget *ui;

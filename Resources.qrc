@@ -24,5 +24,7 @@
         <file>icons/Star-Half-Full24.png</file>
         <file>icons/Male-User-Warning24.png</file>
         <file>icons/emblem-important_9062.png</file>
+        <file>icons/minus.png</file>
+        <file>icons/plus.png</file>
     </qresource>
 </RCC>

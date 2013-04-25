@@ -48,7 +48,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidgetUsersPermissions">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Users">
       <attribute name="title">
@@ -269,15 +269,15 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>FilterLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>filterlineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>PermissionsWidget</class>
    <extends>QWidget</extends>
    <header>permissionswidget.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>FilterLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

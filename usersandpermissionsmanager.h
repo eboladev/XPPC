@@ -24,7 +24,8 @@ public:
         PEditBranches = 0x80,
         PEditUsers = 0x100,
         PEditPermissions = 0x200,
-        PEditClosedTickets = 0x400
+        PEditClosedTickets = 0x400,
+        PEditSalary = 0x800
     };
 
 public:
@@ -41,6 +42,7 @@ public:
     bool isCanEditUsers();
     bool isCanEditPermissions();
     bool isCanEditClosedTickets();
+    bool isCanEditSalary();
 
     bool isUserLoggedIn();
 
@@ -52,7 +54,7 @@ public:
     void setCurrentUser(QString user);
     void setCurrentUserId(const QVariant& id);
     QString getLastUserLogin() const;
-    void setLastUserLogin(const QString &value);
+    void setLastUserLogin(const QString &value);    
 
     void startUserActivityTimer();
 

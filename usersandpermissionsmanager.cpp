@@ -76,13 +76,18 @@ bool UsersAndPermissionsManager::isCanEditClosedTickets()
     return permissions & PEditClosedTickets;
 }
 
+bool UsersAndPermissionsManager::isCanEditSalary()
+{
+    return permissions & PEditSalary;
+}
+
 bool UsersAndPermissionsManager::isUserLoggedIn()
 {
     return currentUserId != -1;
 }
 
 void UsersAndPermissionsManager::showChangeUserDialog()
-{
+{   
     changeUserDialog->setUser(getLastUserLogin());
     if (changeUserDialog->exec())
         changeUser(changeUserDialog->getUser(),changeUserDialog->getPassword());
@@ -132,6 +137,7 @@ void UsersAndPermissionsManager::changeUser(const QString &login, const QString 
     QString fio = q.value(1).toString();
     QString passwordB = q.value(0).toString().remove(0,2); //remove the \x escape character(thanks for postgress for adding it >_>)
     QVariant currentUserId = q.value(2);
+
     if (passwordHash != passwordB)
     {
         emit failedToLogin(trUtf8("Пароль введен неправильно"));

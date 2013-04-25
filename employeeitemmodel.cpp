@@ -1,6 +1,7 @@
 #include "employeeitemmodel.h"
 #include "setupmanager.h"
 #include "usersandpermissionsmanager.h"
+#include <QDebug>
 
 EmployeeItemModel::EmployeeItemModel(const QString &dbConnectionString, QObject *parent) :
     QStandardItemModel(parent),
@@ -36,10 +37,12 @@ void EmployeeItemModel::refreshModel(const bool &isListFired, const bool &isGetO
     q.prepare("select employee_id, employee_fio, employee_rate, "
               "employee_percent, employee_sale_percent, "
               "employee_last_salary_date, employee_salaryperday, "
-              "login, password, phone, group_id from employee where fired = ? "
+              "login, password, phone, group_id from employee where fired = FALSE "
               "ORDER BY employee_id ASC");
-    q.addBindValue(isListFired);
-    q.exec();
+    qDebug() << isListFired;
+  //  q.addBindValue(isListFired);
+    if (!q.exec())
+        qDebug() << q.lastQuery() << q.lastError();
 
     while (q.next())
     {
