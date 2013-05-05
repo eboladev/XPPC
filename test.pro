@@ -44,7 +44,7 @@ else:
     include($$QTSERIALPORT_PROJECT_ROOT/src/serialport/qt4support/serialport.prf)
 }
 
-INCLUDEPATH += $$PWD/../qtserialport
+INCLUDEPATH += $$PWD/../qtserialport/include/QtSerialPort
 
 CONFIG(debug, debug|release):DEFINES += DEBUG
 CONFIG(release, debug|release):DEFINES += RELEASE
