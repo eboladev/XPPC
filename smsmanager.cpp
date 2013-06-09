@@ -43,7 +43,7 @@ void SmsManager::loadGsmGatewaySettings()
     mainSms->setLogin(s.value(gw.append("login")).toString());
     mainSms->setPassword(s.value(gw.append("password")).toString());
     mainSms->setSenderName(s.value(gw.append("sendername")).toString());
-    mainSms->setTestMode(true);
+    mainSms->setTestMode(false);
 }
 
 void SmsManager::sendSms(const QString &textSms, const QStringList &recipients, const int &ticket_id)

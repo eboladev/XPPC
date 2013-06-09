@@ -78,6 +78,7 @@ void UserInfoWidget::setGroupsEditable(const bool &isEditable)
 
 QVariant UserInfoWidget::getUserId() const
 {
+    qDebug() << Q_FUNC_INFO << userId;
     return userId;
 }
 
@@ -117,9 +118,9 @@ int UserInfoWidget::getUserSalaryPerDay() const
 }
 
 QVariant UserInfoWidget::getCurrentGroupId() const
-{
-    qDebug() << Q_FUNC_INFO;
-    qDebug() << ui->comboBoxUserGroup->itemData(ui->comboBoxUserGroup->currentIndex(),Qt::UserRole + 2);;
+{    
+    qDebug() << ui->comboBoxUserGroup->itemData(ui->comboBoxUserGroup->currentIndex(),Qt::UserRole + 2)
+             << Q_FUNC_INFO;
     return ui->comboBoxUserGroup->itemData(ui->comboBoxUserGroup->currentIndex(),Qt::UserRole + 2);
 }
 

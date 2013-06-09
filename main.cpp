@@ -10,7 +10,7 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 
-const QString appVersion = "0.61";
+const QString appVersion = "0.62";
 //#include <stdio.h>
 //#include <stdlib.h>
 
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     qInstallMsgHandler(myMessageHandler);
 #endif
     QApplication a(argc, argv);   
+    qApp->setApplicationVersion(appVersion);
     QCoreApplication::setOrganizationName("doshSoft");
     QCoreApplication::setOrganizationDomain("granet.org");
     QCoreApplication::setApplicationName("Service centre manager");

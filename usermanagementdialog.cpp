@@ -178,10 +178,8 @@ void UserManagementDialog::onUserInfoChangesSaved()
     getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getUserLogin(), LoginRole);
     getItemFromIndex(ui->treeViewUsers->currentIndex())->setData(uiw->getCurrentGroupId(), GroupIdRole);
 
-    qDebug() << uiw->getUserLogin() << Q_FUNC_INFO;
-
     QSqlQuery q;
-    if (!setupManager->getSqlQueryForDB(q))
+    if (!getSqlQuery(q))
         return;
     q.prepare("update employee set employee_fio = ?, phone = ?, "
               "employee_rate = ?, employee_percent = ?, employee_sale_percent = ?, "
@@ -202,7 +200,7 @@ void UserManagementDialog::onEditGroupPermissions(const int &permissions)
 {
     qDebug() << currentGroupId << Q_FUNC_INFO;
     QSqlQuery q;
-    if (!setupManager->getSqlQueryForDB(q))
+    if (!getSqlQuery(q))
         return;
     q.prepare("update groups set permissions = ? where id = ?");
     q.addBindValue(permissions);
@@ -221,6 +219,7 @@ QStandardItem *UserManagementDialog::getItemFromIndex(QModelIndex index)
         return employeeModel->itemFromIndex(index);
     else if (index.model() == employeeProxyModel)
         return employeeModel->itemFromIndex(employeeProxyModel->mapToSource(index));
+    return new QStandardItem();
 }
 
 void UserManagementDialog::refreshGroups()
@@ -228,9 +227,9 @@ void UserManagementDialog::refreshGroups()
     groupsModel->clear();
     groupsModel->setHorizontalHeaderLabels(QStringList() << trUtf8("Название"));
     QSqlQuery q;
-    if (!setupManager->getSqlQueryForDB(q))
+    if (!getSqlQuery(q))
         return;
-    q.exec("select name,permissions,id from groups");
+    q.exec("select name,permissions,id from groups ORDER BY name DESC");
     while(q.next())
     {
         QStandardItem* groupName = new QStandardItem(q.value(0).toString());
@@ -243,7 +242,7 @@ void UserManagementDialog::refreshGroups()
 void UserManagementDialog::onAddGroup()
 {
     QSqlQuery q;
-    if (!setupManager->getSqlQueryForDB(q))
+    if (!getSqlQuery(q))
         return;
     q.prepare("insert into groups(name,permissions) VALUES(?,?) returning id");
     q.addBindValue(ui->lineEditGroupName->text().trimmed());
@@ -264,7 +263,7 @@ void UserManagementDialog::onDeleteGroup()
         return;
 
     QSqlQuery q;
-    if (!setupManager->getSqlQueryForDB(q))
+    if (!getSqlQuery(q))
         return;
     q.prepare("update employee set group_id = 1 where group_id = ?");
     q.addBindValue(groupsModel->itemFromIndex(ui->listViewGroups->currentIndex())->data());

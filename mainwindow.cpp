@@ -144,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
    // updateTableViewTicket->start(DEFAULTPERIOD);        
     qApp->installEventFilter(this);
+    setWindowTitle(trUtf8("Управление СЦ %0").arg(qApp->applicationVersion()));
 }
 
 MainWindow::~MainWindow()
@@ -991,7 +992,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         ui->lineEditPhones->setText(phones);
 
         updateSmsWidget(-1,getCurrentTicketId());
-        ui->pushButtonSendSms->setEnabled(ui->lineEditBalance->text().toDouble() <= 0.15);
+        ui->pushButtonSendSms->setEnabled(ui->lineEditBalance->text().toDouble() >= 0.15);
         ui->plainTextEditSmsText->setPlainText(genTicketNotifySms());
     }
 
