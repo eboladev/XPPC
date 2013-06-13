@@ -43,8 +43,6 @@ MainWindow::MainWindow(QWidget *parent) :
     initAccessManager();
     connectEstablished = false;
     jobModel = new JobItemModel("XP",this);    
-    delete jobModel;
-    delete jobModel;
     ui->treeViewJobsOnTicket->setModel(jobModel);
     ui->groupBoxFastTicketInfo->setVisible(false);
 #ifdef RELEASE
