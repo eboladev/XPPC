@@ -13,12 +13,12 @@
 GuardianCore::GuardianCore(QObject *parent) :
     QObject(parent)
 {
-    previousValue = -1;
+    previousValue = -1;    
     if (checkConfig())
     {
         initProcess();
         startProgram(executable);
-    }
+    }    
 }
 
 GuardianCore::~GuardianCore()
@@ -70,6 +70,10 @@ bool GuardianCore::checkConfig()
             smtpPort = s.contains("email/SMTPPort") ? s.value("email/SMTPPort").toInt() : -1;
             smtpUserName = s.contains("email/SMTPLogin") ? s.value("email/SMTPLogin").toString() : "";
             smtpPassword = s.contains("email/SMTPPass") ? s.value("email/SMTPPass").toString() : "";
+            QByteArray ba2 = s.value("email/SMTPPass").toByteArray();
+            encryptDecrypt(ba2);
+            smtpPassword = QString::fromUtf8(ba2.data(), ba2.count());
+            qDebug() << smtpPassword << Q_FUNC_INFO;
             senderName = s.contains("email/SMTPSenderName") ? s.value("email/SMTPSenderName").toString() : "";
             senderEMail = s.contains("email/SMTPSenderAddress") ? s.value("email/SMTPSenderAddress").toString() : "";
             mailTo = s.contains("email/MailTo") ? s.value("email/MailTo").toString() : "";
@@ -89,12 +93,12 @@ bool GuardianCore::checkConfig()
         QString logsPath = s.contains("base/LogsDir") ? s.value("base/LogsDir").toString() : "";
 
         logsDir = QDir(QDir::toNativeSeparators(logsPath));
-        qDebug() << logsDir.absolutePath() << logsDir.path();
+        qDebug() << "logs dir" << logsDir.absolutePath() << logsDir.path();
 
         QString logsSavePath = s.contains("base/SaveLogsDir") ? s.value("base/SaveLogsDir").toString() : "";
         logsSaveDir = QDir(QDir::toNativeSeparators(logsSavePath));
 
-        qDebug() << logsSaveDir.absolutePath() << logsSaveDir.path();
+        qDebug() << "logs save dir" << logsSaveDir.absolutePath() << logsSaveDir.path();
     }
 
     QFileInfo executableFile(executable_path);
@@ -126,26 +130,31 @@ void GuardianCore::initProcess()
 
 QFileInfo GuardianCore::getLastFileInLogs()
 {
-    QFileInfoList fil = logsDir.entryInfoList();
-    if (fil.count() == 0)
+    QFileInfoList fil = logsDir.entryInfoList();    
+    if (fil.count() < 2)
     {
         qDebug() << "no log files detected";
         return QFileInfo();
-    }
-    QFileInfo last = fil.at(0);
+    }    
+    QFileInfo last = fil.at(2);
     for (int i = 0 ; i < fil.count(); ++i)
+    {
+       //qDebug() << fil.at(i).absoluteFilePath() << fil.at(i).isDir() << Q_FUNC_INFO;
+        if (!fil.at(i).isDir())
         if (last.lastModified() < fil.at(i).lastModified())
             last = fil.at(i);
+    }
+   // qDebug() << last.absoluteFilePath() << last.isDir() << Q_FUNC_INFO;
     return last;
 }
 
 void GuardianCore::saveLogFile(QFileInfo fi)
 {
-    qDebug() << fi.absolutePath() << fi.fileName();
+    qDebug() << fi.absolutePath() << fi.fileName() << Q_FUNC_INFO;
     QTimer t;
     QEventLoop el;
     connect(&t, SIGNAL(timeout()), &el, SLOT(quit()));
-    t.start(3000);
+    t.start(6000);
     el.exec();
     QFile source(fi.absoluteFilePath());
     if (!source.open(QIODevice::ReadOnly |QIODevice::Text))
@@ -163,11 +172,26 @@ void GuardianCore::saveLogFile(QFileInfo fi)
         if (sendLog)
         {
             fileName.append(".zip");
+            QFile archive(fileName);
             MimeAttachment *mime = new MimeAttachment(new QFile(fileName));
-            QFile log(QDir::toNativeSeparators(filePath));
-            mime->setContent(log.readAll());
-            log.close();
+            archive.open(QIODevice::ReadOnly | QIODevice::Text);
+            mime->setContent(archive.readAll());
+            archive.close();
             currentEMail.attachementsList.append(mime);
+            QFileInfo filein = QFileInfo(QDir(""),"stackdump.txt");
+            qDebug() << filein.filePath() << filein.absoluteFilePath() << filein.exists() << Q_FUNC_INFO;
+            if (filein.exists())
+            {
+                MimeAttachment *mimeStackDump = new MimeAttachment(new QFile("stackdump_.txt"));
+                QFile stackDump(filein.fileName());
+                stackDump.open(QIODevice::ReadOnly | QIODevice::Text);
+                QByteArray ba = stackDump.readAll();
+                //qDebug() << "are ya fucking here?" << ba.length() << ba.data() << stackDump.fileName() << stackDump.exists() << Q_FUNC_INFO;
+                mimeStackDump->setContent(ba);
+                stackDump.close();
+                currentEMail.attachementsList.append(mimeStackDump);
+            }
+
             QString mailSubject;
             mailSubject =  QString("Application %0 has crashed").arg(executable);
             currentEMail.mailSubject.append(mailSubject);
@@ -239,12 +263,17 @@ void GuardianCore::sendMail()
     {
         if (smtp.login())
         {
-            if (smtp.sendMail(message)){
-                qDebug() << "email has been sent";
-            }
+            if (smtp.sendMail(message))
+                qDebug() << "email has been sent";            
         }
+        else
+            qDebug() << Q_FUNC_INFO << "failed to login";
+
         smtp.quit();
     }
+    else
+        qDebug() << Q_FUNC_INFO << "failed to connect to host";
+
     foreach (EmailAddress *ea, currentEMail.recipientsList)
         message.deleteRecipient(ea);
     foreach(MimePart *mime, currentEMail.attachementsList)
@@ -290,5 +319,14 @@ void GuardianCore::onStateChanges(QProcess::ProcessState state)
             s.setValue("DontShowUI",previousValue);
 #endif
         exit(0);
-            }
+    }
+}
+
+void GuardianCore::encryptDecrypt(QByteArray &ba)
+{
+    char c = 55;
+    for (int i=0; i<ba.count();++i){
+        ba[i] = ba.at(i) ^ c;
+        c += 34;
+    }
 }

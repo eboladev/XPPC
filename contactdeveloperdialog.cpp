@@ -179,7 +179,6 @@ void ContactDeveloperDialog::onAccept()
             QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                                   QObject::trUtf8("Не удалось зайти под учетной записью %0, проверьте логин\\пароль").arg(login));
             qDebug() << Q_FUNC_INFO << "failed to login";
-            return;
         }
 
         smtp.quit();
@@ -189,7 +188,6 @@ void ContactDeveloperDialog::onAccept()
         QMessageBox::critical(0, QObject::trUtf8("Ошибка"),
                               QObject::trUtf8("Не удалось подключится к серверу %0, проверьте настройки").arg(address));
         qDebug() << Q_FUNC_INFO << "failed to connect to host";
-        return;
     }
 
     foreach (EmailAddress *ea, currentEMail.recipientsList)

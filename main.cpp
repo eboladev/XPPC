@@ -10,25 +10,28 @@
 #include "connectdialog.h"
 #include "setupmanager.h"
 
-const QString appVersion = "0.62";
-//#include <stdio.h>
-//#include <stdlib.h>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
+const QString appVersion = "0.62_1";
 
 void myMessageHandler(QtMsgType type, const char *msg)
 {
     QString txt;
+    QString time = QDateTime::currentDateTime().toString("dd-MM-yy hh:mm:ss");
     switch (type) {
     case QtDebugMsg:
-        txt = QString("Debug: %1").arg(msg);
+        txt = QString("%2: Debug: %1").arg(msg).arg(time);
         break;
     case QtWarningMsg:
-        txt = QString("Warning: %1").arg(msg);
+        txt = QString("%2: Warning: %1").arg(msg).arg(time);
         break;
     case QtCriticalMsg:
-        txt = QString("Critical: %1").arg(msg);
+        txt = QString("%2: Critical: %1").arg(msg).arg(time);
         break;
     case QtFatalMsg:
-        txt = QString("Fatal: %1").arg(msg);
+        txt = QString("%2: Fatal: %1").arg(msg).arg(time);
         abort();
     }
     QDir logs = QDir::homePath();
@@ -46,6 +49,9 @@ void myMessageHandler(QtMsgType type, const char *msg)
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+    LoadLibraryA("backtrace.dll");
+#endif
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -71,9 +77,7 @@ int main(int argc, char *argv[])
     {
         ConnectDialog cd;
         if (!cd.exec())
-        {
             return 2;
-        }
     }
 
     a.setApplicationVersion(appVersion);

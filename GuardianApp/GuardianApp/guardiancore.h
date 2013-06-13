@@ -48,6 +48,9 @@ private Q_SLOTS:
     void onStateChanges(QProcess::ProcessState);
 
 private:
+    void encryptDecrypt(QByteArray &ba);
+
+private:
     QString executable;
     bool processLogs;
     bool compressLogs;

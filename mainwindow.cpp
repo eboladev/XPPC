@@ -41,10 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     initAccessManager();
-
     connectEstablished = false;
-    jobModel = new JobItemModel("XP",this);
-    ui->treeViewJobsOnTicket->setModel(jobModel);       
+    jobModel = new JobItemModel("XP",this);    
+    delete jobModel;
+    delete jobModel;
+    ui->treeViewJobsOnTicket->setModel(jobModel);
     ui->groupBoxFastTicketInfo->setVisible(false);
 #ifdef RELEASE
     ui->tabWidget->setCurrentIndex(0);
@@ -265,7 +266,7 @@ QString MainWindow::getCurrentTicketData(const TicketColumns &column, const Tick
 
 QVariant MainWindow::getCurrentTicketGuaranteeId(const QModelIndex &index)
 {
-    if (index.isValid())
+    if (index.isValid())    
         return ticketModel->item(ticketProxy->mapToSource(index).row(),TicketNumber)->data(GuaranteeId);
     else
         return QVariant();
@@ -761,10 +762,11 @@ void MainWindow::onAddTicketClicked()
 
 void MainWindow::onJobListClicked()
 {
-    updateTableViewTicket->stop();    
+    updateTableViewTicket->stop();
+    QModelIndex current = ui->tableViewTicket->currentIndex();
     DialogTemplate::executeDialogWithDbCheck<JobListOnReceiptDialog>(getCurrentTDCRId().toInt(),getCurrentTicketId(),this);
     updateTableViewTicket->start(DEFAULTPERIOD);
-    refreshTicketModel(generateTicketQuery());
+    onTableViewTicketSelectionChanged(current,QModelIndex());
 }
 
 void MainWindow::on_radioButtonReady_pressed()
@@ -1000,6 +1002,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
 //    ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
     ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
     ui->groupBoxFastTicketInfo->setEnabled(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
+    ui->tabWidgetFastTicketInfo->setCurrentIndex(0);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)
