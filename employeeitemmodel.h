@@ -40,6 +40,15 @@ public:
                            const QString& password = "",
                            const QString& phone = "",
                            const QString& groupId = "0");
+    float getEmployeeSalaryPerDay(const QVariant& employeeUuid) const;
+    float getEmployeeJobPercent(const QVariant& employeeUuid) const;
+    float getEmployeeSalePercent(const QVariant& employeeUuid) const;
+    float getEmployeeRate(const QVariant& employeeUuid) const;
+
+private:
+    QVariant getCurrentEmployeeData(const EmployeeItemRoles& roleId,
+                                    const EmployeeItemRoles& roleData,
+                                    const QVariant& employeeUuid) const;
 
 public Q_SLOTS:
     bool addEmployee(const bool& isGetOnlyNames = false);

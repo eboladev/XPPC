@@ -20,7 +20,6 @@ EmployeePenaltyAndBonusesDialog::EmployeePenaltyAndBonusesDialog(const QString &
     ui->tableViewPAB->setModel(model);
     employeeWidget = new EmployeeWidget(dbConnectionString, ui->employeeWidget);
     employeeWidget->setEmployeeCurrentId();
-    adjustSize();
     ui->employeeWidget->setMinimumHeight(employeeWidget->geometry().height());
     ui->employeeWidget->setMinimumWidth(employeeWidget->geometry().width());
 

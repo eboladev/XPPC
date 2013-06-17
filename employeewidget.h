@@ -24,8 +24,13 @@ public:
     void setEmployeeCurrentId();
     QString getCurrentEmployeeName();
 
+    float getCurrentEmployeeRate() const;
+    float getCurrentEmployeeJobPercent() const;
+    float getCurrentEmployeeSalePercent() const;
+    float getCurrentEmployeeSalaryPerDay() const;
+
 Q_SIGNALS:
-    void currentIndexChanged(const int& current);
+    void currentIndexChanged(const int& current);       
 
 private:
     Ui::EmployeeWidget *ui;

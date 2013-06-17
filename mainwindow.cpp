@@ -370,6 +370,8 @@ void MainWindow::changePermissions()
     ui->menuTicket->setEnabled(permissions);
     ui->menuShowcase->setEnabled(permissions);
     ui->menuSettings->setEnabled(permissions);
+    ui->menuEmployee->setEnabled(permissions);
+    ui->actionDeveloperContact->setEnabled(permissions);
     ui->tabWidget->setEnabled(permissions);    
     ui->tabWidgetFastTicketInfo->setEnabled(permissions);
     ui->treeViewJobsOnTicket->setEnabled(permissions);
@@ -915,6 +917,8 @@ void MainWindow::on_tableViewTicket_doubleClicked(const QModelIndex &index)
 void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIndex previous)
 {
     Q_UNUSED(previous);
+    if (!current.isValid())
+        return;
     if (currentStatus != InWork)
         ui->actionOnJobListClicked->setEnabled(current.isValid() && accessManager->isCanEditJobList());
     else

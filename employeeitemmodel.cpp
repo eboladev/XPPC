@@ -119,6 +119,10 @@ bool EmployeeItemModel::appendEmployeeRow(const bool &isGetOnlyNames,
 {
     QStandardItem* fio = new QStandardItem(name);
     fio->setData(id, IDrole);
+    fio->setData(rate,RateRole);
+    fio->setData(percent,PercentRole);
+    fio->setData(sale_percent,SalePercentRole);
+    fio->setData(salary_per_day, SalaryPerDayRole);
     fio->setToolTip(fio->text());
     if (!isGetOnlyNames)
     {
@@ -154,5 +158,36 @@ bool EmployeeItemModel::appendEmployeeRow(const bool &isGetOnlyNames,
         fio->setData(group_id, GroupIdRole);
         appendRow(fio);        
         return true;
+    }
+}
+
+float EmployeeItemModel::getEmployeeSalaryPerDay(const QVariant &employeeUuid) const
+{
+    return getCurrentEmployeeData(IDrole,SalaryPerDayRole,employeeUuid).toFloat();
+}
+
+float EmployeeItemModel::getEmployeeJobPercent(const QVariant &employeeUuid) const
+{
+    return getCurrentEmployeeData(IDrole,PercentRole,employeeUuid).toFloat();
+}
+
+float EmployeeItemModel::getEmployeeSalePercent(const QVariant &employeeUuid) const
+{
+    return getCurrentEmployeeData(IDrole,SalePercentRole,employeeUuid).toFloat();
+}
+
+float EmployeeItemModel::getEmployeeRate(const QVariant &employeeUuid) const
+{
+    return getCurrentEmployeeData(IDrole,RateRole,employeeUuid).toFloat();
+}
+
+QVariant EmployeeItemModel::getCurrentEmployeeData(const EmployeeItemRoles &roleId,
+                                                   const EmployeeItemRoles &roleData,
+                                                   const QVariant &employeeUuid) const
+{
+    for (int i = 0 ; i < rowCount() ; ++i)
+    {
+        if (item(i,0)->data(roleId) == employeeUuid)
+            return item(i,0)->data(roleData);
     }
 }

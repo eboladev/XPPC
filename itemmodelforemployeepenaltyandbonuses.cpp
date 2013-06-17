@@ -41,6 +41,37 @@ void ItemModelForEmployeePenaltyAndBonuses::getPenaltyAndBonuses(const QString &
     }
 }
 
+void ItemModelForEmployeePenaltyAndBonuses::getPendingPenaltyAndBonuses(const QString &id)
+{
+    clear();
+    setHorizontalHeaderLabels(QStringList()
+                              << trUtf8("ФИО")
+                              << trUtf8("Сумма")
+                              << trUtf8("Причина")
+                              << trUtf8("Дата")
+                              << trUtf8("Вступило в силу"));
+
+    QSqlQuery q;
+    if (!getSqlQuery(q))
+        return;
+    QString PABquery = QString("select id, amount, employee_id, reason, date from "
+                               "employee_penalty_and_bonuses where employee_id = ? and inure_date IS NULL ");
+    q.prepare(PABquery);
+    q.addBindValue(id);
+
+    if (!q.exec())
+        qDebug() << q.lastError() << q.lastQuery();
+
+    while (q.next())
+    {
+        addPABRow(q.value(0),
+                  q.value(1).toInt(),
+                  q.value(2).toString(),
+                  q.value(3).toString(),
+                  q.value(4).toDateTime());
+    }
+}
+
 void ItemModelForEmployeePenaltyAndBonuses::onAddPAB(const int &amount, const QString &employeeId, const QString &reason)
 {
     QSqlQuery q;
@@ -88,6 +119,16 @@ int ItemModelForEmployeePenaltyAndBonuses::getEmployeeId(const QModelIndex &inde
     return item(index.row(),0)->data(employeeIdRole).toInt();
 }
 
+float ItemModelForEmployeePenaltyAndBonuses::getTotalAmount()
+{
+    float result = 0;
+
+    for (int i = 0 ; i < rowCount(); ++i)
+        result += item(i,1)->text().toFloat();
+
+    return result;
+}
+
 void ItemModelForEmployeePenaltyAndBonuses::onUpdatePAB(const QModelIndex &index, const int &amount, const QString &reason)
 {
     QSqlQuery q;
@@ -116,7 +157,7 @@ void ItemModelForEmployeePenaltyAndBonuses::addPABRow(const QVariant &id, const 
     reasonItem->setToolTip(reason);
     QStandardItem* dateItem = new QStandardItem(date.toString("dd-MM-yyyy hh:mm:ss"));
     dateItem->setEditable(false);
-    QStandardItem* inureDateItem = new QStandardItem(inureDate.isNull() ? inureDate.toString("dd-MM-yyyy hh:mm:ss") : trUtf8("Нет"));
+    QStandardItem* inureDateItem = new QStandardItem(inureDate.isNull() ? trUtf8("Нет") : inureDate.toString("dd-MM-yyyy hh:mm:ss"));
     inureDateItem->setEditable(false);
     appendRow(QList<QStandardItem*>() << employeeNameItem << amountItem << reasonItem << dateItem << inureDateItem);
 }

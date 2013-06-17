@@ -11,6 +11,7 @@ class EmployeeSalaryCalculationDialog;
 
 class QStandardItem;
 class EmployeeWidget;
+class ItemModelForEmployeePenaltyAndBonuses;
 
 class EmployeeSalaryCalculationDialog : public QDialog, SqlExtension
 {
@@ -21,17 +22,30 @@ public:
     ~EmployeeSalaryCalculationDialog();
 
 private Q_SLOTS:
-    void onCurrentEmployeeChanged(const int& current);
+    void onSetCurrentEmployeeSalaryPayments(int);
+    void onRecalculateSalary(int);
+    void onItemChanged(QStandardItem*);
+    void onConfirmSalaryClicked();
+    void onBonusAndPenaltyManagementClicked();
+    void onPABChanged(QString);
 
 private:
-    void parseJobs(QHash<QString,QList<Job> >);
-    
+    void parseJobs();
+    void calculateSummarySalary();
+    void recalculateSalary();
+    void initJobsItem();
+    void initSoldProductsItem();
+    void initJobsTable();
+    void getEmployeePenaltyAndBonuses();
+
 private:
     Ui::EmployeeSalaryCalculationDialog *ui;    
     JobItemModel* jobs;
     QStandardItem* jobsItem;
     QStandardItem* soldProductsItem;
     EmployeeWidget* employeeWidget;
+    ItemModelForEmployeePenaltyAndBonuses* penaltyAndBonusesModel;
+    QString m_dbConnectionString;
 };
 
 #endif // EMPLOYEESALARYCALCULATIONDIALOG_H

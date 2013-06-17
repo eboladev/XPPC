@@ -31,7 +31,7 @@ class EmployeePenaltyAndBonusesDialog : public QDialog, SqlExtension
     
 public:
     explicit EmployeePenaltyAndBonusesDialog(const QString& dbConnectionString, QWidget *parent = 0);
-    ~EmployeePenaltyAndBonusesDialog();
+    ~EmployeePenaltyAndBonusesDialog();   
 
 private Q_SLOTS:
     void onCurrentIndexChanged(const int& current);

@@ -35,6 +35,8 @@ DEPENDPATH += $$PWD/../qtserialport/src/serialport/release
 OBJECTS_DIR = $$PWD/build/release/obj
 }
 
+win32:RC_FILE = xppc.rc
+
 ### QtSerialPort
 greaterThan(QT_MAJOR_VERSION, 4) {QT += serialport}
 else:

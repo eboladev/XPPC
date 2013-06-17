@@ -49,3 +49,23 @@ QString EmployeeWidget::getCurrentEmployeeName()
 {
     return ui->comboBoxEmployee->currentText();
 }
+
+float EmployeeWidget::getCurrentEmployeeRate() const
+{
+    return employeeModel->getEmployeeRate(getCurrentEmployeeId());
+}
+
+float EmployeeWidget::getCurrentEmployeeJobPercent() const
+{
+    return employeeModel->getEmployeeJobPercent(getCurrentEmployeeId());
+}
+
+float EmployeeWidget::getCurrentEmployeeSalePercent() const
+{
+    return employeeModel->getEmployeeSalePercent(getCurrentEmployeeId());
+}
+
+float EmployeeWidget::getCurrentEmployeeSalaryPerDay() const
+{
+    return employeeModel->getEmployeeSalaryPerDay(getCurrentEmployeeId());
+}
