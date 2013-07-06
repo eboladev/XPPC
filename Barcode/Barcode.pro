@@ -15,11 +15,15 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     ean13.cpp \
-    drawwidget.cpp
+    drawwidget.cpp \
+    code128generator.cpp
 
 HEADERS  += mainwindow.h \
     ean13.h \
-    drawwidget.h
+    drawwidget.h \
+    code128generator.h
 
 FORMS    += mainwindow.ui \
     drawwidget.ui
+
+RESOURCES +=

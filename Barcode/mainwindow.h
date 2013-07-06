@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+class Code128Generator;
+class QPaintEvent;
+
 namespace Ui {
 class MainWindow;
 }
@@ -14,9 +17,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+protected:
+    void paintEvent(QPaintEvent *);
     
 private:
     Ui::MainWindow *ui;
+    Code128Generator* c128g;
 };
 
 #endif // MAINWINDOW_H
