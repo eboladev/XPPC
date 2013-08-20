@@ -176,7 +176,7 @@ void GuardianCore::saveLogFile(QFileInfo fi)
             MimeAttachment *mime = new MimeAttachment(new QFile(fileName));
             archive.open(QIODevice::ReadOnly | QIODevice::Text);
             mime->setContent(archive.readAll());
-            archive.close();
+            archive.close();            
             currentEMail.attachementsList.append(mime);
             QFileInfo filein = QFileInfo(QDir(""),"stackdump.txt");
             qDebug() << filein.filePath() << filein.absoluteFilePath() << filein.exists() << Q_FUNC_INFO;
