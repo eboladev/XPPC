@@ -185,6 +185,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>lineEditCondition</tabstop>
+  <tabstop>lineEditSerial</tabstop>
+  <tabstop>pushButtonAdd</tabstop>
+  <tabstop>textEditProblem</tabstop>
+  <tabstop>treeViewDeviceList</tabstop>
+  <tabstop>pushButtonRemove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

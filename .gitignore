@@ -28,3 +28,4 @@ build/
 *.pro.user.*
 *.autosave
 .qmake.cache
+stackdump.txt

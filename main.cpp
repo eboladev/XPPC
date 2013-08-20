@@ -49,9 +49,6 @@ void myMessageHandler(QtMsgType type, const char *msg)
 
 int main(int argc, char *argv[])
 {
-#ifdef Q_OS_WIN
-    LoadLibraryA("backtrace.dll");
-#endif
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));

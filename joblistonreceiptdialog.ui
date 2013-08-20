@@ -304,12 +304,18 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEditJobName</tabstop>
+  <tabstop>spinBoxPrice</tabstop>
+  <tabstop>groupBoxGuarantee</tabstop>
+  <tabstop>lineEditGuarantee</tabstop>
+  <tabstop>spinBoxQuantity</tabstop>
   <tabstop>pushButtonAddJob</tabstop>
-  <tabstop>pushButtonOK</tabstop>
   <tabstop>pushButtonUpdateJob</tabstop>
-  <tabstop>tableViewJobs</tabstop>
-  <tabstop>pushButtonCancel</tabstop>
+  <tabstop>pushButtonClearField</tabstop>
   <tabstop>pushButtonDeleteJob</tabstop>
+  <tabstop>pushButtonOK</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+  <tabstop>tableViewJobs</tabstop>
  </tabstops>
  <resources/>
  <connections/>

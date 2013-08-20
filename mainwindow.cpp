@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
    // updateTableViewTicket->start(DEFAULTPERIOD);        
     qApp->installEventFilter(this);
-    setWindowTitle(trUtf8("Управление СЦ %0").arg(qApp->applicationVersion()));
+    setWindowTitle(trUtf8("Управление СЦ %0").arg(qApp->applicationVersion()));   
 }
 
 MainWindow::~MainWindow()
@@ -381,6 +381,8 @@ void MainWindow::changePermissions()
         act->setEnabled(permissions);
     ui->actionOnAddReceiptClicked->setEnabled(accessManager->isCanAddTicket());
     ui->actionCloseTicket->setEnabled(accessManager->isCanCloseTicket());
+    ui->actionEmployeeSalaryCalculation->setEnabled(accessManager->isCanEditSalary());
+    ui->actionPenaltyAndBonuses->setEnabled(accessManager->isCanEditSalary());
     ui->actionOnJobListClicked->setEnabled((currentStatus == InWork && accessManager->isUserLoggedIn()) || accessManager->isCanEditJobList());
 }
 
@@ -397,6 +399,7 @@ void MainWindow::onUserLogIn()
     changePermissions();
     if (ui->tabWidget->currentIndex() == 0)
         refreshTicketModel(generateTicketQuery());
+    ui->lineEditSearch->setFocus();
 }
 
 void MainWindow::onFailedToLogin(const QString & error)
@@ -577,7 +580,8 @@ QString MainWindow::generateTicketQuery(const bool &search)
                        "ticket.id DESC %2")
                 .arg(currentStatus == Closed ? "device.price, device.date_givenout, " : "")
                 .arg(QString::number(currentStatus))
-                .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ").append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
+                .arg(ui->queryLimitComboBoxWidget->getLimit() == 0 ? "" : QString("LIMIT ")
+                                                                     .append(QString::number(ui->queryLimitComboBoxWidget->getLimit())));
 }
 
 void MainWindow::initAccessManager()
@@ -751,7 +755,8 @@ void MainWindow::onDBSettingsClicked()
 void MainWindow::onAddTicketClicked()
 {
     updateTableViewTicket->stop();   
-
+    delete jobModel;
+    delete jobModel;
     if (DialogTemplate::executeDialogWithDbCheck<ReceiptManager>(-1,this))
     {
         refreshTicketModel(generateTicketQuery());
@@ -797,8 +802,8 @@ void MainWindow::on_radioButtonClosed_pressed()
 void MainWindow::on_pushButtonSearchClear_clicked()
 {
     ui->lineEditSearch->clear();
-    ui->radioButtonWorking->setChecked(true);
-    currentStatus = InWork;
+   // ui->radioButtonWorking->setChecked(true);
+    //currentStatus = InWork;
     refreshTicketModel(generateTicketQuery());
     //updateTableViewTicket->start(DEFAULTPERIOD);
 }
@@ -808,9 +813,11 @@ void MainWindow::on_pushButtonSearch_clicked()
     if (!ui->lineEditSearch->text().isEmpty())
     {
         updateTableViewTicket->stop();
-        currentStatus = Closed; //temp workaround
-        refreshTicketModel(generateTicketQuery(true));
+       // currentStatus = Closed; //temp workaround
+        refreshTicketModel(generateTicketQuery(!ui->lineEditSearch->text().isEmpty()));
     }
+    else
+        on_pushButtonSearchClear_clicked();
 }
 
 void MainWindow::onShowCommentsTabClicked()
@@ -942,7 +949,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
         return;
     q.prepare("select comment, employee_fio, date, id,ticket_comments.employee_id from ticket_comments "
               "join employee on (employee.employee_id = ticket_comments.employee_id) "
-              "where tdc_relation_id = ?");
+              "where tdc_relation_id = ? order by date DESC");
     q.addBindValue(ticketModel->item(current.row(),0)->data());
     if (!q.exec())
         qDebug() << q.lastError() << q.lastQuery();

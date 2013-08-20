@@ -11,9 +11,9 @@
 #include "miniz.c"
 
 GuardianCore::GuardianCore(QObject *parent) :
-    QObject(parent)
-{
-    previousValue = -1;    
+    QObject(parent),
+    previousValue(-1)
+{    
     if (checkConfig())
     {
         initProcess();

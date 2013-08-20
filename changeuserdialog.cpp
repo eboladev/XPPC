@@ -9,6 +9,8 @@ ChangeUserDialog::ChangeUserDialog(QWidget *parent) :
     connect(ui->pushButtonOk, SIGNAL(clicked()), SLOT(accept()));
     connect(ui->pushButtonCancel, SIGNAL(clicked()), SLOT(reject()));
     connect(ui->pushButtonLogout, SIGNAL(clicked()), SLOT(onLogout()));    
+    ui->pushButtonOk->setDefault(true);
+    ui->pushButtonLogout->setDefault(false);
 #ifdef RELEASE
     ui->lineEditLogin->clear();
     ui->lineEditPassword->clear();
@@ -42,7 +44,9 @@ QString ChangeUserDialog::getPassword()
 
 void ChangeUserDialog::onSuccesfullLogin()
 {
-    ui->stackedWidget->setCurrentIndex(1);    
+    ui->stackedWidget->setCurrentIndex(1);
+    ui->pushButtonOk->setDefault(false);
+    ui->pushButtonLogout->setDefault(true);
 }
 
 void ChangeUserDialog::onLogout()

@@ -23,7 +23,7 @@ int JobItemModel::getJobs(const QVariant &id)
         return -1;
 
     q.prepare("select employee_FIO,job_name,job_quantity,job_price,Job_date,jot_id,job_guarantee from JobOnTicket "
-              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id = ?");
+              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) where tdc_r_id = ? order by job_date DESC");
     q.addBindValue(id);
 
     if (!q.exec())
