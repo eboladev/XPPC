@@ -754,9 +754,7 @@ void MainWindow::onDBSettingsClicked()
 
 void MainWindow::onAddTicketClicked()
 {
-    updateTableViewTicket->stop();   
-    delete jobModel;
-    delete jobModel;
+    updateTableViewTicket->stop();       
     if (DialogTemplate::executeDialogWithDbCheck<ReceiptManager>(-1,this))
     {
         refreshTicketModel(generateTicketQuery());

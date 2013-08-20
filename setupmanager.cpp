@@ -194,7 +194,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
     else
         dbStatus = FBCorrect;
     
-    /*QSqlQuery q(fireBirdSQLDatabase);
+    QSqlQuery q(fireBirdSQLDatabase);
 
     q.exec("select version, changelog, link from application_updates order by id desc limit 1");
 
@@ -213,7 +213,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
             //if (!aud.exec())
                // exit(0);
         }
-    }*/
+    }
 
     qDebug() << Q_FUNC_INFO << fireBirdSQLDatabase.driver()->hasFeature(QSqlDriver::EventNotifications);
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
