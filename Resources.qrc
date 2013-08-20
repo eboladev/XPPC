@@ -26,5 +26,6 @@
         <file>icons/emblem-important_9062.png</file>
         <file>icons/minus.png</file>
         <file>icons/plus.png</file>
+        <file>icons/slowpoke.png</file>
     </qresource>
 </RCC>
