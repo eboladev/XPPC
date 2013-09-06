@@ -14,7 +14,7 @@
 #include <windows.h>
 #endif
 
-const QString appVersion = "0.63";
+const QString appVersion = "0.64";
 
 void myMessageHandler(QtMsgType type, const char *msg)
 {

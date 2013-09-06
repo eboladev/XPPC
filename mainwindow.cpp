@@ -780,8 +780,9 @@ void MainWindow::onAddTicketClicked()
     updateTableViewTicket->stop();
     if (DialogTemplate::executeDialogWithDbCheck<ReceiptManager>(-1,this))
     {
-        refreshTicketModel(generateTicketQuery());
         ui->radioButtonWorking->setChecked(true);
+        currentStatus = InWork;
+        refreshTicketModel(generateTicketQuery());        
     }
     updateTableViewTicket->start(DEFAULTPERIOD);
 }

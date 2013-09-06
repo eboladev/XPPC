@@ -200,6 +200,7 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     if (q.next())
     {
+        qDebug() << Q_FUNC_INFO << q.value(0).toString() << qApp->applicationVersion();
         if (q.value(0).toString() != qApp->applicationVersion())
         {
             ApplicationUpdateDialog aud;
@@ -214,6 +215,8 @@ int SetupManager::openSQLDatabase(QString connectionName)
                // exit(0);
         }
     }
+    else
+        qDebug() << "updates not found";
 
     qDebug() << Q_FUNC_INFO << fireBirdSQLDatabase.driver()->hasFeature(QSqlDriver::EventNotifications);
     if (dbStatus != FBCorrect) fireBirdSQLDatabase.close();    
