@@ -26,7 +26,8 @@ class JobItemModel : public QStandardItemModel, SqlExtension
 public:
     explicit JobItemModel(const QString& dbConnectionString, QObject *parent = 0);
     int getJobs(const QVariant& id);
-    QHash<QString,QList<Job> > getEmployeeJobs(const QVariant& employeeId);
+    QHash<QString,QList<Job> > getEmployeeJobs(const QVariant& employeeId,
+                                               const bool& onlyClosedTickets = false);
     void addJob(const QVariant &ticketId,
                 const QVariant &employeeId,
                 const QString &jobName,

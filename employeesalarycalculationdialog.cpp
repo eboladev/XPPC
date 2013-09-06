@@ -38,6 +38,8 @@ EmployeeSalaryCalculationDialog::EmployeeSalaryCalculationDialog(const QString &
     connect(ui->pushButtonConfirmSalary, SIGNAL(clicked()), SLOT(onConfirmSalaryClicked()));
     connect(ui->lineEditPAB, SIGNAL(textChanged(QString)), SLOT(onPABChanged(QString)));
     connect(ui->pushButtonSPManagement, SIGNAL(clicked()), SLOT(onBonusAndPenaltyManagementClicked()));
+    connect(ui->checkBoxOnlyClosedTickets, SIGNAL(toggled(bool)),
+            SLOT(recalculateJobs(bool)));
 }
 
 EmployeeSalaryCalculationDialog::~EmployeeSalaryCalculationDialog()
@@ -49,7 +51,8 @@ void EmployeeSalaryCalculationDialog::parseJobs()
 {
     initJobsTable();
     getEmployeePenaltyAndBonuses();
-    QHash<QString, QList<Job> > jobsHash = jobs->getEmployeeJobs(employeeWidget->getCurrentEmployeeId());
+    QHash<QString, QList<Job> > jobsHash = jobs->getEmployeeJobs(employeeWidget->getCurrentEmployeeId(),
+                                                                 ui->checkBoxOnlyClosedTickets->checkState() == Qt::Checked);
     QHashIterator<QString, QList<Job> > it(jobsHash);
     while (it.hasNext())
     {
@@ -256,4 +259,9 @@ void EmployeeSalaryCalculationDialog::onBonusAndPenaltyManagementClicked()
 void EmployeeSalaryCalculationDialog::onPABChanged(QString)
 {
     calculateSummarySalary();
+}
+
+void EmployeeSalaryCalculationDialog::recalculateJobs(const bool &state)
+{
+    parseJobs();
 }

@@ -164,6 +164,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxOnlyClosedTickets">
+     <property name="text">
+      <string>Рассчет з\п только по закрытым квитанциям.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBoxWorkDays">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">

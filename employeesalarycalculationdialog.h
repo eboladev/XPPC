@@ -29,6 +29,8 @@ private Q_SLOTS:
     void onBonusAndPenaltyManagementClicked();
     void onPABChanged(QString);
 
+    void recalculateJobs(const bool& state);
+
 private:
     void parseJobs();
     void calculateSummarySalary();

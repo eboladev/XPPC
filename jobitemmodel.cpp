@@ -46,17 +46,32 @@ int JobItemModel::getJobs(const QVariant &id)
     return totalPrice;
 }
 
-QHash<QString, QList<Job> > JobItemModel::getEmployeeJobs(const QVariant &employeeId)
+QHash<QString, QList<Job> > JobItemModel::getEmployeeJobs(const QVariant &employeeId,
+                                                          const bool &onlyClosedTickets)
 {
     QHash<QString,QList<Job> >  result;
     QSqlQuery q;
     if (!getSqlQuery(q))
         return result;
 
-    q.prepare("select job_name,job_quantity,job_price,Job_date,jot_id,tdc_r_id,ticket.ticket_id from JobOnTicket "
-              "join Employee ON (JobOnTicket.Employee_ID=Employee.Employee_ID) "
-              "join ticket ON (jobonticket.tdc_r_id = ticket.id) "
-              "where Employee.Employee_ID = ? and job_payed_datetime IS NULL");
+    QString query = QString(
+                "SELECT "
+                "jobonticket.job_name, "
+                "jobonticket.job_quantity, "
+                "jobonticket.job_price, "
+                "jobonticket.job_date, "
+                "jobonticket.jot_id, "
+                "jobonticket.tdc_r_id, "
+                "ticket.ticket_id "
+                "FROM "
+                "jobonticket "
+                "INNER JOIN employee ON (jobonticket.employee_id = employee.employee_id) "
+                "INNER JOIN ticket ON (jobonticket.tdc_r_id = ticket.id) "
+                "INNER JOIN device ON (ticket.device_id = device.id) "
+                "WHERE "
+                "employee.employee_id = ? and job_payed_datetime IS NULL %0;")
+            .arg(onlyClosedTickets ? "and device.status = 2" : QString());
+    q.prepare(query);
     q.addBindValue(employeeId);
 
     if (!q.exec())
