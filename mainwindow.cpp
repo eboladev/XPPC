@@ -657,6 +657,7 @@ void MainWindow::refreshTicketModel(const QString &query)
             ticket_id->setIcon(QIcon(":/icons/icons/emblem-important_9062.png"));
             ticket_id->setData(ticketGuaranteeId,GuaranteeId);
         }
+
         if (currentStatus==Closed)
         {
             QString devicePrice = q.value(14).toString();
@@ -822,8 +823,8 @@ void MainWindow::on_radioButtonClosed_pressed()
 void MainWindow::on_pushButtonSearchClear_clicked()
 {
     ui->lineEditSearch->clear();
-    // ui->radioButtonWorking->setChecked(true);
-    //currentStatus = InWork;
+    ui->radioButtonWorking->setChecked(true);
+    currentStatus = InWork;
     refreshTicketModel(generateTicketQuery());
     //updateTableViewTicket->start(DEFAULTPERIOD);
 }
