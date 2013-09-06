@@ -57,32 +57,59 @@ MainWindow::MainWindow(QWidget *parent) :
     updateTableViewTicket = new QTimer(this);
     currentStatus = InWork;
 
-    connect(ui->tableViewTicket, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onCustomContextMenuRequested(QPoint)));
-    connect(ui->actionReportSettings, SIGNAL(triggered()), SLOT(onActionReportSettignsClicked()));
-    connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()), SLOT(onAddTicketClicked()));
-    connect(ui->actionOnJobListClicked,SIGNAL(triggered()), SLOT(onJobListClicked()));
-    connect(ui->actionExitMenuClicked,SIGNAL(triggered()), SLOT(close()));
-    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()), SLOT(onDBSettingsClicked()));
-    connect(ui->actionBranchTriggered,SIGNAL(triggered()), SLOT(onActionBranchesTriggered()));
-    connect(ui->actionCloseTicket,SIGNAL(triggered()), SLOT(onCloseTicketClicked()));
-    connect(ui->actionChangeUser, SIGNAL(triggered()), SLOT(onActionChangeUserClicked()));
-    connect(ui->actionUserControl, SIGNAL(triggered()), SLOT(onActionUserManagementClicked()));
-    connect(ui->actionAddProductCategory, SIGNAL(triggered()), SLOT(onActionCategoryProductsClicked()));
-    connect(ui->actionPrintTicket, SIGNAL(triggered()), SLOT(onGenerateTicketReport()));
-    connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()), SLOT(onGenerateJobListReport()));
-    connect(ui->actionCashReceiptPrint, SIGNAL(triggered()), SLOT(onGenerateCashReceiptReport()));
-    connect(ui->actionSMSGatewaysSettings, SIGNAL(triggered()), SLOT(onActionSMSGatewaysSettingsClicked()));
-    connect(ui->action_Qt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    connect(ui->actionDeveloperContact, SIGNAL(triggered()), this, SLOT(onActionDeveloperContactClicked()));
-    connect(ui->tableViewTicket->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
-    connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)), SLOT(onIsClientNotifiedClicked(QModelIndex)));
-    connect(ui->pushButtonSendSms, SIGNAL(clicked()), this, SLOT(onSendTicketNotifySmsClicked()));
-    connect(ui->actionSmsTemplateSettings, SIGNAL(triggered()), this, SLOT(onActionSmsTemplateSettingsClicked()));
-    connect(ui->plainTextEditSmsText, SIGNAL(textChanged()), this, SLOT(onTicketNotificationSmsTextChanged()));
-    connect(ui->lineEditTicketPrice, SIGNAL(textChanged(QString)), this, SLOT(onTicketPriceChanged(QString)));
-    connect(ui->actionBarcodeScannerSettings, SIGNAL(triggered()), this, SLOT(onBarcodeScannerSettingsClicked()));
-    connect(ui->actionEmployeeSalaryCalculation, SIGNAL(triggered()), this, SLOT(onEmployeeSalaryCalculationDialogClicked()));
-    connect(ui->actionPenaltyAndBonuses, SIGNAL(triggered()), this, SLOT(onActionPenaltyAndBonusesClicked()));
+    connect(ui->tableViewTicket, SIGNAL(customContextMenuRequested(QPoint)),
+            SLOT(onCustomContextMenuRequested(QPoint)));
+    connect(ui->actionReportSettings, SIGNAL(triggered()),
+            SLOT(onActionReportSettignsClicked()));
+    connect(ui->actionOnAddReceiptClicked, SIGNAL(triggered()),
+            SLOT(onAddTicketClicked()));
+    connect(ui->actionOnJobListClicked,SIGNAL(triggered()),
+            SLOT(onJobListClicked()));
+    connect(ui->actionExitMenuClicked,SIGNAL(triggered()),
+            SLOT(close()));
+    connect(ui->actionSettingsMenuClicked,SIGNAL(triggered()),
+            SLOT(onDBSettingsClicked()));
+    connect(ui->actionBranchTriggered,SIGNAL(triggered()),
+            SLOT(onActionBranchesTriggered()));
+    connect(ui->actionCloseTicket,SIGNAL(triggered()),
+            SLOT(onCloseTicketClicked()));
+    connect(ui->actionChangeUser, SIGNAL(triggered()),
+            SLOT(onActionChangeUserClicked()));
+    connect(ui->actionUserControl, SIGNAL(triggered()),
+            SLOT(onActionUserManagementClicked()));
+    connect(ui->actionAddProductCategory, SIGNAL(triggered()),
+            SLOT(onActionCategoryProductsClicked()));
+    connect(ui->actionPrintTicket, SIGNAL(triggered()),
+            SLOT(onGenerateTicketReport()));
+    connect(ui->actionJobOnTicketPrint, SIGNAL(triggered()),
+            SLOT(onGenerateJobListReport()));
+    connect(ui->actionCashReceiptPrint, SIGNAL(triggered()),
+            SLOT(onGenerateCashReceiptReport()));
+    connect(ui->actionSMSGatewaysSettings, SIGNAL(triggered()),
+            SLOT(onActionSMSGatewaysSettingsClicked()));
+    connect(ui->action_Qt, SIGNAL(triggered()),
+            qApp, SLOT(aboutQt()));
+    connect(ui->actionDeveloperContact, SIGNAL(triggered()),
+            this, SLOT(onActionDeveloperContactClicked()));
+    connect(ui->tableViewTicket->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(onTableViewTicketSelectionChanged(QModelIndex,QModelIndex)));
+    connect(ui->tableViewTicket, SIGNAL(clicked(QModelIndex)),
+            SLOT(onIsClientNotifiedClicked(QModelIndex)));
+    connect(ui->pushButtonSendSms, SIGNAL(clicked()),
+            this, SLOT(onSendTicketNotifySmsClicked()));
+    connect(ui->actionSmsTemplateSettings, SIGNAL(triggered()),
+            this, SLOT(onActionSmsTemplateSettingsClicked()));
+    connect(ui->plainTextEditSmsText, SIGNAL(textChanged()),
+            this, SLOT(onTicketNotificationSmsTextChanged()));
+    connect(ui->lineEditTicketPrice, SIGNAL(textChanged(QString)),
+            this, SLOT(onTicketPriceChanged(QString)));
+    connect(ui->actionBarcodeScannerSettings, SIGNAL(triggered()),
+            this, SLOT(onBarcodeScannerSettingsClicked()));
+    connect(ui->actionEmployeeSalaryCalculation, SIGNAL(triggered()),
+            this, SLOT(onEmployeeSalaryCalculationDialogClicked()));
+    connect(ui->actionPenaltyAndBonuses, SIGNAL(triggered()),
+            this, SLOT(onActionPenaltyAndBonusesClicked()));
 
     connect(smsManager, SIGNAL(gwBalance(double)),
             this, SLOT(onBalance(double)));
@@ -1033,7 +1060,7 @@ void MainWindow::onTableViewTicketSelectionChanged(QModelIndex current, QModelIn
     //    ui->tabWidgetFastTicketInfo->setTabEnabled(TicketComments,ticketComments->rowCount() != 0);
     ui->groupBoxFastTicketInfo->setVisible(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
     ui->groupBoxFastTicketInfo->setEnabled(jobModel->rowCount() != 0 || ticketComments->rowCount() != 0 || showGuarantee);
-    ui->tabWidgetFastTicketInfo->setCurrentIndex(0);
+    ui->tabWidgetFastTicketInfo->setCurrentIndex(ui->tabWidgetFastTicketInfo->isTabEnabled(0) ? 0 : 1);
 }
 
 void MainWindow::onCustomContextMenuRequested(const QPoint &pos)

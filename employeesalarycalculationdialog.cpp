@@ -263,5 +263,6 @@ void EmployeeSalaryCalculationDialog::onPABChanged(QString)
 
 void EmployeeSalaryCalculationDialog::recalculateJobs(const bool &state)
 {
+    Q_UNUSED(state);
     parseJobs();
 }

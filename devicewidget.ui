@@ -69,6 +69,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="text">
+        <string>б\у</string>
+       </property>
        <property name="placeholderText">
         <string>Состояние</string>
        </property>
