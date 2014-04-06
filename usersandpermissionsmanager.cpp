@@ -15,9 +15,6 @@ UsersAndPermissionsManager::UsersAndPermissionsManager(QObject *parent) :
     currentUserId(-1)
 {
     connect(changeUserDialog, SIGNAL(userLogOut()), SLOT(onUserLogOut()));
-    userActivityTimer = new QTimer(this);
-    connect(userActivityTimer, SIGNAL(timeout()), changeUserDialog, SLOT(onLogout()));
-    connect(userActivityTimer, SIGNAL(timeout()), this, SLOT(showChangeUserDialog()));
 }
 
 Q_GLOBAL_STATIC(UsersAndPermissionsManager, singlton_instance)
@@ -97,15 +94,13 @@ void UsersAndPermissionsManager::onUserLogOut()
 {
     setCurrentUser("");
     setCurrentUserId(-1);
-    setPermissions(0);
-    userActivityTimer->stop();
+    setPermissions(0);    
     emit userLogOut();
 }
 
 void UsersAndPermissionsManager::onUserLogIn()
 {
-    qDebug() << Q_FUNC_INFO << getCurrentUser();
-    accessManager->startUserActivityTimer();
+    qDebug() << Q_FUNC_INFO << getCurrentUser();    
     changeUserDialog->onSuccesfullLogin();
     qDebug() << changeUserDialog->getUser();
     setLastUserLogin(changeUserDialog->getUser());
@@ -178,11 +173,6 @@ void UsersAndPermissionsManager::setLastUserLogin(const QString &value)
 {
     QSettings settings;
     settings.setValue("user/lastLogin", value);
-}
-
-void UsersAndPermissionsManager::startUserActivityTimer()
-{
-    userActivityTimer->start(USERTIMEOUT);
 }
 
 QString UsersAndPermissionsManager::getCurrentUser()

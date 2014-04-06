@@ -79,8 +79,7 @@ private:
     int permissions;
     QString currentUser;
     QString currentUserDisplayName;
-    QVariant currentUserId;
-    QTimer* userActivityTimer;
+    QVariant currentUserId;    
 };
 
 #endif // USERSANDPERMISSIONSMANAGER_H

@@ -49,8 +49,7 @@ private Q_SLOTS:
     void onActionSMSGatewaysSettingsClicked();
     void changePermissions();
     void on_actionDisconnect_triggered();
-    void on_actionConnect_triggered();    
-    bool eventFilter(QObject *, QEvent *);
+    void on_actionConnect_triggered();        
     void serUserDisplayName();
     void onActionDeveloperContactClicked();
     void onActionSmsTemplateSettingsClicked();

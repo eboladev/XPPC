@@ -434,16 +434,6 @@ void MainWindow::onFailedToLogin(const QString & error)
     QMessageBox::information(this, trUtf8("Ошибка!"), error);
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-    Q_UNUSED(obj);
-    if (accessManager->getCurrentUser().isEmpty()&&
-            (event->type() == QEvent::MouseMove ||
-             event->type() == QEvent::KeyPress))
-        accessManager->startUserActivityTimer();
-    return false;
-}
-
 void MainWindow::serUserDisplayName()
 {
     ui->menuCurrentUser->setTitle(accessManager->getCurrentUserDisplayName());
