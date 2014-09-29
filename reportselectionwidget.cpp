@@ -22,9 +22,9 @@ void ReportSelectionWidget::setReportPath(const QString &path)
     ui->lineEditReportPath->setText(path);
 }
 
-void ReportSelectionWidget::setGroupBoxTitle(const QString &text)
+void ReportSelectionWidget::setReportInfo(const QString &text)
 {
-    ui->groupBox->setTitle(text);
+    ui->reportInfo->setPlainText(text);
 }
 
 

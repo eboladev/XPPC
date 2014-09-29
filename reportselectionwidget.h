@@ -15,7 +15,7 @@ public:
     explicit ReportSelectionWidget(QWidget *parent = 0);
     ~ReportSelectionWidget();
     void setReportPath(const QString& path);
-    void setGroupBoxTitle(const QString& text);
+    void setReportInfo(const QString& text);
     QString getReportPath() const;
 
 private Q_SLOTS:

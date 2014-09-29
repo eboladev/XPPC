@@ -19,7 +19,9 @@ public:
 
 private Q_SLOTS:
     void onAccept();
-
+    void onTicketSelect();
+    void onJobSelect();
+    void onCashSelect();
 private:
     void fillReportSelectWidgets();
     
