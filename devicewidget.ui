@@ -57,7 +57,7 @@
      <item>
       <widget class="QLabel" name="labelCondition">
        <property name="text">
-        <string>Состояние:</string>
+        <string>Дефекты:</string>
        </property>
       </widget>
      </item>
@@ -164,7 +164,16 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
        <number>1</number>
       </property>
       <property name="spacing">

@@ -354,6 +354,30 @@ bool ReportsHandler::loadTemplate(WordAutomation &wa, const int &report_type)
 }
 
 #ifdef Q_OS_WIN32
+
+void ReportsHandler::PopulateDeviceInfoData(WordAutomation &wa, QList<DeviceInfo> deviceInfoList, int& currentRow)
+{
+    foreach (DeviceInfo di, deviceInfoList) {
+        wa.insertRows(1);
+        //row number
+        if (wa.selectCellInTableByPos(1,currentRow))
+            wa.insertText(QString::number(currentRow-1));
+        //name
+        if (wa.selectCellInTableByPos(2,currentRow))
+            wa.insertText(di.name);
+        //serial
+        if (wa.selectCellInTableByPos(3,currentRow))
+            wa.insertText(di.serial);
+        //defects
+        if (wa.selectCellInTableByPos(4,currentRow))
+            wa.insertText(di.defect);
+        //problem
+        if (wa.selectCellInTableByPos(5,currentRow))
+            wa.insertText(di.problem);
+        ++currentRow;
+    }
+}
+
 bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_id)
 {        
     QSqlQuery q;
@@ -364,16 +388,14 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
     wa.setQuitFromWordAutomaticaly(true);
 
     qDebug() << wa.isWordPresent() << "word present" << Q_FUNC_INFO;
+
     if (!wa.isWordPresent())
         return false;
 
     q.prepare("SELECT "
               "client.name, "
               "client.phone, "
-              "device.name, "
-              "device.problem, "
-              "device.condition, "
-              "ticket.ticket_id "
+              "ticket.ticket_id "              
               "FROM "
               "client_ticket "
               "INNER JOIN client ON (client_ticket.client_id = client.id) "
@@ -391,47 +413,108 @@ bool ReportsHandler::generateTicketReport(WordAutomation &wa, const int &ticket_
     if (!q.next())
         return false;
     qDebug() << "query have data";
+
     QString clientName(q.value(0).toString());
     QString clientPhone(q.value(1).toString());
-    QString deviceName(q.value(2).toString());
-    QString deviceProblem(q.value(3).toString());
-    QString deviceCondition(q.value(4).toString());
-    QString ticketId(q.value(5).toString());
+    QString ticketId(q.value(2).toString());
+
+    qDebug() << "b4 loading template for Tickets";
 
     if (!loadTemplate(wa,TicketReport))
         return false;
 
     qDebug() << "template loaded";
 
+    QString currentTime = QDateTime::currentDateTime().toString("dd-MM-yyyy");
+
     if (wa.findBookmarkByName("client_name"))
         wa.insertText(clientName);
     if (wa.findBookmarkByName("client_phone"))
         wa.insertText(clientPhone);
-    if (wa.findBookmarkByName("device_condition"))
-        wa.insertText(deviceCondition);
-    if (wa.findBookmarkByName("device_name"))
-        wa.insertText(deviceName);
-    if (wa.findBookmarkByName("device_problem"))
-        wa.insertText(deviceProblem);
     if (wa.findBookmarkByName("ticket_number"))
         wa.insertText(ticketId);
     if (wa.findBookmarkByName("current_date"))
-        wa.insertText(QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+        wa.insertText(currentTime);
 
     if (wa.findBookmarkByName("client_name2"))
         wa.insertText(clientName);
     if (wa.findBookmarkByName("client_phone2"))
         wa.insertText(clientPhone);
-    if (wa.findBookmarkByName("device_condition2"))
-        wa.insertText(deviceCondition);
-    if (wa.findBookmarkByName("device_name2"))
-        wa.insertText(deviceName);
-    if (wa.findBookmarkByName("device_problem2"))
-        wa.insertText(deviceProblem);
     if (wa.findBookmarkByName("ticket_number2"))
         wa.insertText(ticketId);
     if (wa.findBookmarkByName("current_date2"))
-        wa.insertText(QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+        wa.insertText(currentTime);
+
+    QSqlQuery q2;
+
+    if (!SetupManager::instance()->getSqlQueryForDB(q2))
+        return false;
+    qDebug() << "db connect ok" << Q_FUNC_INFO;
+
+    q2.prepare("SELECT "
+              "device.name, "
+              "device.SERIAL,"
+              "device.condition, "//defects
+              "device.problem "
+               "FROM "
+              "client_ticket "
+              "INNER JOIN client ON (client_ticket.client_id = client.id) "
+              "INNER JOIN ticket ON (ticket.ticket_id = client_ticket.id) "
+              "INNER JOIN device ON (device.id = ticket.device_id) "
+              "where ticket.ticket_id = ?");
+    q2.addBindValue(ticketId);
+
+    if (!q2.exec())
+    {
+        qDebug() << q2.lastError() << q2.lastQuery();
+        return false;
+    }
+    qDebug() << "query ok";
+
+    QList<DeviceInfo> deviceInfoList;
+    while (q2.next())
+    {
+        DeviceInfo di;
+        di.name = q2.value(0).toString();
+        di.serial = q2.value(1).toString();
+        di.defect = q2.value(2).toString();
+        di.problem = q2.value(3).toString();
+        deviceInfoList.append(di);
+    }
+
+    if (wa.findTableByName("deviceTable"))
+    {
+        int currentRow = 2;
+        PopulateDeviceInfoData(wa, deviceInfoList, currentRow);
+
+        if (wa.findTableByName("deviceTable2")) {
+            currentRow = 2;
+            PopulateDeviceInfoData(wa, deviceInfoList, currentRow);
+        }
+    } else {
+        if (deviceInfoList.isEmpty()) {
+            qDebug() << "legacy mode failed, device info list is empty" << Q_FUNC_INFO;
+            return false;
+        }
+        DeviceInfo di = deviceInfoList.first();
+        //for legacy reports
+        if (wa.findBookmarkByName("device_condition"))
+            wa.insertText(di.defect);
+        if (wa.findBookmarkByName("device_name"))
+            wa.insertText(di.name);
+        if (wa.findBookmarkByName("device_problem"))
+            wa.insertText(di.problem);
+        if (wa.findBookmarkByName("device_serial"))
+            wa.insertText(di.serial);
+        if (wa.findBookmarkByName("device_condition2"))
+            wa.insertText(di.defect);
+        if (wa.findBookmarkByName("device_name2"))
+            wa.insertText(di.name);
+        if (wa.findBookmarkByName("device_problem2"))
+            wa.insertText(di.problem);
+        if (wa.findBookmarkByName("device_serial2"))
+            wa.insertText(di.serial);
+    }
     return true;
 }
 
