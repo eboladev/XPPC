@@ -57,7 +57,7 @@ Section "xppc" Section1
 	File "xppc\libeay32.dll"
 	File "xppc\libssl32.dll"
 	File "xppc\ssleay32.dll"
-	SetOutPath "$INSTDIR\Reports\"
+	SetOutPath "$INSTDIR\Reports\Examples\"
 	File "xppc\Reports\Examples\jobslist.dotx"	
 	File "xppc\Reports\Examples\cashreceipt.dotx"
 	File "xppc\Reports\Examples\ticket.dotx"
