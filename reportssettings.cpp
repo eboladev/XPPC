@@ -17,6 +17,7 @@ ReportsSettings::ReportsSettings(QWidget *parent) :
     connect(ui->ticketSelect, SIGNAL(clicked()), this, SLOT(onTicketSelect()));
     connect(ui->casjSelect, SIGNAL(clicked()), this, SLOT(onCashSelect()));
     connect(ui->jobSelect, SIGNAL(clicked()), this, SLOT(onJobSelect()));
+    ui->groupBoxBranch->setVisible(false);
     fillReportSelectWidgets();
     adjustSize();
 }
@@ -37,29 +38,23 @@ void ReportsSettings::onAccept()
 
 void ReportsSettings::onTicketSelect()
 {
-    QFileDialog fd;
-    fd.setFileMode(QFileDialog::ExistingFile);
-    fd.setFilter(tr("Шаблоны документов (*.dot *.dotx *.ott)"));
-    if (fd.exec())
-        ui->lineEditReportPath_Ticket->setText(fd.selectedFiles().first());
+    QString res;
+    executeFileDialog(res);
+    ui->lineEditReportPath_Ticket->setText(res);
 }
 
 void ReportsSettings::onJobSelect()
 {
-    QFileDialog fd;
-    fd.setFileMode(QFileDialog::ExistingFile);
-    fd.setFilter(tr("Шаблоны документов (*.dot *.dotx *.ott)"));
-    if (fd.exec())
-        ui->lineEditReportPath_Job->setText(fd.selectedFiles().first());
+    QString res;
+    executeFileDialog(res);
+    ui->lineEditReportPath_Job->setText(res);
 }
 
 void ReportsSettings::onCashSelect()
 {
-    QFileDialog fd;
-    fd.setFileMode(QFileDialog::ExistingFile);
-    fd.setFilter(tr("Шаблоны документов (*.dot *.dotx *.ott)"));
-    if (fd.exec())
-        ui->lineEditReportPath_Cash->setText(fd.selectedFiles().first());
+    QString res;
+    executeFileDialog(res);
+    ui->lineEditReportPath_Cash->setText(res);
 }
 
 void ReportsSettings::fillReportSelectWidgets()
@@ -82,4 +77,14 @@ void ReportsSettings::fillReportSelectWidgets()
     ui->lineEditReportPath_Ticket->setText(s.value("reports/0").toString());
     ui->lineEditReportPath_Job->setText(s.value("reports/1").toString());
     ui->lineEditReportPath_Cash->setText(s.value("reports/2").toString());
+}
+
+bool ReportsSettings::executeFileDialog(QString &result)
+{
+    QFileDialog fd;
+    fd.setFileMode(QFileDialog::ExistingFile);
+    fd.setFilter(tr("Шаблоны документов (*.dot *.dotx *.ott)"));
+    if (!fd.exec()) return false;
+    result = fd.selectedFiles().first();
+    return true;
 }

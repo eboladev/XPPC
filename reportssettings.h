@@ -24,6 +24,7 @@ private Q_SLOTS:
     void onCashSelect();
 private:
     void fillReportSelectWidgets();
+    bool executeFileDialog(QString& result);
     
 private:
     Ui::ReportsSettings *ui;

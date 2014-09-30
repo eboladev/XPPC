@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>782</width>
-    <height>522</height>
+    <width>500</width>
+    <height>413</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,8 +19,8 @@
   <property name="windowTitle">
    <string>Настройки отчетов</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
     <widget class="QGroupBox" name="groupBoxBranch">
      <property name="minimumSize">
       <size>
@@ -75,199 +75,201 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="spacing">
+   <item>
+    <widget class="QToolBox" name="toolBox">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <item>
-      <widget class="QGroupBox" name="groupBoxTicketRep">
-       <property name="title">
-        <string>Квитанции:</string>
+     <widget class="QWidget" name="page">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>482</width>
+        <height>217</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Квитанции</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="flat">
-        <bool>true</bool>
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditReportPath_Ticket"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ticketSelect">
-            <property name="text">
-             <string>Выбрать...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPlainTextEdit" name="TicketRepInfo">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="plainText">
-           <string>Формат: %название_закладки% - комментарий
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEditReportPath_Ticket"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ticketSelect">
+           <property name="text">
+            <string>Выбрать...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="TicketRepInfo">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="plainText">
+          <string>Формат: %название_закладки% - комментарий
 Для дублирующих полей используется цифровой префикс, например client_name2
-client_name - имя клиента
-client_phone - телефон
-ticket_number - номер квитанции
-current_date - дата заполнения квитанции в формате ДД-ММ-ГГГГ
-Таблица информации по устройству, название - deviceTable. 
+client_name,client_name2 - имя клиента
+client_phone,client_phone2 - телефон
+ticket_number,ticket_number2 - номер квитанции
+current_date,current_date2 - дата заполнения квитанции в формате ДД-ММ-ГГГГ
+Таблица информации по устройству, название - deviceTable.
+Для таблиц закладка устанавливается в верхнюю левую клетку. 
 столбцы: №, название, серийный номер, дефекты, неисправность
 в случае если таблица отсутсвует используются следующие закладки: 
-device_condition - дефект
-device_name - название
-device_problem - неисправность
-device_serial - серийный номер</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBoxJobListRep">
-       <property name="title">
-        <string>Акт выполненных работ:</string>
+device_condition,device_condition2 - дефект
+device_name,device_name2 - название
+device_problem,device_problem2 - неисправность
+device_serial,device_serial2 - серийный номер</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>482</width>
+        <height>217</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Акт выполненных работ</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="flat">
-        <bool>true</bool>
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditReportPath_Job"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="jobSelect">
-            <property name="text">
-             <string>Выбрать...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPlainTextEdit" name="JobRepInfo">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="plainText">
-           <string>Таблица jobTable
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEditReportPath_Job"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="jobSelect">
+           <property name="text">
+            <string>Выбрать...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="JobRepInfo">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="plainText">
+          <string>Таблица jobTable
 Столбцы: №, Наименование(описание),Ед. Изм.,Кол -во,Цена,Сумма
 jobs_total - общее количество выполненных работ
 current_date,current_date2 - текущая дата в формате &quot;dd.MM.yyyy&quot;
 total_price - итоговая цена  словами
 client_name,client_name2 - ФИО клиента
 ticket_id,ticket_id2 - номер квитанции</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBoxCashReceiptRep">
-       <property name="title">
-        <string>Приходный кассовый ордер:</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_3">
+      <attribute name="label">
+       <string>Приходный кассовый ордер</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="flat">
-        <bool>true</bool>
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditReportPath_Cash"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="casjSelect">
-            <property name="text">
-             <string>Выбрать...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPlainTextEdit" name="CashRepInfo">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="plainText">
-           <string>client_name,client_name2 - имя клиента
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEditReportPath_Cash"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="casjSelect">
+           <property name="text">
+            <string>Выбрать...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="CashRepInfo">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="plainText">
+          <string>client_name,client_name2 - имя клиента
 price, price2 - цена
 ticket_number,ticket_number2 - номер квитанции
 date - дата в формате &quot;dd.MM.yyyy&quot;
 date2,date3  - дата в формате &quot;dd MMMM yyyy г.&quot;
 price_in_words,price_in_words2 - цена словами</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
-   <item row="2" column="0">
+   <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="pushButtonOk">

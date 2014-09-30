@@ -70,7 +70,7 @@
         </size>
        </property>
        <property name="text">
-        <string>б\у</string>
+        <string>износ 90%</string>
        </property>
        <property name="placeholderText">
         <string>Состояние</string>

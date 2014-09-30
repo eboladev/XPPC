@@ -4,6 +4,7 @@
 #include "branchselectionwidget.h"
 #include "globals.h"
 
+#include <QMessageBox>
 #include <QStandardItemModel>
 
 ReceiptManager::ReceiptManager(const QString dbConnectionsString, const int &tdcr_id, QWidget *parent) :
@@ -57,6 +58,10 @@ void ReceiptManager::clearFields()
 
 void ReceiptManager::onAccept()
 {
+    if (ui->deviceWidget->getDeviceCondition().trimmed().isEmpty()) {
+        QMessageBox::critical(this,trUtf8("Ошибка валидации"),trUtf8("Поле \"Дефекты\" должно быть заполнено."));
+        return;
+    }
     QSqlQuery q;
     if (!getSqlQuery(q))
         return;
