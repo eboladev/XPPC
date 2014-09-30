@@ -200,8 +200,10 @@ int SetupManager::openSQLDatabase(QString connectionName)
 
     if (q.next())
     {
+        float appVersion = qApp->applicationVersion().toFloat();
+        float remoteVersion = q.value(0).toFloat();
         qDebug() << Q_FUNC_INFO << q.value(0).toString() << qApp->applicationVersion();
-        if (q.value(0).toString() != qApp->applicationVersion())
+        if (appVersion < remoteVersion)
         {
             ApplicationUpdateDialog aud;
             aud.setDownloadLink(q.value(2).toString());
